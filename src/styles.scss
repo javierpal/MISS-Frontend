@@ -49,6 +49,7 @@ $dark-theme: mat.define-theme((
   --miss-shadow-sm: #{tokens.$miss-shadow-sm};
   --miss-shadow-md: #{tokens.$miss-shadow-md};
   --miss-shadow-lg: #{tokens.$miss-shadow-lg};
+  --miss-shadow-xl: #{tokens.$miss-shadow-xl};
 }
 
 body.theme-dark {
@@ -66,6 +67,7 @@ body.theme-dark {
   --miss-primary: #{tokens.$miss-primary-dark-theme};
   --miss-primary-light: #{tokens.$miss-accent-dark-theme};
   --miss-accent: #{tokens.$miss-accent-dark-theme};
+  --miss-shadow-xl: #{tokens.$miss-shadow-xl};
 }
 
 // ── Base ────────────────────────────────────────────────────────────────────
@@ -271,6 +273,10 @@ body {
   background: color-mix(in srgb, var(--miss-surface) 92%, transparent);
   border-bottom: 1px solid var(--miss-border);
   color: var(--miss-text);
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
 }
 
 // ── Nav card ────────────────────────────────────────────────────────────────
