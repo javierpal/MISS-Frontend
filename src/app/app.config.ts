@@ -1,6 +1,12 @@
-import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners, EnvironmentProviders } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
+import { ErrorHandler } from '@angular/core';
+import { importProvidersFrom } from '@angular/core';
 
 import { routes } from './app.routes';
 import { ThemeService } from './core/theme/theme.service';
@@ -14,6 +20,17 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: MatIconRegistry,
+      useFactory: (http: HttpClient, sanitizer: DomSanitizer, errorHandler: ErrorHandler) => {
+        const iconRegistry = new MatIconRegistry(http, sanitizer, document, errorHandler);
+        iconRegistry.setDefaultFontSetClass('material-symbols-rounded');
+        return iconRegistry;
+      },
+      deps: [HttpClient, DomSanitizer, ErrorHandler],
+    },
+    importProvidersFrom(MatIconModule),
     ThemeService,
     {
       provide: APP_INITIALIZER,

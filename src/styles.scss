@@ -341,3 +341,40 @@ body {
     background: var(--miss-text-muted);
   }
 }
+
+// ── Shell layout ────────────────────────────────────────────────────────────
+.shell-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.shell-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.shell-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--miss-bg);
+  padding: 1.5rem;
+}
+
+.shell-content__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .shell-body {
+    flex-direction: column;
+  }
+
+  .shell-content {
+    padding: 1rem;
+  }
+}
