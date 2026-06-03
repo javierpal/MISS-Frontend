@@ -24,7 +24,7 @@ export class ThemeService {
     return this.currentTheme === 'dark';
   }
 
-  /** Initialize theme from localStorage or system preference. */
+  /** Initialize theme from localStorage. Defaults to light. */
   init(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -33,15 +33,8 @@ export class ThemeService {
       const stored = storage.getItem(THEME_STORAGE_KEY);
       if (stored === 'dark' || stored === 'light') {
         this.currentTheme = stored;
-      } else {
-        // Respect OS preference
-        if (
-          this.document.defaultView?.matchMedia &&
-          this.document.defaultView.matchMedia('(prefers-color-scheme: dark)').matches
-        ) {
-          this.currentTheme = 'dark';
-        }
       }
+      // Default is 'light' — no OS preference fallback
       this.applyTheme();
     }
   }
