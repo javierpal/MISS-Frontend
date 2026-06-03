@@ -1,7 +1,7 @@
 import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners, EnvironmentProviders } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -10,6 +10,7 @@ import { importProvidersFrom } from '@angular/core';
 
 import { routes } from './app.routes';
 import { ThemeService } from './core/theme/theme.service';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export function themeInitializer(themeService: ThemeService) {
   return () => themeService.init();
@@ -20,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: MatIconRegistry,
       useFactory: (http: HttpClient, sanitizer: DomSanitizer, errorHandler: ErrorHandler) => {

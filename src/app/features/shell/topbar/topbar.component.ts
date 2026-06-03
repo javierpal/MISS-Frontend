@@ -10,8 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
+import { Router } from '@angular/router';
 
 import { ThemeService } from '../../../core/theme/theme.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -47,14 +49,9 @@ import { ThemeService } from '../../../core/theme/theme.service';
       <mat-menu #userMenu="matMenu" xPosition="before">
         <button mat-menu-item disabled>
           <mat-icon>person</mat-icon>
-          <span>Usuario placeholder</span>
+          <span>{{ userName() }}</span>
         </button>
-        <button mat-menu-item disabled>
-          <mat-icon>settings</mat-icon>
-          <span>Configuración</span>
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="onLogout()">
           <mat-icon>logout</mat-icon>
           <span>Cerrar sesión</span>
         </button>
@@ -103,9 +100,20 @@ import { ThemeService } from '../../../core/theme/theme.service';
 })
 export class TopbarComponent {
   protected readonly themeService = inject(ThemeService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   readonly title = input<string>('');
   readonly mobileMenuOpen = input<boolean>(false);
-
   readonly menuToggle = output<boolean>();
+
+  protected userName(): string {
+    const user = this.authService.getUser();
+    return user ? user.name : 'Usuario';
+  }
+
+  protected onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

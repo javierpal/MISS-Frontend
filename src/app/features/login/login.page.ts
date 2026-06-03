@@ -1,14 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { APP_ENVIRONMENT } from '../../core/config/environment.token';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
-  imports: [RouterLink, MatButtonModule, MatCardModule, MatDividerModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+  ],
   template: `
     <main class="page-shell login-page d-flex align-items-center">
       <div class="container-fluid py-5">
@@ -27,12 +40,48 @@ import { APP_ENVIRONMENT } from '../../core/config/environment.token';
                     </div>
                   </div>
                   <div class="col-12 col-md-6 form-panel p-4 p-md-5 d-flex flex-column justify-content-center">
-                    <h2>Login placeholder</h2>
-                    <p>Flujo de autenticación pendiente para próximos tickets.</p>
-                    <div class="d-flex flex-column flex-sm-row gap-3 mt-3">
-                      <a mat-raised-button color="primary" routerLink="/app/dashboard">Entrar al panel</a>
-                      <button mat-stroked-button type="button">Configurar acceso</button>
-                    </div>
+                    <h2>Iniciar sesión</h2>
+                    <p>Ingresa tus credenciales para acceder al panel.</p>
+
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-3">
+                      <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Correo electrónico</mat-label>
+                        <input matInput formControlName="email" type="email" placeholder="usuario@miss.local" />
+                        @if (email?.invalid && email?.touched) {
+                          <mat-error>{{ getErrorMessage('email') }}</mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Contraseña</mat-label>
+                        <input matInput formControlName="password" type="password" placeholder="••••••••" />
+                        @if (password?.invalid && password?.touched) {
+                          <mat-error>{{ getErrorMessage('password') }}</mat-error>
+                        }
+                      </mat-form-field>
+
+                      @if (errorMessage) {
+                        <div class="alert alert-danger mt-3" role="alert">
+                          {{ errorMessage }}
+                        </div>
+                      }
+
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        type="submit"
+                        class="w-100 mt-3"
+                        [disabled]="loading"
+                      >
+                        @if (loading) {
+                          <mat-spinner diameter="20" class="me-2"></mat-spinner>
+                          Iniciando sesión...
+                        } @else {
+                          Entrar al panel
+                        }
+                      </button>
+                    </form>
+
                     <mat-divider class="my-4" />
                     <small>Base visual disponible para conectar auth real.</small>
                   </div>
@@ -52,9 +101,66 @@ import { APP_ENVIRONMENT } from '../../core/config/environment.token';
     h2 { margin: 0 0 .75rem; }
     p, small, span { color: var(--miss-text-muted); }
     .api-box { display: grid; gap: .35rem; padding: 1rem 1.25rem; border: 1px solid var(--miss-border); border-radius: 16px; background: rgba(255,255,255,.5); }
+    .alert { padding: 0.75rem 1rem; border-radius: 8px; background: #fdecea; color: #c62828; font-size: 0.875rem; }
+    mat-form-field { margin-bottom: 1rem; }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+
   protected readonly env = inject(APP_ENVIRONMENT);
+
+  protected loading = false;
+  protected errorMessage = '';
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  get email() {
+    return this.loginForm.get('email');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
+
+  getErrorMessage(controlName: string): string {
+    const control = this.loginForm.get(controlName);
+    if (control?.hasError('required')) return 'Este campo es obligatorio.';
+    if (control?.hasError('email')) return 'Correo electrónico inválido.';
+    if (control?.hasError('minlength')) return 'Mínimo 6 caracteres.';
+    return '';
+  }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const { email, password } = this.loginForm.value;
+    if (!email || !password) return;
+
+    this.authService.login(email, password).subscribe({
+      next: () => {
+        this.router.navigate(['/app/dashboard']);
+      },
+      error: (err: Error) => {
+        this.errorMessage = err.message || 'Error al iniciar sesión';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
+  }
 }
