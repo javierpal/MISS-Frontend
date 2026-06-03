@@ -1,0 +1,35 @@
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+
+@Component({
+  selector: 'app-placeholder-page',
+  imports: [MatCardModule],
+  template: `
+    <section class="row g-4">
+      <div class="col-12">
+        <mat-card class="content-card placeholder-card">
+          <mat-card-content>
+            <span class="status-chip">Base route ready</span>
+            <h1>{{ title() }}</h1>
+            <p>{{ description() }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+  `,
+  styles: [`
+    .placeholder-card mat-card-content { padding: 2rem; }
+    .status-chip {
+      display: inline-flex; margin-bottom: 1rem; padding: 0.35rem 0.75rem; border-radius: 999px;
+      background: rgba(30, 136, 229, 0.14); color: var(--miss-primary); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    h1 { margin: 0 0 0.75rem; font-size: clamp(1.8rem, 3vw, 2.5rem); }
+    p { margin: 0; max-width: 60ch; color: var(--miss-text-muted); line-height: 1.6; }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class PlaceholderPageComponent {
+  readonly title = input.required<string>();
+  readonly description = input.required<string>();
+}
