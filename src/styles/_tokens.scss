@@ -1,0 +1,60 @@
+// MISS Theme Tokens — reusable SCSS variables for the medical/pharmacy UI.
+// These sit alongside Angular Material themes and CSS custom properties.
+
+// ── Colors ──────────────────────────────────────────────────────────────────
+$miss-primary: #1e88e5;
+$miss-primary-light: #64b5f6;
+$miss-primary-dark: #1565c0;
+$miss-accent: #00897b;
+$miss-accent-light: #4db6ac;
+$miss-accent-dark: #00695c;
+
+// ── Status ──────────────────────────────────────────────────────────────────
+$miss-success: #2e7d32;
+$miss-success-light: #66bb6a;
+$miss-warning: #f57f17;
+$miss-warning-light: #fdd835;
+$miss-error: #c62828;
+$miss-error-light: #ef5350;
+$miss-info: #0277bd;
+$miss-info-light: #4fc3f7;
+
+// ── Surfaces ────────────────────────────────────────────────────────────────
+$miss-bg: #f4f7fb;
+$miss-surface: #ffffff;
+$miss-surface-alt: #eef3f9;
+$miss-overlay: rgba(15, 23, 34, 0.4);
+
+// ── Borders ─────────────────────────────────────────────────────────────────
+$miss-border: #d7dfeb;
+$miss-border-light: #e8edf4;
+
+// ── Text ────────────────────────────────────────────────────────────────────
+$miss-text: #17202d;
+$miss-text-secondary: #3d4f63;
+$miss-text-muted: #5f6b7a;
+$miss-text-disabled: #9aa5b4;
+
+// ── Radii ───────────────────────────────────────────────────────────────────
+$miss-radius-sm: 8px;
+$miss-radius-md: 12px;
+$miss-radius-lg: 20px;
+$miss-radius-xl: 28px;
+$miss-radius-pill: 999px;
+
+// ── Shadows ─────────────────────────────────────────────────────────────────
+$miss-shadow-sm: 0 2px 8px rgba(15, 23, 34, 0.06);
+$miss-shadow-md: 0 6px 20px rgba(15, 23, 34, 0.08);
+$miss-shadow-lg: 0 12px 36px rgba(15, 23, 34, 0.10);
+$miss-shadow-xl: 0 20px 60px rgba(15, 23, 34, 0.12);
+
+// ── Dark overrides ──────────────────────────────────────────────────────────
+$miss-bg-dark: #0f1722;
+$miss-surface-dark: #172233;
+$miss-surface-alt-dark: #1f2c40;
+$miss-border-dark: #2b3a51;
+$miss-text-dark: #ebf2ff;
+$miss-text-secondary-dark: #c5d0de;
+$miss-text-muted-dark: #a8b3c4;
+$miss-primary-dark-theme: #6cb6ff;
+$miss-accent-dark-theme: #4db6ac;

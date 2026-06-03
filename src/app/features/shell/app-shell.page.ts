@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { NavigationItem } from '../../core/models/navigation-item.model';
+import { ThemeService } from '../../core/theme/theme.service';
 
 @Component({
   selector: 'app-shell-page',
@@ -17,7 +18,12 @@ import { NavigationItem } from '../../core/models/navigation-item.model';
           <span>Internal panel</span>
         </div>
         <span class="toolbar-spacer"></span>
-        <mat-slide-toggle [checked]="isDarkTheme" (change)="toggleTheme($event.checked)">Dark mode</mat-slide-toggle>
+        <mat-slide-toggle
+          [checked]="themeService.isDark"
+          (change)="themeService.toggle()"
+        >
+          Dark mode
+        </mat-slide-toggle>
       </mat-toolbar>
 
       <div class="container-fluid py-4">
@@ -42,24 +48,18 @@ import { NavigationItem } from '../../core/models/navigation-item.model';
     </main>
   `,
   styles: [`
-    .toolbar {
-      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px);
-      background: color-mix(in srgb, var(--miss-surface) 92%, transparent);
-      border-bottom: 1px solid var(--miss-border);
-      color: var(--miss-text);
-    }
     .brand-block { display: flex; flex-direction: column; line-height: 1.05; }
     .brand-block span { font-size: .8rem; color: var(--miss-text-muted); }
-    .toolbar-spacer { flex: 1 1 auto; }
-    .nav-card { position: sticky; top: 6rem; }
     .nav-title { font-weight: 700; }
-    .nav-link { justify-content: flex-start; }
-    .active-link { border-color: var(--miss-primary) !important; color: var(--miss-primary) !important; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppShellPage {
-  protected isDarkTheme = typeof document !== 'undefined' && document.body.classList.contains('theme-dark');
+export class AppShellPage implements OnInit {
+  protected themeService = inject(ThemeService);
+
+  ngOnInit(): void {
+    // Theme already initialized via APP_INITIALIZER in app.config
+  }
 
   protected readonly navigation: NavigationItem[] = [
     { label: 'Dashboard', path: '/app/dashboard', description: 'Vista general operativa.' },
@@ -72,9 +72,4 @@ export class AppShellPage {
     { label: 'Reports', path: '/app/reports', description: 'Reportes operativos.' },
     { label: 'Users', path: '/app/users', description: 'Usuarios y permisos.' },
   ];
-
-  protected toggleTheme(checked: boolean): void {
-    this.isDarkTheme = checked;
-    document.body.classList.toggle('theme-dark', checked);
-  }
 }

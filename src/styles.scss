@@ -1,3 +1,4 @@
+@use './styles/tokens' as tokens;
 @use '@angular/material' as mat;
 @import 'bootstrap/dist/css/bootstrap-grid.min.css';
 @import 'bootstrap/dist/css/bootstrap-utilities.min.css';
@@ -25,27 +26,49 @@ $dark-theme: mat.define-theme((
 :root {
   @include mat.all-component-themes($light-theme);
   color-scheme: light;
-  --miss-bg: #f4f7fb;
-  --miss-surface: #ffffff;
-  --miss-surface-alt: #eef3f9;
-  --miss-border: #d7dfeb;
-  --miss-text: #17202d;
-  --miss-text-muted: #5f6b7a;
-  --miss-primary: #1e88e5;
+
+  // CSS custom properties (light)
+  --miss-bg: #{tokens.$miss-bg};
+  --miss-surface: #{tokens.$miss-surface};
+  --miss-surface-alt: #{tokens.$miss-surface-alt};
+  --miss-border: #{tokens.$miss-border};
+  --miss-text: #{tokens.$miss-text};
+  --miss-text-secondary: #{tokens.$miss-text-secondary};
+  --miss-text-muted: #{tokens.$miss-text-muted};
+  --miss-primary: #{tokens.$miss-primary};
+  --miss-primary-light: #{tokens.$miss-primary-light};
+  --miss-accent: #{tokens.$miss-accent};
+  --miss-success: #{tokens.$miss-success};
+  --miss-warning: #{tokens.$miss-warning};
+  --miss-error: #{tokens.$miss-error};
+  --miss-info: #{tokens.$miss-info};
+  --miss-radius-sm: #{tokens.$miss-radius-sm};
+  --miss-radius-md: #{tokens.$miss-radius-md};
+  --miss-radius-lg: #{tokens.$miss-radius-lg};
+  --miss-radius-pill: #{tokens.$miss-radius-pill};
+  --miss-shadow-sm: #{tokens.$miss-shadow-sm};
+  --miss-shadow-md: #{tokens.$miss-shadow-md};
+  --miss-shadow-lg: #{tokens.$miss-shadow-lg};
 }
 
 body.theme-dark {
   @include mat.all-component-colors($dark-theme);
   color-scheme: dark;
-  --miss-bg: #0f1722;
-  --miss-surface: #172233;
-  --miss-surface-alt: #1f2c40;
-  --miss-border: #2b3a51;
-  --miss-text: #ebf2ff;
-  --miss-text-muted: #a8b3c4;
-  --miss-primary: #6cb6ff;
+
+  // CSS custom properties (dark)
+  --miss-bg: #{tokens.$miss-bg-dark};
+  --miss-surface: #{tokens.$miss-surface-dark};
+  --miss-surface-alt: #{tokens.$miss-surface-alt-dark};
+  --miss-border: #{tokens.$miss-border-dark};
+  --miss-text: #{tokens.$miss-text-dark};
+  --miss-text-secondary: #{tokens.$miss-text-secondary-dark};
+  --miss-text-muted: #{tokens.$miss-text-muted-dark};
+  --miss-primary: #{tokens.$miss-primary-dark-theme};
+  --miss-primary-light: #{tokens.$miss-accent-dark-theme};
+  --miss-accent: #{tokens.$miss-accent-dark-theme};
 }
 
+// ── Base ────────────────────────────────────────────────────────────────────
 html, body {
   min-height: 100%;
 }
@@ -55,15 +78,259 @@ body {
   font-family: Inter, Roboto, 'Helvetica Neue', sans-serif;
   background: var(--miss-bg);
   color: var(--miss-text);
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 * { box-sizing: border-box; }
 
+// ── Page shell ──────────────────────────────────────────────────────────────
 .page-shell { min-height: 100dvh; }
 
+// ── Cards ───────────────────────────────────────────────────────────────────
 .content-card {
   background: var(--miss-surface) !important;
   border: 1px solid var(--miss-border);
-  border-radius: 20px !important;
-  box-shadow: 0 12px 36px rgba(15, 23, 34, 0.08);
+  border-radius: var(--miss-radius-lg) !important;
+  box-shadow: var(--miss-shadow-lg);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--miss-shadow-xl);
+  }
+}
+
+// ── Buttons ─────────────────────────────────────────────────────────────────
+.miss-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: var(--miss-radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  &.miss-btn-primary {
+    background: var(--miss-primary);
+    color: #fff;
+
+    &:hover {
+      background: #{tokens.$miss-primary-dark};
+      box-shadow: var(--miss-shadow-md);
+    }
+  }
+
+  &.miss-btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--miss-border);
+    color: var(--miss-text);
+
+    &:hover {
+      border-color: var(--miss-primary);
+      color: var(--miss-primary);
+      background: rgba(30, 136, 229, 0.06);
+    }
+  }
+
+  &.miss-btn-danger {
+    background: var(--miss-error);
+    color: #fff;
+
+    &:hover {
+      background: #{darken(tokens.$miss-error, 10%)};
+    }
+  }
+
+  &.miss-btn-sm {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  &.miss-btn-icon {
+    padding: 0.4rem;
+    border-radius: var(--miss-radius-sm);
+  }
+}
+
+// ── Inputs ──────────────────────────────────────────────────────────────────
+.miss-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid var(--miss-border);
+  border-radius: var(--miss-radius-md);
+  background: var(--miss-surface);
+  color: var(--miss-text);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--miss-primary);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+  }
+
+  &::placeholder {
+    color: var(--miss-text-muted);
+  }
+
+  &:disabled {
+    background: var(--miss-surface-alt);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ── Tables ──────────────────────────────────────────────────────────────────
+.miss-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th {
+    background: var(--miss-surface-alt);
+    color: var(--miss-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--miss-border);
+    text-align: left;
+
+    &:first-child { border-radius: var(--miss-radius-md) 0 0 0; }
+    &:last-child { border-radius: 0 var(--miss-radius-md) 0 0; }
+  }
+
+  tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--miss-border);
+    color: var(--miss-text);
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--miss-surface-alt);
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+// ── Status chips ────────────────────────────────────────────────────────────
+.miss-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--miss-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &.miss-chip-success {
+    background: rgba(46, 125, 50, 0.12);
+    color: var(--miss-success);
+  }
+
+  &.miss-chip-warning {
+    background: rgba(245, 127, 23, 0.12);
+    color: var(--miss-warning);
+  }
+
+  &.miss-chip-error {
+    background: rgba(198, 40, 40, 0.12);
+    color: var(--miss-error);
+  }
+
+  &.miss-chip-info {
+    background: rgba(2, 119, 189, 0.12);
+    color: var(--miss-info);
+  }
+
+  &.miss-chip-primary {
+    background: rgba(30, 136, 229, 0.12);
+    color: var(--miss-primary);
+  }
+}
+
+// ── Toolbar ─────────────────────────────────────────────────────────────────
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--miss-surface) 92%, transparent);
+  border-bottom: 1px solid var(--miss-border);
+  color: var(--miss-text);
+}
+
+// ── Nav card ────────────────────────────────────────────────────────────────
+.nav-card {
+  position: sticky;
+  top: 6rem;
+}
+
+.nav-link {
+  justify-content: flex-start;
+  border-radius: var(--miss-radius-md);
+  transition: all 0.2s ease;
+
+  &.active-link {
+    border-color: var(--miss-primary) !important;
+    color: var(--miss-primary) !important;
+    background: rgba(30, 136, 229, 0.08) !important;
+  }
+}
+
+// ── Form elements ───────────────────────────────────────────────────────────
+.miss-form-group {
+  margin-bottom: 1.25rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--miss-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .miss-input {
+    padding: 0.65rem 1rem;
+  }
+}
+
+.miss-error-text {
+  color: var(--miss-error);
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+// ── Scrollbar ───────────────────────────────────────────────────────────────
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--miss-border);
+  border-radius: var(--miss-radius-pill);
+
+  &:hover {
+    background: var(--miss-text-muted);
+  }
 }
