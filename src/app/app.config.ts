@@ -11,6 +11,7 @@ import { importProvidersFrom } from '@angular/core';
 import { routes } from './app.routes';
 import { ThemeService } from './core/theme/theme.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorInterceptor } from './core/api/error.interceptor';
 import { RuntimeConfigService } from './core/config/runtime-config.service';
 
 export function themeInitializer(themeService: ThemeService) {
@@ -26,7 +27,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     {
       provide: MatIconRegistry,
       useFactory: (http: HttpClient, sanitizer: DomSanitizer, errorHandler: ErrorHandler) => {
