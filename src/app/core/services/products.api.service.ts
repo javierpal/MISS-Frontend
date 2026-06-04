@@ -3,48 +3,46 @@ import { Observable } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
 import { PageParams, PaginatedResponse } from '../models/pagination.model';
+import { Product, CreateProductDto, UpdateProductDto, ProductSearchParams } from '../models/product.model';
 
-/**
- * API service for products.
- * Generic type TEntity defaults to unknown. Override when consuming:
- * extend this class and set TEntity to your entity model.
- */
 @Injectable({ providedIn: 'root' })
-export class ProductsApiService<TEntity = unknown> {
+export class ProductsApiService {
   private api = inject(ApiClientService);
 
-  /** List items (paginated) */
-  list(params?: PageParams): Observable<PaginatedResponse<TEntity>> {
-    return this.api.getPaginated<PaginatedResponse<TEntity>>('products', params);
+  list(params?: PageParams): Observable<PaginatedResponse<Product>> {
+    return this.api.getPaginated<PaginatedResponse<Product>>('products', params);
   }
 
-  /** Get all items (unpaginated) */
-  getAll(): Observable<TEntity[]> {
-    return this.api.get<TEntity[]>('products');
+  getAll(): Observable<Product[]> {
+    return this.api.get<Product[]>('products');
   }
 
-  /** Get a single item by ID */
-  getById(id: number | string): Observable<TEntity> {
-    return this.api.get<TEntity>(`products/${id}`);
+  getById(id: number | string): Observable<Product> {
+    return this.api.get<Product>(`products/${id}`);
   }
 
-  /** Create a new item */
-  create(body: unknown): Observable<TEntity> {
-    return this.api.post<TEntity>('products', body);
+  create(body: CreateProductDto): Observable<Product> {
+    return this.api.post<Product>('products', body);
   }
 
-  /** Update an existing item */
-  update(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.put<TEntity>(`products/${id}`, body);
+  update(id: number | string, body: UpdateProductDto): Observable<Product> {
+    return this.api.put<Product>(`products/${id}`, body);
   }
 
-  /** Partial update of an item */
-  patch(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.patch<TEntity>(`products/${id}`, body);
+  patch(id: number | string, body: UpdateProductDto): Observable<Product> {
+    return this.api.patch<Product>(`products/${id}`, body);
   }
 
-  /** Delete an item */
   delete(id: number | string): Observable<void> {
     return this.api.delete<void>(`products/${id}`);
+  }
+
+  search(params: ProductSearchParams): Observable<Product[]> {
+    const query: Record<string, string> = {};
+    if (params.query) query['query'] = params.query;
+    if (params.sku) query['sku'] = params.sku;
+    if (params.barcode) query['barcode'] = params.barcode;
+    if (params.active !== undefined) query['active'] = String(params.active);
+    return this.api.get<Product[]>('products/search', query);
   }
 }

@@ -1,0 +1,227 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  output,
+  input,
+  DestroyRef,
+  inject,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+
+import { Product } from '../../core/models/product.model';
+
+@Component({
+  selector: 'app-products-list',
+  imports: [
+    FormsModule,
+    DecimalPipe,
+    MatCardModule,
+    MatChipsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatIconModule,
+    MatButtonModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <mat-card class="products-list-card">
+      <mat-card-content>
+        <div class="products-list__search-row">
+          <mat-form-field appearance="outline" class="products-list__search-field">
+            <mat-label>Buscar producto</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              type="text"
+              placeholder="Nombre, SKU o código de barras"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
+            />
+            @if (searchTerm() !== '') {
+              <button matIconSuffix matSuffix type="button" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+
+          <span class="products-list__count">{{ totalItems() }} productos</span>
+        </div>
+
+        <div class="products-list__table-wrapper">
+          <table mat-table [dataSource]="dataSource" matSort class="products-list__table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+              <td mat-cell *matCellDef="let product" class="products-list__cell-name">{{ product.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="sku">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
+              <td mat-cell *matCellDef="let product">{{ product.sku }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="barcode">
+              <th mat-header-cell *matHeaderCellDef>Código barras</th>
+              <td mat-cell *matCellDef="let product">{{ product.barcode || '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="categoryName">
+              <th mat-header-cell *matHeaderCellDef>Categoría</th>
+              <td mat-cell *matCellDef="let product">{{ product.categoryName || '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="salePrice">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Precio venta</th>
+              <td mat-cell *matCellDef="let product" class="products-list__cell-price">\${{ product.salePrice | number : '1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="taxProfileName">
+              <th mat-header-cell *matHeaderCellDef>Perfil fiscal</th>
+              <td mat-cell *matCellDef="let product">{{ product.taxProfileName || product.taxProfileId }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="minStock">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock mín.</th>
+              <td mat-cell *matCellDef="let product">{{ product.minStock }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="active">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let product">
+                <span class="status-chip" [class.status-chip--active]="product.active" [class.status-chip--inactive]="!product.active">
+                  {{ product.active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let product" class="products-list__cell-actions">
+                <button mat-icon-button (click)="edit.emit(product)" aria-label="Editar producto">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button [attr.aria-label]="product.active ? 'Desactivar producto' : 'Reactivar producto'" (click)="toggleActive.emit(product)">
+                  <mat-icon>{{ product.active ? 'highlight_off' : 'check_circle' }}</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [colSpan]="displayedColumns.length">
+                <p class="products-list__empty">No se encontraron productos</p>
+              </td>
+            </tr>
+          </table>
+
+          @if (loading()) {
+            <div class="products-list__spinner">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          }
+        </div>
+
+        <mat-paginator [pageSizeOptions]="[10, 25, 50]" [showFirstLastButtons]="true" aria-label="Seleccionar página de productos"></mat-paginator>
+      </mat-card-content>
+    </mat-card>
+  `,
+  styles: [`
+    .products-list-card { margin-bottom: 1rem; }
+    .products-list__search-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; flex-wrap: wrap; }
+    .products-list__search-field { flex: 1; min-width: 200px; }
+    .products-list__count { font-size: 0.85rem; color: var(--miss-text-muted); white-space: nowrap; }
+    .products-list__table-wrapper { position: relative; min-height: 200px; }
+    .products-list__table { width: 100%; }
+    .mat-header-cell { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--miss-text-muted); padding: 12px 16px; }
+    .mat-cell { padding: 12px 16px; font-size: 0.9rem; }
+    .products-list__cell-name { font-weight: 500; color: var(--miss-text); }
+    .products-list__cell-price { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .products-list__cell-actions { white-space: nowrap; }
+    .status-chip { display: inline-flex; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .status-chip--active { background: rgba(46, 125, 50, 0.12); color: var(--miss-success); }
+    .status-chip--inactive { background: rgba(198, 40, 40, 0.12); color: var(--miss-error); }
+    .products-list__empty { text-align: center; color: var(--miss-text-muted); padding: 3rem 0; margin: 0; }
+    .products-list__spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--miss-surface); z-index: 1; }
+    @media (max-width: 960px) {
+      .products-list__search-row { padding: 0.75rem 1rem; }
+      .mat-cell, .mat-header-cell { padding: 8px 12px; font-size: 0.82rem; }
+    }
+  `],
+})
+export class ProductsListComponent {
+  private destroyRef = inject(DestroyRef);
+
+  readonly edit = output<Product>();
+  readonly toggleActive = output<Product>();
+  readonly pageChange = output<{ page: number; pageSize: number }>();
+  readonly search = output<string>();
+
+  readonly displayedColumns: string[] = [
+    'name', 'sku', 'barcode', 'categoryName',
+    'salePrice', 'taxProfileName', 'minStock', 'active', 'actions'
+  ];
+
+  readonly searchTerm = input('');
+  readonly loading = input(false);
+  readonly totalItems = input(0);
+  readonly products = input<Product[]>([], { alias: 'products' });
+
+  dataSource: Product[] = [];
+  private searchSubject = new Subject<string>();
+
+  readonly paginator = inject<MatPaginator | null>(MatPaginator, { optional: true });
+  readonly sort = inject<MatSort | null>(MatSort, { optional: true });
+
+  constructor() {
+    this.setupSearch();
+    this.setupPagination();
+  }
+
+  private setupSearch(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((term: string) => {
+      this.search.emit(term);
+    });
+  }
+
+  private setupPagination(): void {
+    if (this.paginator) {
+      this.paginator.page
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((page) => {
+          this.pageChange.emit({ page: page.pageIndex + 1, pageSize: page.pageSize });
+        });
+    }
+  }
+
+  onSearchChange(term: string): void {
+    this.searchSubject.next(term);
+  }
+
+  clearSearch(): void {
+    this.searchSubject.next('');
+  }
+
+  setProducts(products: Product[]): void {
+    this.dataSource = products;
+  }
+}

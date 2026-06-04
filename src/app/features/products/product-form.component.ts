@@ -1,0 +1,278 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  input,
+  output,
+  OnInit,
+  inject,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { Product, CreateProductDto, UpdateProductDto } from '../../core/models/product.model';
+
+@Component({
+  selector: 'app-product-form',
+  imports: [
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <mat-card class="product-form-card">
+      <mat-card-content>
+        @if (loading()) {
+          <div class="product-form__spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Row 1: Name + SKU -->
+            <div class="product-form__row">
+              <mat-form-field appearance="outline" class="product-form__field-half">
+                <mat-label>Nombre *</mat-label>
+                <input matInput formControlName="name" placeholder="Nombre del producto" />
+                @if (form.get('name')?.hasError('required')) {
+                  <mat-error>El nombre es obligatorio</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="product-form__field-half">
+                <mat-label>SKU *</mat-label>
+                <input matInput formControlName="sku" placeholder="SKU único" />
+                @if (form.get('sku')?.hasError('required')) {
+                  <mat-error>El SKU es obligatorio</mat-error>
+                }
+                @if (form.get('sku')?.hasError('duplicate')) {
+                  <mat-error>SKU ya existe</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Row 2: Barcode + Category -->
+            <div class="product-form__row">
+              <mat-form-field appearance="outline" class="product-form__field-half">
+                <mat-label>Código de barras</mat-label>
+                <input matInput formControlName="barcode" placeholder="Opcional" />
+                @if (form.get('barcode')?.hasError('duplicate')) {
+                  <mat-error>Código de barras duplicado</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="product-form__field-half">
+                <mat-label>Categoría</mat-label>
+                <mat-select formControlName="categoryId">
+                  <mat-option value="">Sin categoría</mat-option>
+                  @for (cat of categories(); track cat.id) {
+                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Row 3: Sale Price + Cost Price + Min Stock -->
+            <div class="product-form__row">
+              <mat-form-field appearance="outline" class="product-form__field-third">
+                <mat-label>Precio venta *</mat-label>
+                <input matInput type="number" formControlName="salePrice" placeholder="0.00" min="0" step="0.01" />
+                <span matTextPrefix>$ </span>
+                @if (form.get('salePrice')?.hasError('required')) {
+                  <mat-error>El precio es obligatorio</mat-error>
+                }
+                @if (form.get('salePrice')?.hasError('min')) {
+                  <mat-error>Debe ser mayor o igual a 0</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="product-form__field-third">
+                <mat-label>Precio costo</mat-label>
+                <input matInput type="number" formControlName="costPrice" placeholder="0.00" min="0" step="0.01" />
+                <span matTextPrefix>$ </span>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="product-form__field-third">
+                <mat-label>Stock mínimo *</mat-label>
+                <input matInput type="number" formControlName="minStock" placeholder="0" min="0" />
+                @if (form.get('minStock')?.hasError('required')) {
+                  <mat-error>El stock mínimo es obligatorio</mat-error>
+                }
+                @if (form.get('minStock')?.hasError('min')) {
+                  <mat-error>Debe ser mayor o igual a 0</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Row 4: Tax Profile (required) -->
+            <div class="product-form__row">
+              <mat-form-field appearance="outline" class="product-form__field-full">
+                <mat-label>Perfil fiscal *</mat-label>
+                <mat-select formControlName="taxProfileId">
+                  @for (profile of taxProfiles(); track profile.id) {
+                    <mat-option [value]="profile.id">{{ profile.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.get('taxProfileId')?.hasError('required')) {
+                  <mat-error>El perfil fiscal es obligatorio</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Actions -->
+            <div class="product-form__actions">
+              <button mat-stroked-button type="button" (click)="cancel.emit()" [disabled]="submitting()">
+                Cancelar
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="form.invalid || submitting()"
+              >
+                @if (submitting()) {
+                  <mat-spinner diameter="18" class="product-form__btn-spinner"></mat-spinner>
+                } @else {
+                  {{ isEdit() ? 'Guardar cambios' : 'Crear producto' }}
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </mat-card-content>
+    </mat-card>
+  `,
+  styles: [`
+    .product-form-card {
+      margin-bottom: 1rem;
+    }
+
+    .product-form__row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .product-form__field-half {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .product-form__field-third {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .product-form__field-full {
+      flex: 1;
+    }
+
+    .product-form__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding-top: 0.5rem;
+    }
+
+    .product-form__spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 0;
+    }
+
+    .product-form__btn-spinner {
+      margin-right: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .product-form__row {
+        flex-direction: column;
+      }
+    }
+  `],
+})
+export class ProductFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
+
+  readonly submit = output<CreateProductDto | UpdateProductDto>();
+  readonly cancel = output<void>();
+
+  readonly product = input<Product | null>(null);
+  readonly loading = input(false);
+  readonly submitting = input(false);
+  readonly isEdit = input(false);
+  readonly categories = input<Array<{ id: number; name: string }>>([]);
+  readonly taxProfiles = input<Array<{ id: number; name: string }>>([]);
+
+  form!: FormGroup;
+
+  ngOnInit(): void {
+    this.form = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      sku: ['', [Validators.required]],
+      barcode: [''],
+      categoryId: [null],
+      salePrice: [0, [Validators.required, Validators.min(0)]],
+      costPrice: [0, [Validators.min(0)]],
+      minStock: [0, [Validators.required, Validators.min(0)]],
+      taxProfileId: [null, [Validators.required]],
+    });
+
+    if (this.isEdit() && this.product()) {
+      this.patchForm(this.product()!);
+    }
+  }
+
+  private patchForm(product: Product): void {
+    this.form.patchValue({
+      name: product.name,
+      sku: product.sku,
+      barcode: product.barcode,
+      categoryId: product.categoryId,
+      salePrice: product.salePrice,
+      costPrice: product.costPrice ?? 0,
+      minStock: product.minStock,
+      taxProfileId: product.taxProfileId,
+    });
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const value = this.form.getRawValue();
+    const payload = {
+      name: value.name,
+      sku: value.sku,
+      barcode: value.barcode || '',
+      categoryId: value.categoryId,
+      salePrice: value.salePrice,
+      costPrice: value.costPrice ?? undefined,
+      minStock: value.minStock,
+      taxProfileId: value.taxProfileId,
+    };
+
+    this.submit.emit(payload);
+  }
+}
