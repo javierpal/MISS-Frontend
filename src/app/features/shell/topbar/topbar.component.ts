@@ -10,8 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
+import { Router } from '@angular/router';
 
 import { ThemeService } from '../../../core/theme/theme.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -40,21 +42,17 @@ import { ThemeService } from '../../../core/theme/theme.service';
         <mat-icon>{{ themeService.isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
 
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario">
+      <button mat-button class="topbar__user-trigger" [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario">
         <mat-icon>account_circle</mat-icon>
+        <span class="topbar__user-name">{{ userName() }}</span>
       </button>
 
       <mat-menu #userMenu="matMenu" xPosition="before">
         <button mat-menu-item disabled>
           <mat-icon>person</mat-icon>
-          <span>Usuario placeholder</span>
+          <span>{{ userName() }}</span>
         </button>
-        <button mat-menu-item disabled>
-          <mat-icon>settings</mat-icon>
-          <span>Configuración</span>
-        </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="onLogout()">
           <mat-icon>logout</mat-icon>
           <span>Cerrar sesión</span>
         </button>
@@ -94,18 +92,48 @@ import { ThemeService } from '../../../core/theme/theme.service';
       flex: 1 1 auto;
     }
 
+    .topbar__user-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--miss-text);
+      margin-left: 0.25rem;
+    }
+
+    .topbar__user-name {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     @media (max-width: 1023px) {
       .topbar__hamburger {
         display: inline-flex;
+      }
+
+      .topbar__user-name {
+        max-width: 110px;
       }
     }
   `],
 })
 export class TopbarComponent {
   protected readonly themeService = inject(ThemeService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   readonly title = input<string>('');
   readonly mobileMenuOpen = input<boolean>(false);
-
   readonly menuToggle = output<boolean>();
+
+  protected userName(): string {
+    const user = this.authService.getUser();
+    return user ? user.name : 'Usuario';
+  }
+
+  protected onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

@@ -1,7 +1,7 @@
 import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners, EnvironmentProviders } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MatIconRegistry, MatIconModule } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -10,9 +10,15 @@ import { importProvidersFrom } from '@angular/core';
 
 import { routes } from './app.routes';
 import { ThemeService } from './core/theme/theme.service';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { RuntimeConfigService } from './core/config/runtime-config.service';
 
 export function themeInitializer(themeService: ThemeService) {
   return () => themeService.init();
+}
+
+export function runtimeConfigInitializer(runtimeConfigService: RuntimeConfigService) {
+  return () => runtimeConfigService.load();
 }
 
 export const appConfig: ApplicationConfig = {
@@ -20,7 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimationsAsync(),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: MatIconRegistry,
       useFactory: (http: HttpClient, sanitizer: DomSanitizer, errorHandler: ErrorHandler) => {
@@ -32,10 +38,17 @@ export const appConfig: ApplicationConfig = {
     },
     importProvidersFrom(MatIconModule),
     ThemeService,
+    RuntimeConfigService,
     {
       provide: APP_INITIALIZER,
       useFactory: themeInitializer,
       deps: [ThemeService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: runtimeConfigInitializer,
+      deps: [RuntimeConfigService],
       multi: true,
     },
   ],
