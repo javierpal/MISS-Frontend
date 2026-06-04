@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { APP_ENVIRONMENT } from '../config/environment.token';
@@ -31,8 +31,8 @@ export class ApiClientService {
     return this.http.get<T>(url, { params });
   }
 
-  /** GET with pagination */
-  getPaginated<T>(endpoint: string, pageParams?: PageParams): Observable<any> {
+  /** GET with pagination — returns PaginatedResponse<T> */
+  getPaginated<T>(endpoint: string, pageParams?: PageParams): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
     let params = new HttpParams();
     if (pageParams) {

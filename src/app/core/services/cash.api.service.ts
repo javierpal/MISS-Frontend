@@ -6,40 +6,41 @@ import { PageParams, PaginatedResponse } from '../models/pagination.model';
 
 /**
  * API service for cash.
- * Replace `any` with the actual entity type once the model is defined in features/.
+ * Generic type TEntity defaults to unknown. Override when consuming:
+ * extend this class and set TEntity to your entity model.
  */
 @Injectable({ providedIn: 'root' })
-export class CashApiService {
+export class CashApiService<TEntity = unknown> {
   private api = inject(ApiClientService);
 
   /** List items (paginated) */
-  list(params?: PageParams): Observable<PaginatedResponse<any>> {
-    return this.api.getPaginated<PaginatedResponse<any>>('cash', params);
+  list(params?: PageParams): Observable<PaginatedResponse<TEntity>> {
+    return this.api.getPaginated<PaginatedResponse<TEntity>>('cash', params);
   }
 
   /** Get all items (unpaginated) */
-  getAll(): Observable<any[]> {
-    return this.api.get<any[]>('cash');
+  getAll(): Observable<TEntity[]> {
+    return this.api.get<TEntity[]>('cash');
   }
 
   /** Get a single item by ID */
-  getById(id: number | string): Observable<any> {
-    return this.api.get<any>(`cash/${id}`);
+  getById(id: number | string): Observable<TEntity> {
+    return this.api.get<TEntity>(`cash/${id}`);
   }
 
   /** Create a new item */
-  create(body: any): Observable<any> {
-    return this.api.post<any>('cash', body);
+  create(body: unknown): Observable<TEntity> {
+    return this.api.post<TEntity>('cash', body);
   }
 
   /** Update an existing item */
-  update(id: number | string, body: any): Observable<any> {
-    return this.api.put<any>(`cash/${id}`, body);
+  update(id: number | string, body: unknown): Observable<TEntity> {
+    return this.api.put<TEntity>(`cash/${id}`, body);
   }
 
   /** Partial update of an item */
-  patch(id: number | string, body: any): Observable<any> {
-    return this.api.patch<any>(`cash/${id}`, body);
+  patch(id: number | string, body: unknown): Observable<TEntity> {
+    return this.api.patch<TEntity>(`cash/${id}`, body);
   }
 
   /** Delete an item */

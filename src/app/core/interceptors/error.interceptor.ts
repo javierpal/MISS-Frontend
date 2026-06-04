@@ -2,17 +2,11 @@ import {
   HttpInterceptorFn,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-
-import { TokenStorageService } from '../services/token-storage.service';
-import { AuthService } from '../services/auth.service';
 
 /** Map HTTP status codes to user-friendly messages */
 const STATUS_MESSAGES: Record<number, string> = {
   400: 'Solicitud incorrecta',
-  401: 'Sesión expirada',
   403: 'No tienes permisos para esta acción',
   404: 'Recurso no encontrado',
   409: 'Conflicto con datos existentes',
@@ -21,51 +15,16 @@ const STATUS_MESSAGES: Record<number, string> = {
   503: 'Servicio temporalmente no disponible',
 };
 
+/**
+ * Error interceptor — solo maneja errores NO-auth (403/404/409/5xx).
+ * El manejo de 401/refresh/retry es responsabilidad exclusiva de authInterceptor.
+ */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const tokenStorage = inject(TokenStorageService);
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Delegar 401 a authInterceptor (no lo manejamos aqui)
       if (error.status === 401) {
-        // Skip refresh loop on auth endpoints
-        if (req.url.includes('/auth/refresh') || req.url.includes('/auth/login')) {
-          authService.logout();
-          router.navigate(['/login']);
-          return throwError(() => error);
-        }
-
-        const refreshToken = tokenStorage.getRefreshToken();
-        if (refreshToken) {
-          return authService.refresh().pipe(
-            catchError(() => {
-              authService.logout();
-              router.navigate(['/login']);
-              return throwError(() => error);
-            }),
-            () => {
-              const newToken = tokenStorage.getAccessToken();
-              if (newToken) {
-                const retryReq = req.clone({
-                  setHeaders: {
-                    Authorization: `Bearer ${newToken}`,
-                  },
-                });
-                return next(retryReq);
-              }
-              return throwError(() => error);
-            }
-          );
-        } else {
-          authService.logout();
-          router.navigate(['/login']);
-          return throwError(() => error);
-        }
-      }
-
-      if (error.status === 403) {
-        // Optionally redirect or show permission denied
+        return throwError(() => error);
       }
 
       const message = STATUS_MESSAGES[error.status]
