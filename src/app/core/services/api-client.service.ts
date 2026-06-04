@@ -72,12 +72,12 @@ export class ApiClientService {
     return this.http.delete<T>(url, { params });
   }
 
-  /** Upload multipart form data */
+  /** Upload multipart form data.
+   * Angular's HttpClient automatically sets the correct Content-Type
+   * with boundary when FormData is passed — do NOT set it manually. */
   upload<T>(endpoint: string, formData: FormData): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    return this.http.post<T>(url, formData, {
-      headers: new HttpHeaders({ 'Content-Type': 'multipart/form-data' }),
-    });
+    return this.http.post<T>(url, formData);
   }
 
   private normalizeParams(params: HttpParams | Record<string, string>): HttpParams {
