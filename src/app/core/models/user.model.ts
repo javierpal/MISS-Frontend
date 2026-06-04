@@ -5,8 +5,17 @@ export interface User {
   role: string;
 }
 
+export interface RawAuthUser {
+  id: string;
+  email: string;
+  role: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  user: RawAuthUser;
 }

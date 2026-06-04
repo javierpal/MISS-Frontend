@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { APP_ENVIRONMENT } from '../../core/config/environment.token';
-import { AuthResponse, User } from '../../core/models/user.model';
+import { AuthResponse, RawAuthUser, User } from '../../core/models/user.model';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -13,13 +13,26 @@ export class AuthService {
   private tokenStorage = inject(TokenStorageService);
   private env = inject(APP_ENVIRONMENT);
 
+  private mapUser(user: RawAuthUser): User {
+    const fullName = user.name?.trim()
+      || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
+      || user.email;
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: fullName,
+      role: user.role,
+    };
+  }
+
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.env.apiBaseUrl}/auth/login`, {
       email,
       password,
     }).pipe(
       tap((response) => {
-        this.tokenStorage.store(response.accessToken, response.refreshToken, response.user);
+        this.tokenStorage.store(response.accessToken, response.refreshToken, this.mapUser(response.user));
       }),
       catchError((error) => {
         const message = error.error?.message || 'Credenciales inválidas';
@@ -38,7 +51,7 @@ export class AuthService {
       refreshToken,
     }).pipe(
       tap((response) => {
-        this.tokenStorage.store(response.accessToken, response.refreshToken, response.user);
+        this.tokenStorage.store(response.accessToken, response.refreshToken, this.mapUser(response.user));
       }),
       catchError(() => {
         this.logout();
@@ -48,7 +61,8 @@ export class AuthService {
   }
 
   getMe(): Observable<User> {
-    return this.http.get<User>(`${this.env.apiBaseUrl}/auth/me`).pipe(
+    return this.http.get<RawAuthUser>(`${this.env.apiBaseUrl}/auth/me`).pipe(
+      map((user) => this.mapUser(user)),
       tap((user) => {
         this.tokenStorage.store(
           this.tokenStorage.getAccessToken()!,

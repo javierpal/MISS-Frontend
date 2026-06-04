@@ -42,8 +42,9 @@ import { AuthService } from '../../../core/services/auth.service';
         <mat-icon>{{ themeService.isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
 
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario">
+      <button mat-button class="topbar__user-trigger" [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario">
         <mat-icon>account_circle</mat-icon>
+        <span class="topbar__user-name">{{ userName() }}</span>
       </button>
 
       <mat-menu #userMenu="matMenu" xPosition="before">
@@ -91,9 +92,28 @@ import { AuthService } from '../../../core/services/auth.service';
       flex: 1 1 auto;
     }
 
+    .topbar__user-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--miss-text);
+      margin-left: 0.25rem;
+    }
+
+    .topbar__user-name {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     @media (max-width: 1023px) {
       .topbar__hamburger {
         display: inline-flex;
+      }
+
+      .topbar__user-name {
+        max-width: 110px;
       }
     }
   `],

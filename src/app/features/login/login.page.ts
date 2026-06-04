@@ -70,12 +70,11 @@ import { AuthService } from '../../core/services/auth.service';
                         mat-raised-button
                         color="primary"
                         type="submit"
-                        class="w-100 mt-3"
+                        class="w-100 mt-3 login-submit"
                         [disabled]="loading"
                       >
                         @if (loading) {
-                          <mat-spinner diameter="20" class="me-2"></mat-spinner>
-                          Iniciando sesión...
+                          <mat-spinner diameter="20"></mat-spinner>
                         } @else {
                           Entrar al panel
                         }
@@ -103,7 +102,13 @@ import { AuthService } from '../../core/services/auth.service';
     .api-box { display: grid; gap: .35rem; padding: 1rem 1.25rem; border: 1px solid var(--miss-border); border-radius: 16px; background: rgba(255,255,255,.5); }
     .alert { padding: 0.75rem 1rem; border-radius: 8px; background: #fdecea; color: #c62828; font-size: 0.875rem; }
     mat-form-field { margin-bottom: 1rem; }
-  `],
+    .login-submit {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
