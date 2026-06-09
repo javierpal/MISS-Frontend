@@ -4,19 +4,20 @@ import {
   OnInit,
   DestroyRef,
   inject,
+  ChangeDetectorRef,
 } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ProductsListComponent } from './products-list.component';
-import { ProductFormComponent } from './product-form.component';
+import { ProductFormDialogComponent } from './product-form-dialog.component';
 import { ProductsApiService } from '../../core/services/products.api.service';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { Product, CreateProductDto, UpdateProductDto } from '../../core/models/product.model';
@@ -41,7 +42,6 @@ interface TaxProfileOption {
     MatSnackBarModule,
     PageHeaderComponent,
     ProductsListComponent,
-    ProductFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -71,32 +71,26 @@ interface TaxProfileOption {
       [pageSize]="pageSize"
       [currentPage]="currentPage"
       [showPaginator]="!isSearchActive"
+      [categories]="categoryNames"
+      [selectedCategory]="selectedCategory"
+      [showInactive]="showInactive"
       (edit)="openEditDialog($event)"
       (toggleActive)="confirmToggleActive($event)"
       (pageChange)="onPageChange($event)"
       (search)="onSearch($event)"
+      (categoryChange)="onCategoryChange($event)"
+      (activeFilterChange)="onActiveFilterChange($event)"
     />
-
-    @if (showForm) {
-      <app-product-form
-        [product]="editingProduct"
-        [loading]="formLoading"
-        [submitting]="formSubmitting"
-        [isEdit]="!!editingProduct"
-        [categories]="categories"
-        [taxProfiles]="taxProfiles"
-        (submit)="onFormSubmit($event)"
-        (cancel)="closeForm()"
-      />
-    }
   `,
   styles: [``],
 })
 export class ProductsPage implements OnInit {
   private destroyRef = inject(DestroyRef);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private productsApi = inject(ProductsApiService);
   private apiClient = inject(ApiClientService);
+  private cdr = inject(ChangeDetectorRef);
 
   products: Product[] = [];
   loadingList = false;
@@ -106,9 +100,11 @@ export class ProductsPage implements OnInit {
   searchTerm = '';
   isSearchActive = false;
 
-  showForm = false;
-  editingProduct: Product | null = null;
-  formLoading = false;
+  // Filter state
+  selectedCategory = '';
+  showInactive = false;
+  categoryNames: string[] = [];
+
   formSubmitting = false;
 
   categories: CategoryOption[] = [];
@@ -130,15 +126,20 @@ export class ProductsPage implements OnInit {
 
   private runSearch(term: string): void {
     this.loadingList = true;
-    this.productsApi.search({ page: 1, limit: this.pageSize, search: term }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    const params: any = { page: 1, limit: this.pageSize, search: term };
+    if (this.selectedCategory) params.category = this.selectedCategory;
+    if (!this.showInactive) params.isActive = 'true';
+    this.productsApi.search({ page: 1, limit: this.pageSize, search: term, category: this.selectedCategory || undefined, isActive: this.showInactive ? undefined : true }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.products = response.items || [];
         this.totalProducts = response.total ?? this.products.length;
         this.loadingList = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.snackBar.open('Error en la búsqueda', 'Cerrar', { duration: 4000 });
         this.loadingList = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -153,26 +154,31 @@ export class ProductsPage implements OnInit {
           this.products = response.items || [];
           this.totalProducts = response.total ?? this.products.length;
           this.loadingList = false;
+          this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err) => {
+          console.error('[ProductsPage] loadProducts error:', err);
           this.snackBar.open('Error al cargar productos', 'Cerrar', { duration: 4000 });
           this.loadingList = false;
+          this.cdr.markForCheck();
         },
       });
   }
 
   private loadDropdownData(): void {
     forkJoin({
-      categories: this.apiClient.get<CategoryOption[]>('product-categories').pipe(catchError(() => of([]))),
-      taxProfiles: this.apiClient.get<TaxProfileOption[]>('tax-profiles').pipe(catchError(() => of([]))),
+      categories: this.apiClient.getAdapted<CategoryOption>('product-categories').pipe(catchError(() => of([]))),
+      taxProfiles: this.apiClient.getAdapted<TaxProfileOption>('tax-profiles').pipe(catchError(() => of([]))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ categories, taxProfiles }) => {
         this.categories = categories;
         this.taxProfiles = taxProfiles;
+        this.categoryNames = categories.map(c => c.name);
         this.metadataWarning = !this.categories.length || !this.taxProfiles.length
           ? 'No se pudieron cargar categorías y/o perfiles fiscales desde la API. El alta/edición puede quedar bloqueado hasta que esos endpoints estén disponibles.'
           : '';
+        this.cdr.markForCheck();
       });
   }
 
@@ -190,35 +196,75 @@ export class ProductsPage implements OnInit {
       this.currentPage = 1;
       this.runSearch(term.trim());
     } else {
+      // Search term cleared — reload with filters if active, otherwise full list
       this.currentPage = 1;
+      if (this.selectedCategory || this.showInactive) {
+        this.runSearch('');
+      } else {
+        this.loadProducts();
+      }
+    }
+  }
+
+  onCategoryChange(category: string): void {
+    this.selectedCategory = category;
+    this.currentPage = 1;
+    if (this.isSearchActive && this.searchTerm.trim()) {
+      this.runSearch(this.searchTerm.trim());
+    } else if (this.selectedCategory) {
+      this.isSearchActive = true;
+      this.runSearch('');
+    } else {
+      this.isSearchActive = false;
+      this.loadProducts();
+    }
+  }
+
+  onActiveFilterChange(showInactive: boolean): void {
+    this.showInactive = showInactive;
+    this.currentPage = 1;
+    if (this.isSearchActive && this.searchTerm.trim()) {
+      this.runSearch(this.searchTerm.trim());
+    } else if (this.selectedCategory) {
+      this.isSearchActive = true;
+      this.runSearch('');
+    } else {
+      this.isSearchActive = false;
       this.loadProducts();
     }
   }
 
   openCreateDialog(): void {
-    this.editingProduct = null;
-    this.showForm = true;
+    const dialogRef = this.dialog.open(ProductFormDialogComponent, {
+      width: '650px',
+      maxWidth: '90vw',
+      data: { categories: this.categories, taxProfiles: this.taxProfiles },
+    });
+
+    dialogRef.componentInstance.submit.subscribe((payload) => this.handleFormSubmit(payload, null, dialogRef));
+    dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
   }
 
   openEditDialog(product: Product): void {
-    this.editingProduct = product;
-    this.showForm = true;
+    const dialogRef = this.dialog.open(ProductFormDialogComponent, {
+      width: '650px',
+      maxWidth: '90vw',
+      data: { product, categories: this.categories, taxProfiles: this.taxProfiles },
+    });
+
+    dialogRef.componentInstance.submit.subscribe((payload) => this.handleFormSubmit(payload, product.id, dialogRef));
+    dialogRef.componentInstance.cancel.subscribe(() => dialogRef.close());
   }
 
-  closeForm(): void {
-    this.showForm = false;
-    this.editingProduct = null;
-  }
-
-  onFormSubmit(payload: CreateProductDto | UpdateProductDto): void {
+  private handleFormSubmit(payload: CreateProductDto | UpdateProductDto, productId: number | string | null, dialogRef: any): void {
     this.formSubmitting = true;
-    if (this.editingProduct) {
-      this.productsApi.update(this.editingProduct.id, payload as UpdateProductDto)
+    if (productId) {
+      this.productsApi.update(productId, payload as UpdateProductDto)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.snackBar.open('Producto actualizado correctamente', 'Cerrar', { duration: 3000 });
-            this.closeForm();
+            dialogRef.close();
             this.refreshCurrentView();
             this.formSubmitting = false;
           },
@@ -228,35 +274,34 @@ export class ProductsPage implements OnInit {
             this.formSubmitting = false;
           },
         });
-      return;
+    } else {
+      this.productsApi.create(payload as CreateProductDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Producto creado correctamente', 'Cerrar', { duration: 3000 });
+            dialogRef.close();
+            this.refreshCurrentView();
+            this.formSubmitting = false;
+          },
+          error: (err) => {
+            const errors = err?.error?.errors || [];
+            let msg = 'Error al crear producto';
+            if (errors.length > 0) msg = errors.map((e: { message?: string }) => e.message).join(', ');
+            else if (err?.error?.message) msg = err.error.message;
+            this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+            this.formSubmitting = false;
+          },
+        });
     }
-
-    this.productsApi.create(payload as CreateProductDto)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Producto creado correctamente', 'Cerrar', { duration: 3000 });
-          this.closeForm();
-          this.refreshCurrentView();
-          this.formSubmitting = false;
-        },
-        error: (err) => {
-          const errors = err?.error?.errors || [];
-          let msg = 'Error al crear producto';
-          if (errors.length > 0) msg = errors.map((e: { message?: string }) => e.message).join(', ');
-          else if (err?.error?.message) msg = err.error.message;
-          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
-          this.formSubmitting = false;
-        },
-      });
   }
 
   confirmToggleActive(product: Product): void {
-    const action = product.active ? 'desactivar' : 'reactivar';
+    const action = product.isActive ? 'desactivar' : 'reactivar';
     const confirmed = window.confirm('¿Estás seguro de que deseas ' + action + ' "' + product.name + '"?');
     if (!confirmed) return;
 
-    this.productsApi.patch(product.id, { active: !product.active })
+    this.productsApi.patch(product.id, { isActive: !product.isActive })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

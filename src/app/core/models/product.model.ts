@@ -1,43 +1,78 @@
 /** Product entity model for MISS-Frontend */
 export interface Product {
-  id: number;
-  name: string;
+  id: string;
   sku: string;
-  barcode: string;
-  categoryId: number | null;
+  barcode?: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  category?: string;
+  categoryId?: string | null;
   categoryName?: string;
-  taxProfileId: number;
-  taxProfileName?: string;
+  brand?: string;
+  manufacturer?: string;
+  presentation?: string;
+  unitOfMeasure?: string;
   salePrice: number;
-  costPrice?: number;
+  purchasePrice?: number | null;
+  taxProfileId: string;
+  taxProfileName?: string;
+  pricesIncludeTax?: boolean;
   minStock: number;
-  currentStock?: number;
+  maxStock?: number | null;
+  requiresPrescription?: boolean;
+  isControlled?: boolean;
+  isActive: boolean;
   active: boolean;
+  currentStock?: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateProductDto {
-  name: string;
   sku: string;
-  barcode: string;
-  categoryId: number | null;
-  taxProfileId: number;
+  name: string;
   salePrice: number;
-  costPrice?: number;
   minStock: number;
+  taxProfileId: string;
+  barcode?: string;
+  slug?: string;
+  description?: string;
+  category?: string;
+  categoryId?: string | null;
+  brand?: string;
+  manufacturer?: string;
+  presentation?: string;
+  unitOfMeasure?: string;
+  purchasePrice?: number;
+  pricesIncludeTax?: boolean;
+  maxStock?: number;
+  requiresPrescription?: boolean;
+  isControlled?: boolean;
+  isActive?: boolean;
 }
 
 export interface UpdateProductDto {
-  name?: string;
   sku?: string;
-  barcode?: string;
-  categoryId?: number | null;
-  taxProfileId?: number;
+  name?: string;
   salePrice?: number;
-  costPrice?: number;
   minStock?: number;
-  active?: boolean;
+  taxProfileId?: string;
+  barcode?: string;
+  slug?: string;
+  description?: string;
+  category?: string;
+  categoryId?: string | null;
+  brand?: string;
+  manufacturer?: string;
+  presentation?: string;
+  unitOfMeasure?: string;
+  purchasePrice?: number;
+  pricesIncludeTax?: boolean;
+  maxStock?: number;
+  requiresPrescription?: boolean;
+  isControlled?: boolean;
+  isActive?: boolean;
 }
 
 /** Real backend query contract for products */

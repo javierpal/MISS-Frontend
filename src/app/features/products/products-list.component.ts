@@ -15,7 +15,9 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { Product } from '../../core/models/product.model';
 
@@ -33,29 +35,68 @@ import { Product } from '../../core/models/product.model';
     MatButtonModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatCheckboxModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-card class="products-list-card">
       <mat-card-content>
+        <!-- Row 1: Search field + Category filter + Active filter -->
         <div class="products-list__search-row">
+          <!-- Search field with search button at the end (suffix) -->
           <mat-form-field appearance="outline" class="products-list__search-field">
             <mat-label>Buscar producto</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input
+              #searchInput
               matInput
               type="text"
               placeholder="Nombre, SKU o código de barras"
-              [ngModel]="searchTerm()"
-              (ngModelChange)="onSearchChange($event)"
+              [value]="searchTerm()"
+              (keyup.enter)="onSearchSubmit(searchInput)"
             />
             @if (searchTerm() !== '') {
-              <button matIconSuffix matSuffix type="button" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+              <button matSuffix mat-icon-button type="button" (click)="clearSearch()" aria-label="Limpiar búsqueda">
                 <mat-icon>close</mat-icon>
+              </button>
+            } @else {
+              <button matSuffix mat-icon-button type="button" (click)="onSearchSubmit(searchInput)" aria-label="Buscar">
+                <mat-icon>search</mat-icon>
               </button>
             }
           </mat-form-field>
 
+          <!-- Category filter -->
+          <mat-form-field appearance="outline" class="products-list__filter-field">
+            <mat-label>Categoría</mat-label>
+            <mat-select [ngModel]="selectedCategory()" (ngModelChange)="onCategoryChange($event)">
+              <mat-option value="">Todas</mat-option>
+              @for (cat of categories(); track cat) {
+                <mat-option [value]="cat">{{ cat }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Active filter -->
+          <div class="products-list__active-filter">
+            <mat-checkbox [checked]="showInactive()" (change)="onActiveFilterChange($event)">
+              Incluir inactivos
+            </mat-checkbox>
+          </div>
+
+          <!-- Clear all filters button -->
+          @if (hasActiveFilters()) {
+            <button mat-stroked-button color="warn" (click)="clearAllFilters()" class="products-list__clear-all-btn">
+              <mat-icon>clear_all</mat-icon>
+              Limpiar filtros
+            </button>
+          }
+        </div>
+
+        <!-- Row 3: Product count -->
+        <div class="products-list__count-row">
           <span class="products-list__count">{{ totalItems() }} productos</span>
         </div>
 
@@ -152,7 +193,17 @@ import { Product } from '../../core/models/product.model';
     .products-list-card { margin-bottom: 1rem; }
     .products-list__search-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; flex-wrap: wrap; }
     .products-list__search-field { flex: 1; min-width: 200px; }
+    .products-list__filter-field { flex: 1; min-width: 150px; max-width: 250px; }
+    .products-list__active-filter { display: flex; align-items: center; white-space: nowrap; }
+    .products-list__clear-all-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      padding: 0 0.75rem;
+    }
     .products-list__count { font-size: 0.85rem; color: var(--miss-text-muted); white-space: nowrap; }
+    .products-list__count-row { padding: 0.25rem 1.25rem 0.75rem; }
     .products-list__table-wrapper { position: relative; min-height: 200px; }
     .products-list__table { width: 100%; }
     .mat-header-cell { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--miss-text-muted); padding: 12px 16px; }
@@ -190,26 +241,45 @@ export class ProductsListComponent {
   readonly currentPage = input(1);
   readonly showPaginator = input(true);
 
-  private searchSubject = new Subject<string>();
+  // Filter inputs
+  readonly categories = input<string[]>([]);
+  readonly selectedCategory = input('');
+  readonly showInactive = input(false);
 
-  constructor() {
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    ).subscribe((term: string) => {
-      this.search.emit(term);
-    });
-  }
-
-  onSearchChange(term: string): void {
-    this.searchSubject.next(term);
+  onSearchSubmit(searchInput: HTMLInputElement): void {
+    const term = searchInput.value;
+    this.search.emit(term);
   }
 
   clearSearch(): void {
     this.search.emit('');
   }
 
+  onCategoryChange(value: string): void {
+    this.categoryChange.emit(value);
+  }
+
+  onActiveFilterChange(event: any): void {
+    const checked = event.checked;
+    this.activeFilterChange.emit(checked);
+  }
+
+  clearAllFilters(): void {
+    this.search.emit('');
+    this.categoryChange.emit('');
+    this.activeFilterChange.emit(false);
+  }
+
+  hasActiveFilters(): boolean {
+    const cat = this.selectedCategory();
+    const inactive = this.showInactive();
+    return !!(cat || inactive);
+  }
+
   onPage(event: PageEvent): void {
     this.pageChange.emit({ page: event.pageIndex + 1, pageSize: event.pageSize });
   }
+
+  readonly categoryChange = output<string>();
+  readonly activeFilterChange = output<boolean>();
 }

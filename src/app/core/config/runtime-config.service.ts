@@ -15,8 +15,9 @@ export class RuntimeConfigService {
 
   async load(): Promise<void> {
     try {
+      const cacheBust = Date.now();
       const runtimeConfig = await firstValueFrom(
-        this.http.get<Partial<RuntimeConfig>>('/app-config.json')
+        this.http.get<Partial<RuntimeConfig>>(`/app-config.json?t=${cacheBust}`)
       );
 
       this.config = {
