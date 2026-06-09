@@ -17,7 +17,6 @@ export interface Product {
   updatedAt: string;
 }
 
-/** DTO for creating a product (server may omit id, timestamps) */
 export interface CreateProductDto {
   name: string;
   sku: string;
@@ -29,7 +28,6 @@ export interface CreateProductDto {
   minStock: number;
 }
 
-/** DTO for updating a product */
 export interface UpdateProductDto {
   name?: string;
   sku?: string;
@@ -42,10 +40,11 @@ export interface UpdateProductDto {
   active?: boolean;
 }
 
-/** Search params for the products search endpoint */
+/** Real backend query contract for products */
 export interface ProductSearchParams {
-  query?: string;
-  sku?: string;
-  barcode?: string;
-  active?: boolean;
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string | number;
+  isActive?: boolean;
 }

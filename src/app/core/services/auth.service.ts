@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { APP_ENVIRONMENT } from '../../core/config/environment.token';
+import { RuntimeConfigService } from '../../core/config/runtime-config.service';
 import { AuthResponse, RawAuthUser, User } from '../../core/models/user.model';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 
@@ -11,7 +11,11 @@ import { TokenStorageService } from '../../core/services/token-storage.service';
 export class AuthService {
   private http = inject(HttpClient);
   private tokenStorage = inject(TokenStorageService);
-  private env = inject(APP_ENVIRONMENT);
+  private runtimeConfig = inject(RuntimeConfigService);
+
+  private get apiBaseUrl(): string {
+    return this.runtimeConfig.value.apiBaseUrl;
+  }
 
   private mapUser(user: RawAuthUser): User {
     const fullName = user.name?.trim()
@@ -27,7 +31,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.env.apiBaseUrl}/auth/login`, {
+    return this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/login`, {
       email,
       password,
     }).pipe(
@@ -47,7 +51,7 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<AuthResponse>(`${this.env.apiBaseUrl}/auth/refresh`, {
+    return this.http.post<AuthResponse>(`${this.apiBaseUrl}/auth/refresh`, {
       refreshToken,
     }).pipe(
       tap((response) => {
@@ -61,7 +65,7 @@ export class AuthService {
   }
 
   getMe(): Observable<User> {
-    return this.http.get<RawAuthUser>(`${this.env.apiBaseUrl}/auth/me`).pipe(
+    return this.http.get<RawAuthUser>(`${this.apiBaseUrl}/auth/me`).pipe(
       map((user) => this.mapUser(user)),
       tap((user) => {
         this.tokenStorage.store(

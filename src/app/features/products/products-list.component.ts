@@ -3,8 +3,6 @@ import {
   Component,
   output,
   input,
-  DestroyRef,
-  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -12,12 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { Product } from '../../core/models/product.model';
@@ -49,7 +46,7 @@ import { Product } from '../../core/models/product.model';
               matInput
               type="text"
               placeholder="Nombre, SKU o código de barras"
-              [(ngModel)]="searchTerm"
+              [ngModel]="searchTerm()"
               (ngModelChange)="onSearchChange($event)"
             />
             @if (searchTerm() !== '') {
@@ -63,14 +60,14 @@ import { Product } from '../../core/models/product.model';
         </div>
 
         <div class="products-list__table-wrapper">
-          <table mat-table [dataSource]="dataSource" matSort class="products-list__table">
+          <table mat-table [dataSource]="products()" class="products-list__table">
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+              <th mat-header-cell *matHeaderCellDef>Nombre</th>
               <td mat-cell *matCellDef="let product" class="products-list__cell-name">{{ product.name }}</td>
             </ng-container>
 
             <ng-container matColumnDef="sku">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
+              <th mat-header-cell *matHeaderCellDef>SKU</th>
               <td mat-cell *matCellDef="let product">{{ product.sku }}</td>
             </ng-container>
 
@@ -85,8 +82,8 @@ import { Product } from '../../core/models/product.model';
             </ng-container>
 
             <ng-container matColumnDef="salePrice">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Precio venta</th>
-              <td mat-cell *matCellDef="let product" class="products-list__cell-price">\${{ product.salePrice | number : '1.2-2' }}</td>
+              <th mat-header-cell *matHeaderCellDef>Precio venta</th>
+              <td mat-cell *matCellDef="let product" class="products-list__cell-price">{{ product.salePrice | number : '1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="taxProfileName">
@@ -95,7 +92,7 @@ import { Product } from '../../core/models/product.model';
             </ng-container>
 
             <ng-container matColumnDef="minStock">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock mín.</th>
+              <th mat-header-cell *matHeaderCellDef>Stock mín.</th>
               <td mat-cell *matCellDef="let product">{{ product.minStock }}</td>
             </ng-container>
 
@@ -137,7 +134,17 @@ import { Product } from '../../core/models/product.model';
           }
         </div>
 
-        <mat-paginator [pageSizeOptions]="[10, 25, 50]" [showFirstLastButtons]="true" aria-label="Seleccionar página de productos"></mat-paginator>
+        @if (showPaginator()) {
+          <mat-paginator
+            [length]="totalItems()"
+            [pageIndex]="currentPage() - 1"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[10, 25, 50]"
+            [showFirstLastButtons]="true"
+            aria-label="Seleccionar página de productos"
+            (page)="onPage($event)"
+          ></mat-paginator>
+        }
       </mat-card-content>
     </mat-card>
   `,
@@ -165,8 +172,6 @@ import { Product } from '../../core/models/product.model';
   `],
 })
 export class ProductsListComponent {
-  private destroyRef = inject(DestroyRef);
-
   readonly edit = output<Product>();
   readonly toggleActive = output<Product>();
   readonly pageChange = output<{ page: number; pageSize: number }>();
@@ -180,37 +185,20 @@ export class ProductsListComponent {
   readonly searchTerm = input('');
   readonly loading = input(false);
   readonly totalItems = input(0);
-  readonly products = input<Product[]>([], { alias: 'products' });
+  readonly products = input<Product[]>([]);
+  readonly pageSize = input(10);
+  readonly currentPage = input(1);
+  readonly showPaginator = input(true);
 
-  dataSource: Product[] = [];
   private searchSubject = new Subject<string>();
 
-  readonly paginator = inject<MatPaginator | null>(MatPaginator, { optional: true });
-  readonly sort = inject<MatSort | null>(MatSort, { optional: true });
-
   constructor() {
-    this.setupSearch();
-    this.setupPagination();
-  }
-
-  private setupSearch(): void {
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
     ).subscribe((term: string) => {
       this.search.emit(term);
     });
-  }
-
-  private setupPagination(): void {
-    if (this.paginator) {
-      this.paginator.page
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((page) => {
-          this.pageChange.emit({ page: page.pageIndex + 1, pageSize: page.pageSize });
-        });
-    }
   }
 
   onSearchChange(term: string): void {
@@ -218,10 +206,10 @@ export class ProductsListComponent {
   }
 
   clearSearch(): void {
-    this.searchSubject.next('');
+    this.search.emit('');
   }
 
-  setProducts(products: Product[]): void {
-    this.dataSource = products;
+  onPage(event: PageEvent): void {
+    this.pageChange.emit({ page: event.pageIndex + 1, pageSize: event.pageSize });
   }
 }

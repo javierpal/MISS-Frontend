@@ -5,6 +5,8 @@ import {
   DestroyRef,
   inject,
 } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -16,6 +18,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 import { ProductsListComponent } from './products-list.component';
 import { ProductFormComponent } from './product-form.component';
 import { ProductsApiService } from '../../core/services/products.api.service';
+import { ApiClientService } from '../../core/services/api-client.service';
 import { Product, CreateProductDto, UpdateProductDto } from '../../core/models/product.model';
 
 interface CategoryOption {
@@ -49,11 +52,25 @@ interface TaxProfileOption {
       </button>
     </app-page-header>
 
+    @if (metadataWarning) {
+      <mat-card class="products-warning-card">
+        <mat-card-content>
+          <div class="products-warning-card__body">
+            <mat-icon color="warn">warning</mat-icon>
+            <span>{{ metadataWarning }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
     <app-products-list
       [searchTerm]="searchTerm"
       [loading]="loadingList"
       [totalItems]="totalProducts"
       [products]="products"
+      [pageSize]="pageSize"
+      [currentPage]="currentPage"
+      [showPaginator]="!isSearchActive"
       (edit)="openEditDialog($event)"
       (toggleActive)="confirmToggleActive($event)"
       (pageChange)="onPageChange($event)"
@@ -73,16 +90,13 @@ interface TaxProfileOption {
       />
     }
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `],
+  styles: [``],
 })
 export class ProductsPage implements OnInit {
   private destroyRef = inject(DestroyRef);
   private snackBar = inject(MatSnackBar);
   private productsApi = inject(ProductsApiService);
+  private apiClient = inject(ApiClientService);
 
   products: Product[] = [];
   loadingList = false;
@@ -90,6 +104,7 @@ export class ProductsPage implements OnInit {
   currentPage = 1;
   pageSize = 10;
   searchTerm = '';
+  isSearchActive = false;
 
   showForm = false;
   editingProduct: Product | null = null;
@@ -98,25 +113,45 @@ export class ProductsPage implements OnInit {
 
   categories: CategoryOption[] = [];
   taxProfiles: TaxProfileOption[] = [];
+  metadataWarning = '';
 
   ngOnInit(): void {
     this.loadProducts();
     this.loadDropdownData();
   }
 
+  private refreshCurrentView(): void {
+    if (this.isSearchActive && this.searchTerm.trim()) {
+      this.runSearch(this.searchTerm.trim());
+      return;
+    }
+    this.loadProducts();
+  }
+
+  private runSearch(term: string): void {
+    this.loadingList = true;
+    this.productsApi.search({ page: 1, limit: this.pageSize, search: term }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.products = response.items || [];
+        this.totalProducts = response.total ?? this.products.length;
+        this.loadingList = false;
+      },
+      error: () => {
+        this.snackBar.open('Error en la búsqueda', 'Cerrar', { duration: 4000 });
+        this.loadingList = false;
+      },
+    });
+  }
+
   private loadProducts(): void {
     this.loadingList = true;
     this.productsApi
-      .list({ page: this.currentPage, pageSize: this.pageSize })
+      .list({ page: this.currentPage, limit: this.pageSize })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.products = response.items || [];
-          this.totalProducts = response.total ?? 0;
-          const listEl = document.querySelector('app-products-list');
-          if (listEl && typeof (listEl as any).setProducts === 'function') {
-            (listEl as any).setProducts(this.products);
-          }
+          this.totalProducts = response.total ?? this.products.length;
           this.loadingList = false;
         },
         error: () => {
@@ -127,11 +162,22 @@ export class ProductsPage implements OnInit {
   }
 
   private loadDropdownData(): void {
-    this.categories = [];
-    this.taxProfiles = [];
+    forkJoin({
+      categories: this.apiClient.get<CategoryOption[]>('product-categories').pipe(catchError(() => of([]))),
+      taxProfiles: this.apiClient.get<TaxProfileOption[]>('tax-profiles').pipe(catchError(() => of([]))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ categories, taxProfiles }) => {
+        this.categories = categories;
+        this.taxProfiles = taxProfiles;
+        this.metadataWarning = !this.categories.length || !this.taxProfiles.length
+          ? 'No se pudieron cargar categorías y/o perfiles fiscales desde la API. El alta/edición puede quedar bloqueado hasta que esos endpoints estén disponibles.'
+          : '';
+      });
   }
 
   onPageChange(params: { page: number; pageSize: number }): void {
+    if (this.isSearchActive) return;
     this.currentPage = params.page;
     this.pageSize = params.pageSize;
     this.loadProducts();
@@ -139,24 +185,12 @@ export class ProductsPage implements OnInit {
 
   onSearch(term: string): void {
     this.searchTerm = term;
-    if (term.trim()) {
-      this.loadingList = true;
-      this.productsApi.search({ query: term }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (results) => {
-          this.products = results;
-          this.totalProducts = results.length;
-          const listEl = document.querySelector('app-products-list');
-          if (listEl && typeof (listEl as any).setProducts === 'function') {
-            (listEl as any).setProducts(this.products);
-          }
-          this.loadingList = false;
-        },
-        error: () => {
-          this.snackBar.open('Error en la búsqueda', 'Cerrar', { duration: 4000 });
-          this.loadingList = false;
-        },
-      });
+    this.isSearchActive = term.trim().length > 0;
+    if (this.isSearchActive) {
+      this.currentPage = 1;
+      this.runSearch(term.trim());
     } else {
+      this.currentPage = 1;
       this.loadProducts();
     }
   }
@@ -178,17 +212,14 @@ export class ProductsPage implements OnInit {
 
   onFormSubmit(payload: CreateProductDto | UpdateProductDto): void {
     this.formSubmitting = true;
-
     if (this.editingProduct) {
-      const updatePayload = payload as UpdateProductDto;
-      this.productsApi
-        .update(this.editingProduct.id, updatePayload)
+      this.productsApi.update(this.editingProduct.id, payload as UpdateProductDto)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.snackBar.open('Producto actualizado correctamente', 'Cerrar', { duration: 3000 });
             this.closeForm();
-            this.loadProducts();
+            this.refreshCurrentView();
             this.formSubmitting = false;
           },
           error: (err) => {
@@ -197,28 +228,27 @@ export class ProductsPage implements OnInit {
             this.formSubmitting = false;
           },
         });
-    } else {
-      const createPayload = payload as CreateProductDto;
-      this.productsApi.create(createPayload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      return;
+    }
+
+    this.productsApi.create(payload as CreateProductDto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: () => {
           this.snackBar.open('Producto creado correctamente', 'Cerrar', { duration: 3000 });
           this.closeForm();
-          this.loadProducts();
+          this.refreshCurrentView();
           this.formSubmitting = false;
         },
         error: (err) => {
           const errors = err?.error?.errors || [];
           let msg = 'Error al crear producto';
-          if (errors.length > 0) {
-            msg = errors.map((e: { message?: string }) => e.message).join(', ');
-          } else if (err?.error?.message) {
-            msg = err.error.message;
-          }
+          if (errors.length > 0) msg = errors.map((e: { message?: string }) => e.message).join(', ');
+          else if (err?.error?.message) msg = err.error.message;
           this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
           this.formSubmitting = false;
         },
       });
-    }
   }
 
   confirmToggleActive(product: Product): void {
@@ -226,16 +256,16 @@ export class ProductsPage implements OnInit {
     const confirmed = window.confirm('¿Estás seguro de que deseas ' + action + ' "' + product.name + '"?');
     if (!confirmed) return;
 
-    this.productsApi.patch(product.id, { active: !product.active }).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => {
-        this.snackBar.open('Producto ' + action + ' correctamente', 'Cerrar', { duration: 3000 });
-        this.loadProducts();
-      },
-      error: () => {
-        this.snackBar.open('Error al ' + action + ' el producto', 'Cerrar', { duration: 4000 });
-      },
-    });
+    this.productsApi.patch(product.id, { active: !product.active })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Producto ' + action + ' correctamente', 'Cerrar', { duration: 3000 });
+          this.refreshCurrentView();
+        },
+        error: () => {
+          this.snackBar.open('Error al ' + action + ' el producto', 'Cerrar', { duration: 4000 });
+        },
+      });
   }
 }

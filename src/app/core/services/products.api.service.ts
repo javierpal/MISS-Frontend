@@ -37,12 +37,13 @@ export class ProductsApiService {
     return this.api.delete<void>(`products/${id}`);
   }
 
-  search(params: ProductSearchParams): Observable<Product[]> {
+  search(params: ProductSearchParams): Observable<PaginatedResponse<Product>> {
     const query: Record<string, string> = {};
-    if (params.query) query['query'] = params.query;
-    if (params.sku) query['sku'] = params.sku;
-    if (params.barcode) query['barcode'] = params.barcode;
-    if (params.active !== undefined) query['active'] = String(params.active);
-    return this.api.get<Product[]>('products/search', query);
+    if (params.page !== undefined) query['page'] = String(params.page);
+    if (params.limit !== undefined) query['limit'] = String(params.limit);
+    if (params.search) query['search'] = params.search;
+    if (params.category !== undefined) query['category'] = String(params.category);
+    if (params.isActive !== undefined) query['isActive'] = String(params.isActive);
+    return this.api.get<PaginatedResponse<Product>>('products/search', query);
   }
 }
