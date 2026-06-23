@@ -220,7 +220,7 @@ export class ProductsPage implements OnInit{
   private handleFormSubmit(payload: CreateProductDto | UpdateProductDto, productId: number | string | null, dialogRef: any): void {
     this.formSubmitting = true;
     if (productId) {
-      this.productsApi.update(productId, payload as UpdateProductDto)
+      this.productsApi.patch(productId, payload as UpdateProductDto)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {

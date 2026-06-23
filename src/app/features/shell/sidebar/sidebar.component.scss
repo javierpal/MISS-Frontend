@@ -50,13 +50,16 @@
 .sidebar__nav {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 0.5rem 0;
 }
 
 .sidebar__link {
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     width: calc(100% - 1rem);
+    min-width: 0;
     padding: 0.6rem 1rem;
     margin: 0.15rem 0.5rem;
     border-radius: var(--miss-radius-md);
@@ -94,9 +97,24 @@
 
 :host(.sidebar--collapsed) .sidebar__label,
 :host(.sidebar--collapsed) .sidebar__brand-text:not(.sidebar__brand-text--icon) {
+    display: none;
     opacity: 0;
     width: 0;
     overflow: hidden;
+}
+
+:host(.sidebar--collapsed) .sidebar__link,
+:host(.sidebar--collapsed) .sidebar__collapse-btn {
+    position: relative;
+    padding-inline: 0;
+}
+
+:host(.sidebar--collapsed) .sidebar__link .sidebar__icon,
+:host(.sidebar--collapsed) .sidebar__collapse-btn mat-icon {
+    position: absolute;
+    left: 50%;
+    margin: 0;
+    transform: translateX(-50%);
 }
 
 .sidebar__footer {
@@ -108,7 +126,9 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    box-sizing: border-box;
     width: calc(100% - 1rem);
+    min-width: 0;
     padding: 0.6rem 1rem;
     margin: 0 0.5rem;
     border-radius: var(--miss-radius-md);
