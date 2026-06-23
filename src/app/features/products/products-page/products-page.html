@@ -1,0 +1,23 @@
+<app-page-header title="Productos" subtitle="Catálogo, altas, edición y segmentación de productos">
+    <button mat-raised-button color="primary" (click)="openCreateDialog()" action>
+        <mat-icon>add</mat-icon>
+        Nuevo producto
+    </button>
+</app-page-header>
+
+@if (metadataWarning) {
+<mat-card class="products-warning-card">
+    <mat-card-content>
+        <div class="products-warning-card__body">
+            <mat-icon color="warn">warning</mat-icon>
+            <span>{{ metadataWarning }}</span>
+        </div>
+    </mat-card-content>
+</mat-card>
+}
+
+<app-products-list [searchTerm]="searchTerm" [loading]="loadingList" [totalItems]="totalProducts" [products]="products"
+    [pageSize]="pageSize" [currentPage]="currentPage" [showPaginator]="!isSearchActive" [categories]="categoryNames"
+    [selectedCategory]="selectedCategory" [showInactive]="showInactive" (edit)="openEditDialog($event)"
+    (toggleActive)="confirmToggleActive($event)" (pageChange)="onPageChange($event)" (search)="onSearch($event)"
+    (categoryChange)="onCategoryChange($event)" (activeFilterChange)="onActiveFilterChange($event)" />

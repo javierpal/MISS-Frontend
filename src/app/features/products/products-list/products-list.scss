@@ -1,0 +1,130 @@
+.products-list-card {
+    margin-bottom: 1rem;
+}
+
+.products-list__search-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    flex-wrap: wrap;
+}
+
+.products-list__search-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.products-list__filter-field {
+    flex: 1;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+.products-list__active-filter {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.products-list__clear-all-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    padding: 0 0.75rem;
+}
+
+.products-list__count {
+    font-size: 0.85rem;
+    color: var(--miss-text-muted);
+    white-space: nowrap;
+}
+
+.products-list__count-row {
+    padding: 0.25rem 1.25rem 0.75rem;
+}
+
+.products-list__table-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+.products-list__table {
+    width: 100%;
+}
+
+.mat-header-cell {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--miss-text-muted);
+    padding: 12px 16px;
+}
+
+.mat-cell {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+}
+
+.products-list__cell-name {
+    font-weight: 500;
+    color: var(--miss-text);
+}
+
+.products-list__cell-price {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.products-list__cell-actions {
+    white-space: nowrap;
+}
+
+.status-chip {
+    display: inline-flex;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-chip--active {
+    background: rgba(46, 125, 50, 0.12);
+    color: var(--miss-success);
+}
+
+.status-chip--inactive {
+    background: rgba(198, 40, 40, 0.12);
+    color: var(--miss-error);
+}
+
+.products-list__empty {
+    text-align: center;
+    color: var(--miss-text-muted);
+    padding: 3rem 0;
+    margin: 0;
+}
+
+.products-list__spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--miss-surface);
+    z-index: 1;
+}
+
+@media (max-width: 960px) {
+    .products-list__search-row {
+        padding: 0.75rem 1rem;
+    }
+
+    .mat-cell,
+    .mat-header-cell {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+    }
+}

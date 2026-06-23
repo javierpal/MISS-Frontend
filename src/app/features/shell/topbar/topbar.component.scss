@@ -1,0 +1,56 @@
+:host {
+    display: block;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    min-height: 56px;
+    background: var(--miss-surface);
+    border-bottom: 1px solid var(--miss-border);
+    z-index: 20;
+}
+
+.topbar__hamburger {
+    display: none;
+    margin-right: 0.5rem;
+}
+
+.topbar__title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--miss-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar__spacer {
+    flex: 1 1 auto;
+}
+
+.topbar__user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--miss-text);
+    margin-left: 0.25rem;
+}
+
+.topbar__user-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+    .topbar__hamburger {
+        display: inline-flex;
+    }
+
+    .topbar__user-name {
+        max-width: 110px;
+    }
+}

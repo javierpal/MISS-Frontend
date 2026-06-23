@@ -1,0 +1,60 @@
+.login-page {
+    background: linear-gradient(180deg, rgba(30, 136, 229, 0.08), transparent 30%), var(--miss-bg);
+}
+
+.hero-panel {
+    background: linear-gradient(135deg, rgba(30, 136, 229, 0.18), rgba(108, 182, 255, 0.08));
+}
+
+.eyebrow {
+    display: inline-flex;
+    margin-bottom: 1rem;
+    color: var(--miss-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.05;
+}
+
+h2 {
+    margin: 0 0 .75rem;
+}
+
+p,
+small,
+span {
+    color: var(--miss-text-muted);
+}
+
+.api-box {
+    display: grid;
+    gap: .35rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--miss-border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .5);
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #fdecea;
+    color: #c62828;
+    font-size: 0.875rem;
+}
+
+mat-form-field {
+    margin-bottom: 1rem;
+}
+
+.login-submit {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
