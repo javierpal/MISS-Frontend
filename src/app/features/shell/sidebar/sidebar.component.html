@@ -1,0 +1,27 @@
+<nav class="sidebar" aria-label="Navegación principal">
+    <div class="sidebar__brand">
+        @if (!collapsed()) {
+        <span class="sidebar__brand-text">MISS</span>
+        } @else {
+        <span class="sidebar__brand-text sidebar__brand-text--icon">M</span>
+        }
+    </div>
+
+    <div class="sidebar__nav">
+        @for (item of navItems(); track item.path) {
+        <a mat-button class="sidebar__link" [routerLink]="item.path" routerLinkActive="sidebar__link--active"
+            [routerLinkActiveOptions]="{ exact: item.path === '/app/dashboard' }" [attr.aria-label]="item.label">
+            <mat-icon class="sidebar__icon">{{ item.icon }}</mat-icon>
+            <span class="sidebar__label">{{ item.label }}</span>
+        </a>
+        }
+    </div>
+
+    <div class="sidebar__footer">
+        <button mat-button class="sidebar__collapse-btn" (click)="collapseChange.emit(!collapsed())"
+            [attr.aria-label]="collapsed() ? 'Expandir sidebar' : 'Colapsar sidebar'">
+            <mat-icon>{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+            <span class="sidebar__label">{{ collapsed() ? 'Expandir' : 'Colapsar' }}</span>
+        </button>
+    </div>
+</nav>

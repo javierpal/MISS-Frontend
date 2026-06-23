@@ -1,0 +1,48 @@
+.product-form-card {
+    margin-bottom: 1rem;
+}
+
+.product-form__row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.product-form__field-half {
+    flex: 1;
+    min-width: 200px;
+}
+
+.product-form__field-third {
+    flex: 1;
+    min-width: 150px;
+}
+
+.product-form__field-full {
+    flex: 1;
+}
+
+.product-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.product-form__spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+}
+
+.product-form__btn-spinner {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .product-form__row {
+        flex-direction: column;
+    }
+}

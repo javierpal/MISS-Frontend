@@ -1,50 +1,92 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
 import { PageParams, PaginatedResponse } from '../models/pagination.model';
+import { Product, CreateProductDto, UpdateProductDto, ProductSearchParams } from '../models/product.model';
 
-/**
- * API service for products.
- * Generic type TEntity defaults to unknown. Override when consuming:
- * extend this class and set TEntity to your entity model.
- */
+/** Map backend product response to frontend model */
+function mapProduct(raw: any): Product {
+  return {
+    id: raw.id,
+    sku: raw.sku,
+    barcode: raw.barcode,
+    name: raw.name,
+    slug: raw.slug,
+    description: raw.description,
+    category: raw.category,
+    categoryId: raw.categoryId,
+    categoryName: raw.categoryName,
+    brand: raw.brand,
+    manufacturer: raw.manufacturer,
+    presentation: raw.presentation,
+    unitOfMeasure: raw.unitOfMeasure,
+    salePrice: Number(raw.salePrice),
+    purchasePrice: raw.purchasePrice !== null && raw.purchasePrice !== undefined ? Number(raw.purchasePrice) : undefined,
+    taxProfileId: raw.taxProfileId,
+    taxProfileName: raw.taxProfileName,
+    pricesIncludeTax: raw.pricesIncludeTax ?? false,
+    minStock: Number(raw.minStock),
+    maxStock: raw.maxStock !== null && raw.maxStock !== undefined ? Number(raw.maxStock) : undefined,
+    requiresPrescription: raw.requiresPrescription ?? false,
+    isControlled: raw.isControlled ?? false,
+    isActive: raw.isActive ?? true,
+    active: raw.isActive ?? true,
+    currentStock: raw.currentStock !== undefined ? Number(raw.currentStock) : undefined,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  };
+}
+
 @Injectable({ providedIn: 'root' })
-export class ProductsApiService<TEntity = unknown> {
+export class ProductsApiService {
   private api = inject(ApiClientService);
 
-  /** List items (paginated) */
-  list(params?: PageParams): Observable<PaginatedResponse<TEntity>> {
-    return this.api.getPaginated<PaginatedResponse<TEntity>>('products', params);
+  list(params?: PageParams): Observable<PaginatedResponse<Product>> {
+    return this.api.getPaginatedAdapted<any>('products', params).pipe(
+      map((response) => ({
+        ...response,
+        items: response.items.map(mapProduct),
+      }))
+    );
   }
 
-  /** Get all items (unpaginated) */
-  getAll(): Observable<TEntity[]> {
-    return this.api.get<TEntity[]>('products');
+  getAll(): Observable<Product[]> {
+    return this.api.get<any[]>('products').pipe(
+      map((items) => items.map(mapProduct))
+    );
   }
 
-  /** Get a single item by ID */
-  getById(id: number | string): Observable<TEntity> {
-    return this.api.get<TEntity>(`products/${id}`);
+  getById(id: number | string): Observable<Product> {
+    return this.api.get<any>(`products/${id}`).pipe(map(mapProduct));
   }
 
-  /** Create a new item */
-  create(body: unknown): Observable<TEntity> {
-    return this.api.post<TEntity>('products', body);
+  create(body: CreateProductDto): Observable<Product> {
+    return this.api.post<any>('products', body).pipe(map(mapProduct));
   }
 
-  /** Update an existing item */
-  update(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.put<TEntity>(`products/${id}`, body);
+  update(id: number | string, body: UpdateProductDto): Observable<Product> {
+    return this.api.put<any>(`products/${id}`, body).pipe(map(mapProduct));
   }
 
-  /** Partial update of an item */
-  patch(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.patch<TEntity>(`products/${id}`, body);
+  patch(id: number | string, body: UpdateProductDto): Observable<Product> {
+    return this.api.patch<any>(`products/${id}`, body).pipe(map(mapProduct));
   }
 
-  /** Delete an item */
   delete(id: number | string): Observable<void> {
     return this.api.delete<void>(`products/${id}`);
+  }
+
+  search(params: ProductSearchParams): Observable<PaginatedResponse<Product>> {
+    const query: Record<string, string> = {};
+    if (params.search) query['search'] = params.search;
+    if (params.category !== undefined && params.category !== null) query['category'] = String(params.category);
+    if (params.isActive !== undefined) query['isActive'] = String(params.isActive);
+    return this.api.getPaginatedAdapted<any>('products', { page: params.page, limit: params.limit }, query).pipe(
+      map((response) => ({
+        ...response,
+        items: response.items.map(mapProduct),
+      }))
+    );
   }
 }

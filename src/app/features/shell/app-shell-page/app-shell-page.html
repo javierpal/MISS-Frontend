@@ -1,0 +1,15 @@
+<div class="shell-layout" [class.shell-layout--sidebar-collapsed]="sidebarCollapsed"
+    [class.shell-layout--mobile-overlay]="mobileMenuOpen">
+    <app-topbar [title]="currentRouteTitle" [mobileMenuOpen]="mobileMenuOpen" (menuToggle)="toggleMobileMenu($event)" />
+
+    <div class="shell-body">
+        <app-sidebar [navItems]="navItems" [collapsed]="sidebarCollapsed" [mobileOpen]="mobileMenuOpen"
+            (collapseChange)="toggleSidebar()" />
+
+        <main class="shell-content">
+            <div class="shell-content__inner">
+                <router-outlet />
+            </div>
+        </main>
+    </div>
+</div>

@@ -1,0 +1,202 @@
+<div mat-dialog-title>
+    {{ isEdit ? 'Editar producto' : 'Nuevo producto' }}
+</div>
+
+<mat-dialog-content>
+    <p class="required-note">* Campos requeridos</p>
+
+    @if (loadingCategories) {
+    <div class="form-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+    } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- SECTION: Información básica -->
+        <h4 class="section-title">Información básica</h4>
+
+        <!-- Row 1: SKU + Name -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>SKU *</mat-label>
+                <input matInput formControlName="sku" placeholder="Código único" />
+                @if (form.get('sku')?.hasError('required')) {
+                <mat-error>El SKU es obligatorio</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Nombre *</mat-label>
+                <input matInput formControlName="name" placeholder="Nombre del producto" />
+                @if (form.get('name')?.hasError('required')) {
+                <mat-error>El nombre es obligatorio</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <!-- Row 2: Barcode + Slug -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Código de barras</mat-label>
+                <input matInput formControlName="barcode" placeholder="Opcional" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Slug</mat-label>
+                <input matInput formControlName="slug" placeholder="URL amigable (opcional)" />
+            </mat-form-field>
+        </div>
+
+        <!-- Row 3: Category + Brand -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Categoría</mat-label>
+                <mat-select formControlName="categoryId">
+                    <mat-option value="">Sin categoría</mat-option>
+                    @for (cat of categories; track cat.id) {
+                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Marca</mat-label>
+                <input matInput formControlName="brand" placeholder="Opcional" />
+            </mat-form-field>
+        </div>
+
+        <!-- Row 4: Manufacturer + Unit of Measure -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Fabricante</mat-label>
+                <input matInput formControlName="manufacturer" placeholder="Opcional" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Presentación</mat-label>
+                <input matInput formControlName="presentation" placeholder="Ej: Caja x12" />
+            </mat-form-field>
+        </div>
+
+        <!-- Row 5: Unit of Measure -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-full">
+                <mat-label>Unidad de medida</mat-label>
+                <input matInput formControlName="unitOfMeasure" placeholder="Ej: unidad, kg, litro" />
+            </mat-form-field>
+        </div>
+
+        <!-- Row 6: Description -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-full">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description" rows="2"
+                    placeholder="Descripción opcional del producto"></textarea>
+            </mat-form-field>
+        </div>
+
+        <!-- SECTION: Precios -->
+        <h4 class="section-title">Precios</h4>
+
+        <!-- Row 7: Sale Price + Purchase Price -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Precio venta *</mat-label>
+                <input matInput type="number" formControlName="salePrice" placeholder="0.00" min="0" step="0.01" />
+                <span matTextPrefix>$ </span>
+                @if (form.get('salePrice')?.hasError('required')) {
+                <mat-error>El precio es obligatorio</mat-error>
+                }
+                @if (form.get('salePrice')?.hasError('min')) {
+                <mat-error>Debe ser mayor o igual a 0</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Precio costo</mat-label>
+                <input matInput type="number" formControlName="purchasePrice" placeholder="0.00" min="0" step="0.01" />
+                <span matTextPrefix>$ </span>
+            </mat-form-field>
+        </div>
+
+        <!-- Row 8: Prices include tax + Tax Profile -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Perfil fiscal *</mat-label>
+                <mat-select formControlName="taxProfileId">
+                    @for (profile of taxProfiles; track profile.id) {
+                    <mat-option [value]="profile.id">{{ profile.name }}</mat-option>
+                    }
+                </mat-select>
+                @if (form.get('taxProfileId')?.hasError('required')) {
+                <mat-error>El perfil fiscal es obligatorio</mat-error>
+                }
+            </mat-form-field>
+
+            <div class="checkbox-wrap">
+                <mat-checkbox formControlName="pricesIncludeTax">
+                    Precio incluye IVA
+                </mat-checkbox>
+            </div>
+        </div>
+
+        <!-- SECTION: Inventario -->
+        <h4 class="section-title">Inventario</h4>
+
+        <!-- Row 9: Min Stock + Max Stock -->
+        <div class="form-row">
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Stock mínimo *</mat-label>
+                <input matInput type="number" formControlName="minStock" placeholder="0" min="0" />
+                @if (form.get('minStock')?.hasError('required')) {
+                <mat-error>El stock mínimo es obligatorio</mat-error>
+                }
+                @if (form.get('minStock')?.hasError('min')) {
+                <mat-error>Debe ser mayor o igual a 0</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+                <mat-label>Stock máximo</mat-label>
+                <input matInput type="number" formControlName="maxStock" placeholder="Opcional" min="0" />
+            </mat-form-field>
+        </div>
+
+        <!-- SECTION: Regulaciones -->
+        <h4 class="section-title">Regulaciones</h4>
+
+        <!-- Row 10: Checkboxes -->
+        <div class="form-row checkboxes-row">
+            <mat-checkbox formControlName="requiresPrescription">
+                Requiere receta médica
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="isControlled">
+                Producto controlado
+            </mat-checkbox>
+        </div>
+
+        <!-- Row 11: Active checkbox -->
+        <div class="form-row">
+            <mat-checkbox formControlName="isActive">
+                Activo
+            </mat-checkbox>
+        </div>
+
+    </form>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-stroked-button type="button" (click)="onCancel()">
+        Cancelar
+    </button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || submitting"
+        (click)="onSubmit()">
+        @if (submitting) {
+        <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+        } @else {
+        {{ isEdit ? 'Guardar cambios' : 'Crear producto' }}
+        }
+    </button>
+</mat-dialog-actions>

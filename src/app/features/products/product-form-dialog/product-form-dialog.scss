@@ -1,0 +1,68 @@
+.required-note {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0 0 1rem 0;
+}
+
+.section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0d47a1;
+    margin: 1.5rem 0 0.8rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #1976d2;
+    letter-spacing: 0.02em;
+}
+
+.section-title:first-child {
+    margin-top: 0;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.field-half {
+    flex: 1;
+    min-width: 180px;
+}
+
+.field-third {
+    flex: 1;
+    min-width: 130px;
+}
+
+.field-full {
+    flex: 1;
+    min-width: 300px;
+}
+
+.checkbox-wrap {
+    display: flex;
+    align-items: center;
+    padding-top: 1.5rem;
+}
+
+.checkboxes-row {
+    align-items: center;
+}
+
+.form-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.btn-spinner {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+}

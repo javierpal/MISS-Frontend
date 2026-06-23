@@ -1,7 +1,7 @@
 /** Pagination parameters for list queries */
 export interface PageParams {
   page?: number;
-  pageSize?: number;
+  limit?: number;
   sort?: string;
   order?: 'asc' | 'desc';
 }
@@ -11,6 +11,6 @@ export interface PaginatedResponse<T> {
   items: T[];
   total: number;
   page: number;
-  pageSize: number;
+  limit: number;
   totalPages: number;
 }
