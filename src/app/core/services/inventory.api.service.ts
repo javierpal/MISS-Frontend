@@ -40,6 +40,6 @@ export class InventoryApiService {
     if (params?.page) query['page'] = String(params.page);
     if (params?.limit) query['limit'] = String(params.limit);
     if (params?.type) query['type'] = params.type;
-    return this.api.get<KardexMovement[]>(`inventory/kardex/${productId}`, undefined, query);
+    return this.api.get<KardexMovement[]>(`inventory/kardex/${productId}`, query);
   }
 }
