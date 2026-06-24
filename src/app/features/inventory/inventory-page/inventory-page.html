@@ -212,15 +212,9 @@
         <!-- Total Stock -->
         <ng-container matColumnDef="totalStock">
           <th mat-header-cell *matHeaderCellDef>Stock</th>
-          <td mat-cell *matCellDef="let row" [class.out-of-stock]="row.isOutOfStock">
+          <td mat-cell *matCellDef="let row">
             {{ row.totalStock }}
           </td>
-        </ng-container>
-
-        <!-- Low Stock Threshold -->
-        <ng-container matColumnDef="lowStockThreshold">
-          <th mat-header-cell *matHeaderCellDef>Mín</th>
-          <td mat-cell *matCellDef="let row">{{ row.lowStockThreshold }}</td>
         </ng-container>
 
         <!-- Status -->
@@ -236,12 +230,6 @@
         <ng-container matColumnDef="lotsActive">
           <th mat-header-cell *matHeaderCellDef>Lotes</th>
           <td mat-cell *matCellDef="let row">{{ row.lotsActive }}</td>
-        </ng-container>
-
-        <!-- Next Expiry -->
-        <ng-container matColumnDef="nextExpiry">
-          <th mat-header-cell *matHeaderCellDef>Próx. Venc.</th>
-          <td mat-cell *matCellDef="let row">{{ row.nextExpiry | date:'shortDate' }}</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

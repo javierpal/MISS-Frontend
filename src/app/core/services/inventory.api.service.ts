@@ -1,14 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
 import {
   InventoryStock,
+  ProductStockResponse,
   CreateInventoryEntryDto,
   CreateInventoryAdjustmentDto,
   KardexMovement,
   KardexQueryParams,
 } from '../models/inventory.model';
+import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryApiService {
@@ -16,12 +18,14 @@ export class InventoryApiService {
 
   /** Get all stock records */
   getStock(): Observable<InventoryStock[]> {
-    return this.api.get<InventoryStock[]>('inventory/stock');
+    return this.api.getAdapted<InventoryStock>('inventory/stock');
   }
 
   /** Get stock for a specific product */
-  getStockByProduct(productId: string | number): Observable<InventoryStock> {
-    return this.api.get<InventoryStock>(`inventory/stock/${productId}`);
+  getStockByProduct(productId: string | number): Observable<ProductStockResponse> {
+    return this.api.get<ApiResponse<ProductStockResponse>>(`inventory/stock/${productId}`).pipe(
+      map((res: ApiResponse<ProductStockResponse>) => res.data!),
+    );
   }
 
   /** Create an inventory entry (stock increase) */

@@ -8,17 +8,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock, CreateInventoryEntryDto, CreateInventoryAdjustmentDto, KardexMovement } from '../../../core/models/inventory.model';
+import { InventoryStock, ProductStockResponse, CreateInventoryEntryDto, CreateInventoryAdjustmentDto, KardexMovement } from '../../../core/models/inventory.model';
 
 interface StockRow {
   productName: string;
   sku: string;
   totalStock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-  isOutOfStock: boolean;
   lotsActive: number;
-  nextExpiry?: string;
 }
 
 @Component({
@@ -32,8 +28,8 @@ interface StockRow {
 })
 export class InventoryPage implements OnInit {
   displayedColumns: string[] = [
-    'productName', 'sku', 'totalStock', 'lowStockThreshold',
-    'status', 'lotsActive', 'nextExpiry'
+    'productName', 'sku', 'totalStock',
+    'status', 'lotsActive'
   ];
   stockData: StockRow[] = [];
   loading = false;
@@ -89,14 +85,10 @@ export class InventoryPage implements OnInit {
     this.inventoryApi.getStock().subscribe({
       next: (data: InventoryStock[]) => {
         this.stockData = data.map((item: InventoryStock) => ({
-          productName: item.productName,
-          sku: item.sku,
-          totalStock: item.totalStock,
-          lowStockThreshold: item.lowStockThreshold,
-          isLowStock: item.isLowStock,
-          isOutOfStock: item.isOutOfStock,
-          lotsActive: item.lots.filter((l: { isActive: boolean }) => l.isActive).length,
-          nextExpiry: item.nextExpiryDate,
+          productName: item.product.name,
+          sku: item.product.sku,
+          totalStock: item.stock,
+          lotsActive: item.activeLots,
         }));
         this.loading = false;
       },
@@ -197,14 +189,12 @@ export class InventoryPage implements OnInit {
   }
 
   getStatusColor(row: StockRow): string {
-    if (row.isOutOfStock) return '#f44336';
-    if (row.isLowStock) return '#ff9800';
+    if (row.totalStock === 0) return '#f44336';
     return '#4caf50';
   }
 
   getStatusText(row: StockRow): string {
-    if (row.isOutOfStock) return 'Sin stock';
-    if (row.isLowStock) return 'Stock bajo';
+    if (row.totalStock === 0) return 'Sin stock';
     return 'Normal';
   }
 }

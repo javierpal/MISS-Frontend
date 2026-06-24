@@ -1,30 +1,28 @@
 /** Inventory entity models for MISS-Frontend */
 
-/** Stock record per product from GET /inventory/stock */
-export interface InventoryStock {
-  productId: string | number;
-  productName: string;
+/** Product wrapper returned by GET /inventory/stock */
+export interface InventoryProduct {
+  id: string;
   sku: string;
-  barcode?: string;
-  totalStock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-  isOutOfStock: boolean;
-  lots: InventoryLot[];
-  nextExpiryDate?: string;
+  name: string;
+  isActive: boolean;
 }
 
-/** Individual lot/tracking record */
-export interface InventoryLot {
-  id: string;
-  productId: string | number;
-  quantity: number;
-  unitCost: number;
-  batchNumber?: string;
-  expiryDate?: string;
-  isActive: boolean;
-  createdAt: string;
+/** Stock record per product from GET /inventory/stock */
+export interface InventoryStock {
+  product: InventoryProduct;
+  stock: number;
+  activeLots: number;
 }
+
+/** Single product stock from GET /inventory/stock/:productId */
+export interface ProductStockResponse {
+  product: InventoryProduct;
+  stock: number;
+  activeLots: number;
+  message?: string;
+}
+
 
 /** Create an inventory entry (stock increase) */
 export interface CreateInventoryEntryDto {
