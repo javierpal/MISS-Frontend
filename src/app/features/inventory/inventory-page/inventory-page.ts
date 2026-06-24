@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock } from '../../../core/models/inventory.model';
+import { InventoryStock, CreateInventoryEntryDto } from '../../../core/models/inventory.model';
 
 interface StockRow {
   productName: string;
@@ -20,7 +23,10 @@ interface StockRow {
 
 @Component({
   selector: 'app-inventory-page',
-  imports: [CommonModule, MatCardModule, MatIconModule, MatTableModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule, MatCardModule, MatIconModule, MatTableModule,
+    MatProgressSpinnerModule, ReactiveFormsModule, MatInputModule, MatSnackBarModule,
+  ],
   templateUrl: './inventory-page.html',
   styleUrl: './inventory-page.scss',
 })
@@ -32,10 +38,26 @@ export class InventoryPage implements OnInit {
   stockData: StockRow[] = [];
   loading = false;
 
-  constructor(private inventoryApi: InventoryApiService) {}
+  entryForm!: FormGroup;
+  submitting = false;
+
+  constructor(
+    private inventoryApi: InventoryApiService,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+  ) {}
 
   ngOnInit(): void {
     this.loadStock();
+    this.entryForm = this.fb.group({
+      productId: ['', Validators.required],
+      quantity: [null, [Validators.required, Validators.min(1)]],
+      unitCost: [null, [Validators.required, Validators.min(0)]],
+      batchNumber: [''],
+      expiryDate: [''],
+      reference: [''],
+      note: [''],
+    });
   }
 
   loadStock(): void {
@@ -57,6 +79,39 @@ export class InventoryPage implements OnInit {
       error: (err: unknown) => {
         console.error('Error loading inventory stock:', err);
         this.loading = false;
+      },
+    });
+  }
+
+  onSubmitEntry(): void {
+    if (this.entryForm.invalid) {
+      this.snackBar.open('Completa los campos obligatorios', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    this.submitting = true;
+    const value = this.entryForm.value;
+    const body: CreateInventoryEntryDto = {
+      productId: value.productId,
+      quantity: Number(value.quantity),
+      unitCost: Number(value.unitCost),
+      batchNumber: value.batchNumber || undefined,
+      expiryDate: value.expiryDate || undefined,
+      reference: value.reference || undefined,
+      note: value.note || undefined,
+    };
+
+    this.inventoryApi.createEntry(body).subscribe({
+      next: () => {
+        this.snackBar.open('Entrada registrada correctamente', 'Cerrar', { duration: 3000 });
+        this.entryForm.reset();
+        this.loadStock();
+        this.submitting = false;
+      },
+      error: (err: unknown) => {
+        console.error('Error creating entry:', err);
+        this.snackBar.open('Error al registrar la entrada', 'Cerrar', { duration: 5000 });
+        this.submitting = false;
       },
     });
   }
