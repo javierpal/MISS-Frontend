@@ -27,11 +27,11 @@ export interface ProductStockResponse {
 /** Create an inventory entry (stock increase) */
 export interface CreateInventoryEntryDto {
   productId: string | number;
-  quantity: number;
+  quantityReceived: number;
   unitCost: number;
+  receivedAt: string;
   batchNumber?: string;
-  expiryDate?: string;
-  reference?: string;
+  expirationDate?: string;
   note?: string;
 }
 

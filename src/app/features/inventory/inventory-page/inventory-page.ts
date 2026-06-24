@@ -9,12 +9,13 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock, CreateInventoryEntryDto, StockPaginatedResponse, InventoryLot, InventoryQueryParams, InventoryPaginatedResponse } from '../../../core/models/inventory.model';
+import { InventoryStock, StockPaginatedResponse, InventoryLot, InventoryQueryParams, InventoryPaginatedResponse } from '../../../core/models/inventory.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InventoryAdjustmentDialog } from '../inventory-adjustment-dialog/inventory-adjustment-dialog';
 import { InventoryKardexDialog } from '../inventory-kardex-dialog/inventory-kardex-dialog';
+import { InventoryEntryDialog } from '../inventory-entry-dialog/inventory-entry-dialog';
 
 interface StockRow {
   productName: string;
@@ -45,9 +46,6 @@ export class InventoryPage implements OnInit {
   currentPage = 1;
   totalItems = 0;
 
-  entryForm!: FormGroup;
-  submitting = false;
-
   // Inventory lots
   inventoryData: InventoryLot[] = [];
   loadingInventory = false;
@@ -71,15 +69,6 @@ export class InventoryPage implements OnInit {
   ngOnInit(): void {
     this.loadStock();
     this.loadInventory();
-    this.entryForm = this.fb.group({
-      productId: ['', Validators.required],
-      quantity: [null, [Validators.required, Validators.min(1)]],
-      unitCost: [null, [Validators.required, Validators.min(0)]],
-      batchNumber: [''],
-      expiryDate: [''],
-      reference: [''],
-      note: [''],
-    });
   }
 
   loadStock(page?: number): void {
@@ -105,37 +94,15 @@ export class InventoryPage implements OnInit {
     });
   }
 
-  onSubmitEntry(): void {
-    if (this.entryForm.invalid) {
-      this.snackBar.open('Completa los campos obligatorios', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    this.submitting = true;
-    const value = this.entryForm.value;
-    const body: CreateInventoryEntryDto = {
-      productId: value.productId,
-      quantity: Number(value.quantity),
-      unitCost: Number(value.unitCost),
-      batchNumber: value.batchNumber || undefined,
-      expiryDate: value.expiryDate || undefined,
-      reference: value.reference || undefined,
-      note: value.note || undefined,
-    };
-
-    this.inventoryApi.createEntry(body).subscribe({
-      next: () => {
-        this.snackBar.open('Entrada registrada correctamente', 'Cerrar', { duration: 3000 });
-        this.entryForm.reset();
+  onOpenEntry(): void {
+    const dialogRef = this.dialog.open(InventoryEntryDialog, {
+      width: '500px',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
         this.loadStock();
         this.loadInventory();
-        this.submitting = false;
-      },
-      error: (err: unknown) => {
-        console.error('Error creating entry:', err);
-        this.snackBar.open('Error al registrar la entrada', 'Cerrar', { duration: 5000 });
-        this.submitting = false;
-      },
+      }
     });
   }
 

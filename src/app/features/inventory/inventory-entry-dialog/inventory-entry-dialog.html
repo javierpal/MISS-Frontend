@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>Registrar Entrada</h2>
+
+<mat-dialog-content class="entry-dialog-content">
+  <div class="content-wrapper">
+  <form [formGroup]="entryForm" (ngSubmit)="onSubmit()" class="entry-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Producto ID</mat-label>
+        <input matInput formControlName="productId" placeholder="ID del producto" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Cantidad *</mat-label>
+        <input matInput type="number" formControlName="quantityReceived" placeholder="1" min="1" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Costo unitario *</mat-label>
+        <input matInput type="number" formControlName="unitCost" placeholder="0.00" min="0" step="0.01" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha de recepción *</mat-label>
+        <input matInput type="date" formControlName="receivedAt" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Lote (opcional)</mat-label>
+        <input matInput formControlName="batchNumber" placeholder="Lote" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Vencimiento (opcional)</mat-label>
+        <input matInput type="date" formControlName="expirationDate" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nota (opcional)</mat-label>
+        <input matInput formControlName="note" placeholder="Nota" />
+      </mat-form-field>
+    </div>
+  </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button color="primary" type="submit" [disabled]="submitting || entryForm.invalid" (click)="onSubmit()">
+    <mat-icon>add_shopping_cart</mat-icon>
+    {{ submitting ? 'Guardando...' : 'Guardar entrada' }}
+  </button>
+</mat-dialog-actions>

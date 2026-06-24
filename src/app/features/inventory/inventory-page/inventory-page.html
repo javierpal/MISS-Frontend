@@ -1,5 +1,11 @@
 <div class="inventory-container">
-  <h1>Inventario</h1>
+  <div class="page-header">
+    <h1>Inventario</h1>
+    <button mat-flat-button color="primary" (click)="onOpenEntry()">
+      <mat-icon>add_shopping_cart</mat-icon>
+      Registrar Entrada
+    </button>
+  </div>
 
   <!-- Lotes de Inventario -->
   <mat-card appearance="outlined">
@@ -140,73 +146,15 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Entradas Form -->
-  <mat-card appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>Registrar Entrada</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="entryForm" (ngSubmit)="onSubmitEntry()" class="entry-form">
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Producto ID</mat-label>
-            <input matInput formControlName="productId" placeholder="ID del producto" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Cantidad</mat-label>
-            <input matInput type="number" formControlName="quantity" placeholder="1" min="1" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Costo unitario</mat-label>
-            <input matInput type="number" formControlName="unitCost" placeholder="0.00" min="0" step="0.01" />
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Lote (opcional)</mat-label>
-            <input matInput formControlName="batchNumber" placeholder="Lote" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Vencimiento (opcional)</mat-label>
-            <input matInput type="date" formControlName="expiryDate" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Referencia (opcional)</mat-label>
-            <input matInput formControlName="reference" placeholder="Ref." />
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nota (opcional)</mat-label>
-            <input matInput formControlName="note" placeholder="Nota" />
-          </mat-form-field>
-        </div>
-
-        <button mat-flat-button color="primary" type="submit" [disabled]="submitting || entryForm.invalid">
-          <mat-icon>add_shopping_cart</mat-icon>
-          {{ submitting ? 'Guardando...' : 'Guardar entrada' }}
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
   <!-- Stock Table -->
   <mat-card appearance="outlined">
-    <mat-card-header>
+    <div class="page-header">
       <mat-card-title>Stock Actual</mat-card-title>
-    </mat-card-header>
+      <button mat-flat-button color="primary" (click)="loadStock()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon> Actualizar
+      </button>
+    </div>
     <mat-card-content>
-      <div class="toolbar">
-        <button mat-flat-button color="primary" (click)="loadStock()" [disabled]="loading">
-          <mat-icon>refresh</mat-icon> Actualizar
-        </button>
-      </div>
 
       @if (loading) {
         <div class="loading-wrapper">
