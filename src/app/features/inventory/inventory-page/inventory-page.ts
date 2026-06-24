@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock, CreateInventoryEntryDto } from '../../../core/models/inventory.model';
+import { InventoryStock, CreateInventoryEntryDto, CreateInventoryAdjustmentDto } from '../../../core/models/inventory.model';
 
 interface StockRow {
   productName: string;
@@ -39,7 +39,9 @@ export class InventoryPage implements OnInit {
   loading = false;
 
   entryForm!: FormGroup;
+  adjustmentForm!: FormGroup;
   submitting = false;
+  submittingAdjustment = false;
 
   constructor(
     private inventoryApi: InventoryApiService,
@@ -49,12 +51,23 @@ export class InventoryPage implements OnInit {
 
   ngOnInit(): void {
     this.loadStock();
+    this.ngOnInitAdjustment();
     this.entryForm = this.fb.group({
       productId: ['', Validators.required],
       quantity: [null, [Validators.required, Validators.min(1)]],
       unitCost: [null, [Validators.required, Validators.min(0)]],
       batchNumber: [''],
       expiryDate: [''],
+      reference: [''],
+      note: [''],
+    });
+  }
+
+  ngOnInitAdjustment(): void {
+    this.adjustmentForm = this.fb.group({
+      productId: ['', Validators.required],
+      adjustment: [null, [Validators.required]],
+      reason: ['', Validators.required],
       reference: [''],
       note: [''],
     });
@@ -112,6 +125,37 @@ export class InventoryPage implements OnInit {
         console.error('Error creating entry:', err);
         this.snackBar.open('Error al registrar la entrada', 'Cerrar', { duration: 5000 });
         this.submitting = false;
+      },
+    });
+  }
+
+  onSubmitAdjustment(): void {
+    if (this.adjustmentForm.invalid) {
+      this.snackBar.open('Completa los campos obligatorios', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    this.submittingAdjustment = true;
+    const value = this.adjustmentForm.value;
+    const body: CreateInventoryAdjustmentDto = {
+      productId: value.productId,
+      adjustment: Number(value.adjustment),
+      reason: value.reason,
+      reference: value.reference || undefined,
+      note: value.note || undefined,
+    };
+
+    this.inventoryApi.createAdjustment(body).subscribe({
+      next: () => {
+        this.snackBar.open('Ajuste registrado correctamente', 'Cerrar', { duration: 3000 });
+        this.adjustmentForm.reset();
+        this.loadStock();
+        this.submittingAdjustment = false;
+      },
+      error: (err: unknown) => {
+        console.error('Error creating adjustment:', err);
+        this.snackBar.open('Error al registrar el ajuste', 'Cerrar', { duration: 5000 });
+        this.submittingAdjustment = false;
       },
     });
   }
