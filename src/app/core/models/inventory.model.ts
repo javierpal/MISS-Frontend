@@ -1,17 +1,27 @@
 /** Inventory entity models for MISS-Frontend */
 
+/** Product wrapper returned by GET /inventory/stock */
+export interface InventoryProduct {
+  id: string;
+  sku: string;
+  name: string;
+  isActive: boolean;
+}
+
 /** Stock record per product from GET /inventory/stock */
 export interface InventoryStock {
-  productId: string | number;
-  productName: string;
-  sku: string;
-  barcode?: string;
-  totalStock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-  isOutOfStock: boolean;
+  product: InventoryProduct;
+  stock: number;
   lots: InventoryLot[];
-  nextExpiryDate?: string;
+  activeLots: number;
+}
+
+/** Single product stock from GET /inventory/stock/:productId */
+export interface ProductStockResponse {
+  product: InventoryProduct;
+  stock: number;
+  activeLots: number;
+  message?: string;
 }
 
 /** Individual lot/tracking record */

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
 import {
   InventoryStock,
+  ProductStockResponse,
   CreateInventoryEntryDto,
   CreateInventoryAdjustmentDto,
   KardexMovement,
@@ -16,12 +17,12 @@ export class InventoryApiService {
 
   /** Get all stock records */
   getStock(): Observable<InventoryStock[]> {
-    return this.api.get<InventoryStock[]>('inventory/stock');
+    return this.api.getAdapted<InventoryStock>('inventory/stock');
   }
 
   /** Get stock for a specific product */
-  getStockByProduct(productId: string | number): Observable<InventoryStock> {
-    return this.api.get<InventoryStock>(`inventory/stock/${productId}`);
+  getStockByProduct(productId: string | number): Observable<ProductStockResponse> {
+    return this.api.get<ProductStockResponse>(`inventory/stock/${productId}`);
   }
 
   /** Create an inventory entry (stock increase) */
