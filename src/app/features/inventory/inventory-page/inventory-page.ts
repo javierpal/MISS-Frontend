@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock, CreateInventoryEntryDto, CreateInventoryAdjustmentDto } from '../../../core/models/inventory.model';
+import { InventoryStock, CreateInventoryEntryDto, CreateInventoryAdjustmentDto, KardexMovement } from '../../../core/models/inventory.model';
 
 interface StockRow {
   productName: string;
@@ -42,6 +42,9 @@ export class InventoryPage implements OnInit {
   adjustmentForm!: FormGroup;
   submitting = false;
   submittingAdjustment = false;
+  kardexForm!: FormGroup;
+  loadingKardex = false;
+  kardexData: KardexMovement[] = [];
 
   constructor(
     private inventoryApi: InventoryApiService,
@@ -52,6 +55,7 @@ export class InventoryPage implements OnInit {
   ngOnInit(): void {
     this.loadStock();
     this.ngOnInitAdjustment();
+    this.ngOnInitKardex();
     this.entryForm = this.fb.group({
       productId: ['', Validators.required],
       quantity: [null, [Validators.required, Validators.min(1)]],
@@ -70,6 +74,12 @@ export class InventoryPage implements OnInit {
       reason: ['', Validators.required],
       reference: [''],
       note: [''],
+    });
+  }
+
+  ngOnInitKardex(): void {
+    this.kardexForm = this.fb.group({
+      productId: ['', Validators.required],
     });
   }
 
@@ -156,6 +166,29 @@ export class InventoryPage implements OnInit {
         console.error('Error creating adjustment:', err);
         this.snackBar.open('Error al registrar el ajuste', 'Cerrar', { duration: 5000 });
         this.submittingAdjustment = false;
+      },
+    });
+  }
+
+  onConsultKardex(): void {
+    if (this.kardexForm.invalid) {
+      this.snackBar.open('Ingresa el Producto ID', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    this.loadingKardex = true;
+    const productId = this.kardexForm.value.productId;
+
+    this.inventoryApi.getKardex(productId).subscribe({
+      next: (data: KardexMovement[]) => {
+        this.kardexData = data;
+        this.loadingKardex = false;
+      },
+      error: (err: unknown) => {
+        console.error('Error loading kardex:', err);
+        this.snackBar.open('Error al cargar el kardex', 'Cerrar', { duration: 5000 });
+        this.kardexData = [];
+        this.loadingKardex = false;
       },
     });
   }
