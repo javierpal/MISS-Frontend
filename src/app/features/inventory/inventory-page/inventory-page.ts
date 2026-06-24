@@ -4,8 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { InventoryApiService } from '../../core/services/inventory.api.service';
-import { InventoryStock } from '../../core/models/inventory.model';
+import { InventoryApiService } from '../../../core/services/inventory.api.service';
+import { InventoryStock } from '../../../core/models/inventory.model';
 
 interface StockRow {
   productName: string;
@@ -41,7 +41,7 @@ export class InventoryPage implements OnInit {
   loadStock(): void {
     this.loading = true;
     this.inventoryApi.getStock().subscribe({
-      next: (data) => {
+      next: (data: InventoryStock[]) => {
         this.stockData = data.map((item: InventoryStock) => ({
           productName: item.productName,
           sku: item.sku,
