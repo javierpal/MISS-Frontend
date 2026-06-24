@@ -44,6 +44,7 @@ export class InventoryPage implements OnInit {
   submittingAdjustment = false;
   kardexForm!: FormGroup;
   loadingKardex = false;
+  kardexQueried = false;
   kardexData: KardexMovement[] = [];
 
   constructor(
@@ -182,12 +183,14 @@ export class InventoryPage implements OnInit {
     this.inventoryApi.getKardex(productId).subscribe({
       next: (data: KardexMovement[]) => {
         this.kardexData = data;
+        this.kardexQueried = true;
         this.loadingKardex = false;
       },
       error: (err: unknown) => {
         console.error('Error loading kardex:', err);
         this.snackBar.open('Error al cargar el kardex', 'Cerrar', { duration: 5000 });
         this.kardexData = [];
+        this.kardexQueried = true;
         this.loadingKardex = false;
       },
     });

@@ -167,9 +167,14 @@
           <tr mat-row *matRowDef="let row; columns: ['createdAt', 'type', 'quantityBefore', 'quantityChange', 'quantityAfter', 'reference'];"></tr>
         </table>
 
-        <div *ngIf="!loadingKardex && !kardexData.length" class="empty-state">
+        <div *ngIf="!loadingKardex && !kardexData.length && !kardexQueried" class="empty-state">
           <mat-icon>history</mat-icon>
-          <p>Consulta el kardex de un producto para ver sus movimientos.</p>
+          <p>Ingresa un Producto ID y presiona Consultar Kardex.</p>
+        </div>
+
+        <div *ngIf="!loadingKardex && !kardexData.length && kardexQueried" class="empty-state">
+          <mat-icon>info</mat-icon>
+          <p>Este producto no tiene movimientos registrados.</p>
         </div>
       </form>
     </mat-card-content>
