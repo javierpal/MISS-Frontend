@@ -2,49 +2,44 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
-import { PageParams, PaginatedResponse } from '../models/pagination.model';
+import {
+  InventoryStock,
+  CreateInventoryEntryDto,
+  CreateInventoryAdjustmentDto,
+  KardexMovement,
+  KardexQueryParams,
+} from '../models/inventory.model';
 
-/**
- * API service for inventory.
- * Generic type TEntity defaults to unknown. Override when consuming:
- * extend this class and set TEntity to your entity model.
- */
 @Injectable({ providedIn: 'root' })
-export class InventoryApiService<TEntity = unknown> {
+export class InventoryApiService {
   private api = inject(ApiClientService);
 
-  /** List items (paginated) */
-  list(params?: PageParams): Observable<PaginatedResponse<TEntity>> {
-    return this.api.getPaginated<PaginatedResponse<TEntity>>('inventory', params);
+  /** Get all stock records */
+  getStock(): Observable<InventoryStock[]> {
+    return this.api.get<InventoryStock[]>('inventory/stock');
   }
 
-  /** Get all items (unpaginated) */
-  getAll(): Observable<TEntity[]> {
-    return this.api.get<TEntity[]>('inventory');
+  /** Get stock for a specific product */
+  getStockByProduct(productId: string | number): Observable<InventoryStock> {
+    return this.api.get<InventoryStock>(`inventory/stock/${productId}`);
   }
 
-  /** Get a single item by ID */
-  getById(id: number | string): Observable<TEntity> {
-    return this.api.get<TEntity>(`inventory/${id}`);
+  /** Create an inventory entry (stock increase) */
+  createEntry(body: CreateInventoryEntryDto): Observable<void> {
+    return this.api.post<void>('inventory/entries', body);
   }
 
-  /** Create a new item */
-  create(body: unknown): Observable<TEntity> {
-    return this.api.post<TEntity>('inventory', body);
+  /** Create an inventory adjustment */
+  createAdjustment(body: CreateInventoryAdjustmentDto): Observable<void> {
+    return this.api.post<void>('inventory/adjustments', body);
   }
 
-  /** Update an existing item */
-  update(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.put<TEntity>(`inventory/${id}`, body);
-  }
-
-  /** Partial update of an item */
-  patch(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.patch<TEntity>(`inventory/${id}`, body);
-  }
-
-  /** Delete an item */
-  delete(id: number | string): Observable<void> {
-    return this.api.delete<void>(`inventory/${id}`);
+  /** Get kardex movements for a product */
+  getKardex(productId: string | number, params?: KardexQueryParams): Observable<KardexMovement[]> {
+    const query: Record<string, string> = {};
+    if (params?.page) query['page'] = String(params.page);
+    if (params?.limit) query['limit'] = String(params.limit);
+    if (params?.type) query['type'] = params.type;
+    return this.api.get<KardexMovement[]>(`inventory/kardex/${productId}`, undefined, query);
   }
 }
