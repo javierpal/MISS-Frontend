@@ -15,14 +15,6 @@ export interface InventoryStock {
   activeLots: number;
 }
 
-/** Single product stock from GET /inventory/stock/:productId */
-export interface ProductStockResponse {
-  product: InventoryProduct;
-  stock: number;
-  activeLots: number;
-  message?: string;
-}
-
 
 /** Create an inventory entry (stock increase) */
 export interface CreateInventoryEntryDto {
