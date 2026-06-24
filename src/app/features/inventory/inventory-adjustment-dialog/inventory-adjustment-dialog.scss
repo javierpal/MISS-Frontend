@@ -1,0 +1,19 @@
+.adjustment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-content {
+  padding-bottom: 8px;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  padding: 16px 16px 24px;
+}

@@ -11,8 +11,25 @@
     margin-bottom: 16px;
   }
 
-  .toolbar {
+  .filter-bar {
     margin-bottom: 16px;
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 12px;
+
+      .filter-input {
+        width: 100%;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
   }
 
   .loading-wrapper {
@@ -24,13 +41,19 @@
   .empty-state {
     text-align: center;
     padding: 48px;
-    color: rgba(0, 0, 0, 0.5);
 
     mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
       margin-bottom: 16px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.87);
+      font-size: 14px;
     }
   }
 

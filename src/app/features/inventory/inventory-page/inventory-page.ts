@@ -1,14 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InventoryApiService } from '../../../core/services/inventory.api.service';
-import { InventoryStock, ProductStockResponse, CreateInventoryEntryDto, CreateInventoryAdjustmentDto, KardexMovement } from '../../../core/models/inventory.model';
+import { InventoryStock, CreateInventoryEntryDto, StockPaginatedResponse, InventoryLot, InventoryQueryParams, InventoryPaginatedResponse } from '../../../core/models/inventory.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { InventoryAdjustmentDialog } from '../inventory-adjustment-dialog/inventory-adjustment-dialog';
+import { InventoryKardexDialog } from '../inventory-kardex-dialog/inventory-kardex-dialog';
 
 interface StockRow {
   productName: string;
@@ -21,7 +27,7 @@ interface StockRow {
   selector: 'app-inventory-page',
   imports: [
     CommonModule, MatCardModule, MatIconModule, MatTableModule,
-    MatProgressSpinnerModule, ReactiveFormsModule, MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatPaginatorModule, FormsModule, ReactiveFormsModule, MatInputModule, MatSnackBarModule, MatButtonModule, MatMenuModule, MatDialogModule
   ],
   templateUrl: './inventory-page.html',
   styleUrl: './inventory-page.scss',
@@ -34,25 +40,37 @@ export class InventoryPage implements OnInit {
   stockData: StockRow[] = [];
   loading = false;
 
+  // Paginator
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+
   entryForm!: FormGroup;
-  adjustmentForm!: FormGroup;
   submitting = false;
-  submittingAdjustment = false;
-  kardexForm!: FormGroup;
-  loadingKardex = false;
-  kardexQueried = false;
-  kardexData: KardexMovement[] = [];
+
+  // Inventory lots
+  inventoryData: InventoryLot[] = [];
+  loadingInventory = false;
+  inventoryQueried = false;
+  inventoryPageSize = 10;
+  inventoryPage = 1;
+  inventoryTotalItems = 0;
+  inventoryNameFilter = '';
+  inventoryProductIdFilter = '';
+
+
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private inventoryApi: InventoryApiService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
     this.loadStock();
-    this.ngOnInitAdjustment();
-    this.ngOnInitKardex();
+    this.loadInventory();
     this.entryForm = this.fb.group({
       productId: ['', Validators.required],
       quantity: [null, [Validators.required, Validators.min(1)]],
@@ -64,33 +82,21 @@ export class InventoryPage implements OnInit {
     });
   }
 
-  ngOnInitAdjustment(): void {
-    this.adjustmentForm = this.fb.group({
-      productId: ['', Validators.required],
-      adjustment: [null, [Validators.required]],
-      reason: ['', Validators.required],
-      reference: [''],
-      note: [''],
-    });
-  }
-
-  ngOnInitKardex(): void {
-    this.kardexForm = this.fb.group({
-      productId: ['', Validators.required],
-    });
-  }
-
-  loadStock(): void {
+  loadStock(page?: number): void {
     this.loading = true;
-    this.inventoryApi.getStock().subscribe({
-      next: (data: InventoryStock[]) => {
-        this.stockData = data.map((item: InventoryStock) => ({
+    const p = page ?? 1;
+    this.inventoryApi.getStock({ page: p, limit: this.pageSize }).subscribe({
+      next: (res: StockPaginatedResponse) => {
+        this.stockData = res.data.map((item: InventoryStock) => ({
           productName: item.product.name,
           sku: item.product.sku,
           totalStock: item.stock,
           lotsActive: item.activeLots,
         }));
+        this.totalItems = res.meta.total;
+        this.currentPage = res.meta.page;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err: unknown) => {
         console.error('Error loading inventory stock:', err);
@@ -122,68 +128,13 @@ export class InventoryPage implements OnInit {
         this.snackBar.open('Entrada registrada correctamente', 'Cerrar', { duration: 3000 });
         this.entryForm.reset();
         this.loadStock();
+        this.loadInventory();
         this.submitting = false;
       },
       error: (err: unknown) => {
         console.error('Error creating entry:', err);
         this.snackBar.open('Error al registrar la entrada', 'Cerrar', { duration: 5000 });
         this.submitting = false;
-      },
-    });
-  }
-
-  onSubmitAdjustment(): void {
-    if (this.adjustmentForm.invalid) {
-      this.snackBar.open('Completa los campos obligatorios', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    this.submittingAdjustment = true;
-    const value = this.adjustmentForm.value;
-    const body: CreateInventoryAdjustmentDto = {
-      productId: value.productId,
-      adjustment: Number(value.adjustment),
-      reason: value.reason,
-      reference: value.reference || undefined,
-      note: value.note || undefined,
-    };
-
-    this.inventoryApi.createAdjustment(body).subscribe({
-      next: () => {
-        this.snackBar.open('Ajuste registrado correctamente', 'Cerrar', { duration: 3000 });
-        this.adjustmentForm.reset();
-        this.loadStock();
-        this.submittingAdjustment = false;
-      },
-      error: (err: unknown) => {
-        console.error('Error creating adjustment:', err);
-        this.snackBar.open('Error al registrar el ajuste', 'Cerrar', { duration: 5000 });
-        this.submittingAdjustment = false;
-      },
-    });
-  }
-
-  onConsultKardex(): void {
-    if (this.kardexForm.invalid) {
-      this.snackBar.open('Ingresa el Producto ID', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    this.loadingKardex = true;
-    const productId = this.kardexForm.value.productId;
-
-    this.inventoryApi.getKardex(productId).subscribe({
-      next: (data: KardexMovement[]) => {
-        this.kardexData = data;
-        this.kardexQueried = true;
-        this.loadingKardex = false;
-      },
-      error: (err: unknown) => {
-        console.error('Error loading kardex:', err);
-        this.snackBar.open('Error al cargar el kardex', 'Cerrar', { duration: 5000 });
-        this.kardexData = [];
-        this.kardexQueried = true;
-        this.loadingKardex = false;
       },
     });
   }
@@ -196,5 +147,75 @@ export class InventoryPage implements OnInit {
   getStatusText(row: StockRow): string {
     if (row.totalStock === 0) return 'Sin stock';
     return 'Normal';
+  }
+
+  onPaginate(event: PageEvent): void {
+    this.pageSize = event.pageSize;
+    this.loadStock(event.pageIndex + 1);
+  }
+
+  loadInventory(page?: number): void {
+    this.loadingInventory = true;
+    const p = page ?? 1;
+    const params: InventoryQueryParams = {
+      page: p,
+      limit: this.inventoryPageSize,
+    };
+    if (this.inventoryNameFilter) params.name = this.inventoryNameFilter;
+    if (this.inventoryProductIdFilter) params.productId = this.inventoryProductIdFilter;
+
+    this.inventoryApi.getInventory(params).subscribe({
+      next: (res: InventoryPaginatedResponse) => {
+        this.inventoryData = res.data;
+        this.inventoryTotalItems = res.meta.total;
+        this.inventoryPage = res.meta.page;
+        this.inventoryQueried = true;
+        this.loadingInventory = false;
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        console.error('Error loading inventory:', err);
+        this.loadingInventory = false;
+      },
+    });
+  }
+
+  onInventoryPaginate(event: PageEvent): void {
+    this.inventoryPageSize = event.pageSize;
+    this.inventoryPage = event.pageIndex + 1;
+    this.loadInventory(this.inventoryPage);
+  }
+
+  onApplyInventoryFilters(): void {
+    this.inventoryPage = 1;
+    this.loadInventory(1);
+  }
+
+  onClearInventoryFilters(): void {
+    this.inventoryNameFilter = '';
+    this.inventoryProductIdFilter = '';
+    this.inventoryPage = 1;
+    this.loadInventory(1);
+  }
+
+  onOpenAdjustment(productId: string | number): void {
+    const dialogRef = this.dialog.open(InventoryAdjustmentDialog, {
+      width: '400px',
+      data: { productId },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadStock();
+        this.loadInventory();
+      }
+    });
+  }
+
+  onOpenKardex(productId: string | number): void {
+    this.dialog.open(InventoryKardexDialog, {
+      width: '900px',
+      maxWidth: '95vw',
+      data: { productId },
+    });
   }
 }

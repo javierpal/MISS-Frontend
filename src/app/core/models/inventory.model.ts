@@ -45,26 +45,111 @@ export interface CreateInventoryAdjustmentDto {
 }
 
 /** Single kardex movement record */
-export interface KardexMovement {
+export interface KardexLot {
   id: string;
-  productId: string | number;
-  productName: string;
-  sku: string;
-  type: 'ENTRY' | 'ADJUSTMENT' | 'SALE' | 'CONSUMPTION' | 'RETURN';
-  quantityBefore: number;
-  quantityChange: number;
-  quantityAfter: number;
-  unitCost?: number;
-  batchNumber?: string;
-  reference?: string;
-  note?: string;
-  performedBy?: string;
-  createdAt: string;
+  receivedAt: string;
 }
 
-/** Query params for kardex endpoint */
+export interface KardexMovement {
+  id: string;
+  productId: string;
+  lotId: string;
+  type: 'IN' | 'OUT' | 'ADJUSTMENT';
+  quantity: number;
+  unitCost?: number;
+  note?: string | null;
+  createdAt: string;
+  lot: KardexLot;
+}
+
+export interface KardexProduct {
+  id: string;
+  sku: string;
+  name: string;
+  isActive: boolean;
+}
+
+export interface KardexFilters {
+  type: string | null;
+  from: string | null;
+  to: string | null;
+}
+
+export interface KardexSortMeta {
+  createdAt: 'asc' | 'desc';
+}
+
+export interface KardexMeta {
+  total: number;
+  sort: KardexSortMeta;
+}
+
+export interface KardexResponse {
+  product: KardexProduct;
+  filters: KardexFilters;
+  data: KardexMovement[];
+  meta: KardexMeta;
+  message: string;
+}
+
+/** Query params for kardex endpoint (all optional, no pagination) */
 export interface KardexQueryParams {
+  type?: 'IN' | 'OUT' | 'ADJUSTMENT';
+  from?: string;
+  to?: string;
+}
+
+/** Query params for paginated stock endpoint */
+export interface StockQueryParams {
   page?: number;
   limit?: number;
-  type?: string;
+}
+
+/** Paginated stock response with metadata */
+export interface StockPaginatedResponse {
+  data: InventoryStock[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/** Inventory lot record from GET /inventory */
+export interface InventoryLot {
+  id: string;
+  productId: string | number;
+  product: InventoryProduct;
+  batchNumber?: string;
+  expirationDate?: string;
+  quantityReceived: number;
+  quantityAvailable: number;
+  unitCost: number;
+  receivedAt?: string;
+  createdAt: string;
+  purchase?: unknown;
+}
+
+/** Query params for GET /inventory */
+export interface InventoryQueryParams {
+  page?: number;
+  limit?: number;
+  name?: string;
+  productId?: string;
+}
+
+/** Paginated inventory lot response */
+export interface InventoryPaginatedResponse {
+  data: InventoryLot[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    filters: {
+      name: string | null;
+      productId: string | null;
+    };
+  };
 }
