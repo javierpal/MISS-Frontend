@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+
+function todayISO(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -37,7 +45,7 @@ export class InventoryEntryDialog implements OnInit {
       productId: ['', Validators.required],
       quantityReceived: [null, [Validators.required, Validators.min(1)]],
       unitCost: [null, [Validators.required, Validators.min(0)]],
-      receivedAt: ['', Validators.required],
+      receivedAt: [todayISO(), Validators.required],
       batchNumber: [''],
       expirationDate: [''],
       note: [''],
