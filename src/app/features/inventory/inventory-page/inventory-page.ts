@@ -42,19 +42,19 @@ export class InventoryPage implements OnInit {
     this.loading = true;
     this.inventoryApi.getStock().subscribe({
       next: (data) => {
-        this.stockData = data.map((item) => ({
+        this.stockData = data.map((item: InventoryStock) => ({
           productName: item.productName,
           sku: item.sku,
           totalStock: item.totalStock,
           lowStockThreshold: item.lowStockThreshold,
           isLowStock: item.isLowStock,
           isOutOfStock: item.isOutOfStock,
-          lotsActive: item.lots.filter((l) => l.isActive).length,
+          lotsActive: item.lots.filter((l: { isActive: boolean }) => l.isActive).length,
           nextExpiry: item.nextExpiryDate,
         }));
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Error loading inventory stock:', err);
         this.loading = false;
       },
