@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { PlaceholderPage } from '../../../shared/components/placeholder-page/placeholder-page';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-inventory-page',
-  imports: [PlaceholderPage],
+  imports: [MatCardModule, MatIconModule],
   templateUrl: './inventory-page.html',
   styleUrl: './inventory-page.scss',
 })

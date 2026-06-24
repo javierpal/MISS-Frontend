@@ -1,1 +1,37 @@
-<app-placeholder-page title="Inventory" description="Base para stock, ajustes, conteos cíclicos y trazabilidad de inventario." />
+<div class="inventory-container">
+  <h1>Inventario</h1>
+
+  <div class="cards-grid">
+    <mat-card class="inventory-card" appearance="outlined">
+      <mat-card-content>
+        <mat-icon class="card-icon">inventory_2</mat-icon>
+        <h2>Stock</h2>
+        <p>Consulta el stock actual por producto.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="inventory-card" appearance="outlined">
+      <mat-card-content>
+        <mat-icon class="card-icon">add_shopping_cart</mat-icon>
+        <h2>Entradas</h2>
+        <p>Registra entradas de mercancía.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="inventory-card" appearance="outlined">
+      <mat-card-content>
+        <mat-icon class="card-icon">edit_note</mat-icon>
+        <h2>Ajustes</h2>
+        <p>Realiza ajustes manuales de inventario.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="inventory-card" appearance="outlined">
+      <mat-card-content>
+        <mat-icon class="card-icon">receipt_long</mat-icon>
+        <h2>Kardex</h2>
+        <p>Revisa la trazabilidad de movimientos.</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
