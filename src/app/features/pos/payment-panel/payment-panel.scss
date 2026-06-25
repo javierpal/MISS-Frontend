@@ -1,0 +1,132 @@
+.payment-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--md-sys-color-surface-container-high);
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &__total-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px;
+    background: var(--md-sys-color-primary-container);
+  }
+
+  &__total-label {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__total-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--md-sys-color-primary);
+  }
+
+  &__methods {
+    padding: 12px 16px 8px;
+  }
+
+  &__method-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  &__method-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 8px;
+    height: auto;
+    min-height: 60px;
+    transition: all 0.15s;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    &.active {
+      background: var(--md-sys-color-primary);
+      color: white;
+      border-color: var(--md-sys-color-primary);
+    }
+  }
+
+  &__cash-section,
+  &__card-section,
+  &__mp-section,
+  &__transfer-section,
+  &__other-section {
+    padding: 12px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__amount-field,
+  &__ref-field {
+    width: 100%;
+  }
+
+  &__change-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  &__change-amount {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--md-sys-color-primary);
+  }
+
+  &__insufficient {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(211, 47, 47, 0.1);
+    border-radius: 4px;
+    color: #d32f2f;
+    font-size: 13px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__confirm-btn {
+    margin: 12px 16px 16px;
+    width: calc(100% - 32px);
+    height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+}
