@@ -1,0 +1,77 @@
+<div class="batch-detail-container">
+  <div class="dialog-header">
+    <h2>Detalle del Lote</h2>
+    <button mat-icon-button (click)="onClose()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Producto -->
+  <div class="section">
+    <h3>Producto</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="label">Nombre</span>
+        <span class="value">{{ data.lot.product.name }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">SKU</span>
+        <span class="value">{{ data.lot.product.sku }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Estado</span>
+        <span class="value">{{ data.lot.product.isActive ? 'Activo' : 'Inactivo' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Lote -->
+  <div class="section">
+    <h3>Lote</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="label">Product ID</span>
+        <span class="value">{{ data.lot.productId }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Lote (Batch)</span>
+        <span class="value">{{ data.lot.batchNumber || 'No asignado' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Vencimiento</span>
+        <span class="value">{{ data.lot.expirationDate ? (data.lot.expirationDate | date:'shortDate') : 'No definido' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Recibido</span>
+        <span class="value">{{ data.lot.quantityReceived }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Disponible</span>
+        <span class="value">{{ data.lot.quantityAvailable }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Costo unitario</span>
+        <span class="value">{{ data.lot.unitCost | number:'1.2-2' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Recibido en</span>
+        <span class="value">{{ data.lot.receivedAt ? (data.lot.receivedAt | date:'short') : 'No definido' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Creado en</span>
+        <span class="value">{{ data.lot.createdAt ? (data.lot.createdAt | date:'short') : 'No definido' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Botón cerrar -->
+  <div class="dialog-actions">
+    <button mat-flat-button color="primary" (click)="onClose()">Cerrar</button>
+  </div>
+</div>

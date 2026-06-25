@@ -2,49 +2,65 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
-import { PageParams, PaginatedResponse } from '../models/pagination.model';
+import {
+  InventoryStock,
+  ProductStockResponse,
+  CreateInventoryEntryDto,
+  CreateInventoryAdjustmentDto,
+  KardexResponse,
+  KardexQueryParams,
+  StockQueryParams,
+  StockPaginatedResponse,
+  InventoryLot,
+  InventoryQueryParams,
+  InventoryPaginatedResponse,
+} from '../models/inventory.model';
 
-/**
- * API service for inventory.
- * Generic type TEntity defaults to unknown. Override when consuming:
- * extend this class and set TEntity to your entity model.
- */
 @Injectable({ providedIn: 'root' })
-export class InventoryApiService<TEntity = unknown> {
+export class InventoryApiService {
   private api = inject(ApiClientService);
 
-  /** List items (paginated) */
-  list(params?: PageParams): Observable<PaginatedResponse<TEntity>> {
-    return this.api.getPaginated<PaginatedResponse<TEntity>>('inventory', params);
+  /** Get paginated stock records */
+  getStock(params?: StockQueryParams): Observable<StockPaginatedResponse> {
+    const query: Record<string, string> = {};
+    if (params?.page) query['page'] = String(params.page);
+    if (params?.limit) query['limit'] = String(params.limit);
+    if (params?.name) query['name'] = params.name;
+    if (params?.productId) query['productId'] = String(params.productId);
+    return this.api.get<StockPaginatedResponse>('inventory/stock', query);
   }
 
-  /** Get all items (unpaginated) */
-  getAll(): Observable<TEntity[]> {
-    return this.api.get<TEntity[]>('inventory');
+  /** Get stock for a specific product */
+  getStockByProduct(productId: string | number): Observable<ProductStockResponse> {
+    return this.api.get<ProductStockResponse>(`inventory/stock/${productId}`);
   }
 
-  /** Get a single item by ID */
-  getById(id: number | string): Observable<TEntity> {
-    return this.api.get<TEntity>(`inventory/${id}`);
+  /** Create an inventory entry (stock increase) */
+  createEntry(body: CreateInventoryEntryDto): Observable<void> {
+    return this.api.post<void>('inventory/entries', body);
   }
 
-  /** Create a new item */
-  create(body: unknown): Observable<TEntity> {
-    return this.api.post<TEntity>('inventory', body);
+  /** Create an inventory adjustment */
+  createAdjustment(body: CreateInventoryAdjustmentDto): Observable<void> {
+    return this.api.post<void>('inventory/adjustments', body);
   }
 
-  /** Update an existing item */
-  update(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.put<TEntity>(`inventory/${id}`, body);
+  /** Get kardex movements for a product (no pagination, optional filters) */
+  getKardex(productId: string | number, params?: KardexQueryParams): Observable<KardexResponse> {
+    const query: Record<string, string> = {};
+    if (params?.type) query['type'] = params.type;
+    if (params?.from) query['from'] = params.from;
+    if (params?.to) query['to'] = params.to;
+    return this.api.get<KardexResponse>(`inventory/kardex/${productId}`, query);
   }
 
-  /** Partial update of an item */
-  patch(id: number | string, body: unknown): Observable<TEntity> {
-    return this.api.patch<TEntity>(`inventory/${id}`, body);
-  }
-
-  /** Delete an item */
-  delete(id: number | string): Observable<void> {
-    return this.api.delete<void>(`inventory/${id}`);
+  /** Get paginated inventory lots */
+  getInventory(params?: InventoryQueryParams): Observable<InventoryPaginatedResponse> {
+    const query: Record<string, string> = {};
+    if (params?.page) query['page'] = String(params.page);
+    if (params?.limit) query['limit'] = String(params.limit);
+    if (params?.name) query['name'] = params.name;
+    if (params?.productId) query['productId'] = String(params.productId);
+    return this.api.get<InventoryPaginatedResponse>('inventory', query);
   }
 }

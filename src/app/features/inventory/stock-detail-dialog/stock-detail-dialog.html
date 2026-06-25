@@ -1,0 +1,53 @@
+<div class="stock-detail-container">
+  <div class="dialog-header">
+    <h2>Detalle de Stock</h2>
+    <button mat-icon-button (click)="onClose()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Producto -->
+  <div class="section">
+    <h3>Producto</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="label">Nombre</span>
+        <span class="value">{{ data.productName }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">SKU</span>
+        <span class="value">{{ data.sku }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Product ID</span>
+        <span class="value">{{ data.productId }}</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Stock -->
+  <div class="section">
+    <h3>Stock</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="label">Stock total</span>
+        <span class="value stock-total">{{ data.totalStock }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Lotes activos</span>
+        <span class="value">{{ data.lotsActive }}</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Botón cerrar -->
+  <div class="dialog-actions">
+    <button mat-flat-button color="primary" (click)="onClose()">Cerrar</button>
+  </div>
+</div>
