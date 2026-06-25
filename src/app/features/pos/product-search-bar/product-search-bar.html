@@ -1,0 +1,45 @@
+<div class="product-search-bar">
+  <div class="product-search-bar__input">
+    <mat-form-field appearance="outline" class="product-search-bar__field">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Buscar por SKU, código o nombre</mat-label>
+      <input matInput type="text" [(ngModel)]="searchControl" placeholder="Escribe para buscar..." />
+      @if (searching()) {
+        <mat-icon matSuffix>hourglass_empty</mat-icon>
+      }
+    </mat-form-field>
+  </div>
+
+  @if (searchError()) {
+    <div class="product-search-bar__error">{{ searchError() }}</div>
+  }
+
+  @if (searchResults().length > 0) {
+    <div class="product-search-bar__results">
+      @for (product of searchResults(); track product.id) {
+        <mat-card class="product-search-bar__result-card" appearance="outlined" (click)="selectProduct(product)">
+          <mat-card-content class="product-search-bar__result-content">
+            <div class="product-search-bar__result-info">
+              <span class="product-search-bar__result-name">{{ product.name }}</span>
+              <span class="product-search-bar__result-sku">SKU: {{ product.sku }}</span>
+              @if (product.barcode) {
+                <span class="product-search-bar__result-barcode">BC: {{ product.barcode }}</span>
+              }
+            </div>
+            <div class="product-search-bar__result-actions">
+              <span class="product-search-bar__result-price">${{ product.salePrice | number:'1.2-2' }}</span>
+              <span class="product-search-bar__result-stock">Stock: {{ product.currentStock ?? '-' }}</span>
+              <button mat-mini-fab color="primary" class="product-search-bar__add-btn">
+                <mat-icon>add_shopping_cart</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (searchResults().length === 0 && !searching() && !searchError()) {
+    <div class="product-search-bar__empty">Sin resultados</div>
+  }
+</div>
