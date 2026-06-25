@@ -15,6 +15,13 @@ export interface InventoryStock {
   activeLots: number;
 }
 
+/** Single product stock response from GET /inventory/stock/:productId */
+export interface ProductStockResponse {
+  product: InventoryProduct;
+  stock: number;
+  activeLots: number;
+}
+
 
 /** Create an inventory entry (stock increase) */
 export interface CreateInventoryEntryDto {
@@ -95,6 +102,8 @@ export interface KardexQueryParams {
 export interface StockQueryParams {
   page?: number;
   limit?: number;
+  name?: string;
+  productId?: string;
 }
 
 /** Paginated stock response with metadata */

@@ -16,8 +16,13 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InventoryAdjustmentDialog } from '../inventory-adjustment-dialog/inventory-adjustment-dialog';
 import { InventoryKardexDialog } from '../inventory-kardex-dialog/inventory-kardex-dialog';
 import { InventoryEntryDialog } from '../inventory-entry-dialog/inventory-entry-dialog';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { BatchDetailDialog } from '../batch-detail-dialog/batch-detail-dialog';
+import { StockDetailDialog } from '../stock-detail-dialog/stock-detail-dialog';
 
 interface StockRow {
+  productId: string;
   productName: string;
   sku: string;
   totalStock: number;
@@ -28,16 +33,30 @@ interface StockRow {
   selector: 'app-inventory-page',
   imports: [
     CommonModule, MatCardModule, MatIconModule, MatTableModule,
-    MatProgressSpinnerModule, MatPaginatorModule, FormsModule, ReactiveFormsModule, MatInputModule, MatSnackBarModule, MatButtonModule, MatMenuModule, MatDialogModule
+    MatProgressSpinnerModule, MatPaginatorModule, FormsModule, ReactiveFormsModule, MatInputModule, MatSnackBarModule, MatButtonModule, MatMenuModule, MatDialogModule, ClipboardModule
   ],
   templateUrl: './inventory-page.html',
   styleUrl: './inventory-page.scss',
 })
 export class InventoryPage implements OnInit {
-  displayedColumns: string[] = [
-    'productName', 'sku', 'totalStock',
-    'status', 'lotsActive'
-  ];
+  // Column definitions - desktop (full)
+  readonly stockColumnsDesktop = ['productName', 'sku', 'totalStock', 'status', 'lotsActive'];
+  readonly stockColumnsMobile = ['productName', 'totalStock', 'actions'];
+
+  readonly inventoryColumnsDesktop = ['productId', 'productName', 'sku', 'batchNumber', 'expirationDate', 'quantityReceived', 'quantityAvailable', 'unitCost', 'receivedAt', 'actions'];
+  readonly inventoryColumnsMobile = ['productId', 'productName', 'actions'];
+
+  // Responsive columns
+  stockColumns: string[] = [];
+  inventoryColumns: string[] = [];
+
+  // Clipboard
+  copiedProductId = '';
+
+  get isMobile(): boolean {
+    return this.breakpointObserver.isMatched([Breakpoints.Handset]);
+  }
+
   stockData: StockRow[] = [];
   loading = false;
 
@@ -45,6 +64,10 @@ export class InventoryPage implements OnInit {
   pageSize = 10;
   currentPage = 1;
   totalItems = 0;
+
+  // Stock filters
+  stockNameFilter = '';
+  stockProductIdFilter = '';
 
   // Inventory lots
   inventoryData: InventoryLot[] = [];
@@ -56,17 +79,27 @@ export class InventoryPage implements OnInit {
   inventoryNameFilter = '';
   inventoryProductIdFilter = '';
 
-
-
   constructor(
     private cdr: ChangeDetectorRef,
     private inventoryApi: InventoryApiService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
+    private breakpointObserver: BreakpointObserver,
   ) {}
 
   ngOnInit(): void {
+    this.updateColumns();
+    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe((result) => {
+      if (result.matches) {
+        this.stockColumns = this.stockColumnsMobile;
+        this.inventoryColumns = this.inventoryColumnsMobile;
+      } else {
+        this.stockColumns = this.stockColumnsDesktop;
+        this.inventoryColumns = this.inventoryColumnsDesktop;
+      }
+      this.cdr.markForCheck();
+    });
     this.loadStock();
     this.loadInventory();
   }
@@ -74,13 +107,18 @@ export class InventoryPage implements OnInit {
   loadStock(page?: number): void {
     this.loading = true;
     const p = page ?? 1;
-    this.inventoryApi.getStock({ page: p, limit: this.pageSize }).subscribe({
+    const params: any = { page: p, limit: this.pageSize };
+    if (this.stockNameFilter) params.name = this.stockNameFilter;
+    if (this.stockProductIdFilter) params.productId = this.stockProductIdFilter;
+
+    this.inventoryApi.getStock(params).subscribe({
       next: (res: StockPaginatedResponse) => {
         this.stockData = res.data.map((item: InventoryStock) => ({
           productName: item.product.name,
           sku: item.product.sku,
           totalStock: item.stock,
           lotsActive: item.activeLots,
+          productId: item.product.id,
         }));
         this.totalItems = res.meta.total;
         this.currentPage = res.meta.page;
@@ -94,9 +132,23 @@ export class InventoryPage implements OnInit {
     });
   }
 
+  onApplyStockFilters(): void {
+    this.currentPage = 1;
+    this.loadStock(1);
+  }
+
+  onClearStockFilters(): void {
+    this.stockNameFilter = '';
+    this.stockProductIdFilter = '';
+    this.currentPage = 1;
+    this.loadStock(1);
+  }
+
   onOpenEntry(): void {
     const dialogRef = this.dialog.open(InventoryEntryDialog, {
       width: '500px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -182,7 +234,50 @@ export class InventoryPage implements OnInit {
     this.dialog.open(InventoryKardexDialog, {
       width: '900px',
       maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'kardex-dialog-panel',
       data: { productId },
     });
+  }
+
+
+  onOpenBatchDetail(lot: InventoryLot): void {
+    this.dialog.open(BatchDetailDialog, {
+      width: '600px',
+      maxWidth: '95vw',
+      height: 'auto',
+      data: { lot },
+    });
+  }
+
+  copyToClipboard(productId: string | number): void {
+    this.copiedProductId = String(productId);
+    this.snackBar.open('Product ID copiado', 'Cerrar', { duration: 2000 });
+
+  }
+
+  onOpenStockDetail(row: StockRow): void {
+    this.dialog.open(StockDetailDialog, {
+      width: '450px',
+      maxWidth: '95vw',
+      data: {
+        productId: row.productId,
+        productName: row.productName,
+        sku: row.sku,
+        totalStock: row.totalStock,
+        lotsActive: row.lotsActive,
+      },
+    });
+  }
+
+  private updateColumns(): void {
+    const isMobile = this.breakpointObserver.isMatched([Breakpoints.Handset]);
+    if (isMobile) {
+      this.stockColumns = this.stockColumnsMobile;
+      this.inventoryColumns = this.inventoryColumnsMobile;
+    } else {
+      this.stockColumns = this.stockColumnsDesktop;
+      this.inventoryColumns = this.inventoryColumnsDesktop;
+    }
   }
 }

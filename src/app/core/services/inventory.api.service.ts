@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { ApiClientService } from './api-client.service';
 import {
@@ -15,7 +15,6 @@ import {
   InventoryQueryParams,
   InventoryPaginatedResponse,
 } from '../models/inventory.model';
-import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryApiService {
@@ -26,14 +25,14 @@ export class InventoryApiService {
     const query: Record<string, string> = {};
     if (params?.page) query['page'] = String(params.page);
     if (params?.limit) query['limit'] = String(params.limit);
+    if (params?.name) query['name'] = params.name;
+    if (params?.productId) query['productId'] = String(params.productId);
     return this.api.get<StockPaginatedResponse>('inventory/stock', query);
   }
 
   /** Get stock for a specific product */
   getStockByProduct(productId: string | number): Observable<ProductStockResponse> {
-    return this.api.get<ApiResponse<ProductStockResponse>>(`inventory/stock/${productId}`).pipe(
-      map((res: ApiResponse<ProductStockResponse>) => res.data!),
-    );
+    return this.api.get<ProductStockResponse>(`inventory/stock/${productId}`);
   }
 
   /** Create an inventory entry (stock increase) */

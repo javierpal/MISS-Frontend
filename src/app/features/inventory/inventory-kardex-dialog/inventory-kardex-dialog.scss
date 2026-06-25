@@ -1,7 +1,6 @@
 .kardex-dialog-content {
   width: 900px;
   max-width: 95vw;
-  max-height: 80vh;
 }
 
 .content-wrapper {
@@ -48,6 +47,7 @@
   overflow-y: auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
+  padding-bottom: 8px;
 }
 
 .kardex-table {
@@ -92,4 +92,77 @@
 .dialog-actions {
   justify-content: flex-end;
   padding: 8px 24px 16px;
+}
+
+/* Mobile: stack filters, compact table */
+@media (max-width: 599px) {
+  .kardex-dialog-content {
+    width: auto;
+    max-width: 98vw;
+  }
+
+  .content-wrapper {
+    padding-top: 6px;
+  }
+
+  .kardex-form {
+    gap: 10px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .filter-type,
+  .filter-date {
+    min-width: auto;
+  }
+
+  .table-wrapper {
+    max-height: 250px;
+    font-size: 12px;
+    padding-bottom: 6px;
+  }
+
+  .kardex-table th,
+  .kardex-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .dialog-actions {
+    padding: 6px 12px 10px;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* Panel class for Kardex dialog to ensure proper scrolling */
+.kardex-dialog-panel {
+  .mat-mdc-dialog-surface {
+    max-height: 90vh !important;
+    display: flex;
+    flex-direction: column;
+
+    > mat-dialog-content {
+      flex: 1;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      margin: 0;
+      padding: 0;
+    }
+
+    > mat-dialog-actions {
+      flex-shrink: 0;
+      margin: 0;
+    }
+  }
 }
