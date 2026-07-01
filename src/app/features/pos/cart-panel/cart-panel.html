@@ -12,14 +12,14 @@
     }
   </div>
 
-  @if (isEmpty()) {
-    <div class="cart-panel__empty">
-      <mat-icon>shopping_cart_off</mat-icon>
-      <p>El carrito está vacío</p>
-      <p class="cart-panel__empty-hint">Busca y agrega productos para comenzar</p>
-    </div>
-  } @else {
-    <div class="cart-panel__list">
+  <div class="cart-panel__list">
+    @if (isEmpty()) {
+      <div class="cart-panel__empty">
+        <mat-icon>shopping_cart_off</mat-icon>
+        <p>El carrito está vacío</p>
+        <p class="cart-panel__empty-hint">Busca y agrega productos para comenzar</p>
+      </div>
+    } @else {
       @for (item of items(); track item.product.id) {
         <div class="cart-panel__item">
           <div class="cart-panel__item-info">
@@ -43,26 +43,26 @@
           </div>
         </div>
       }
-    </div>
+    }
+  </div>
 
-    <div class="cart-panel__totals">
-      <div class="cart-panel__total-row">
-        <span>Subtotal</span>
-        <span>${{ subtotal() | number:'1.2-2' }}</span>
-      </div>
-      <div class="cart-panel__total-row">
-        <span>IVA (16%)</span>
-        <span>${{ tax() | number:'1.2-2' }}</span>
-      </div>
-      <div class="cart-panel__total-row cart-panel__total-row--grand">
-        <span>Total</span>
-        <span>${{ total() | number:'1.2-2' }}</span>
-      </div>
+  <div class="cart-panel__totals">
+    <div class="cart-panel__total-row">
+      <span>Subtotal</span>
+      <span>${{ subtotal() | number:'1.2-2' }}</span>
     </div>
+    <div class="cart-panel__total-row">
+      <span>IVA (16%)</span>
+      <span>${{ tax() | number:'1.2-2' }}</span>
+    </div>
+    <div class="cart-panel__total-row cart-panel__total-row--grand">
+      <span>Total</span>
+      <span>${{ total() | number:'1.2-2' }}</span>
+    </div>
+  </div>
 
-    <button mat-raised-button color="primary" class="cart-panel__proceed-btn" (click)="confirmCart.emit()">
-      <mat-icon>point_of_sale</mat-icon>
-      Proceder al pago
-    </button>
-  }
+  <button mat-raised-button color="primary" class="cart-panel__proceed-btn" (click)="confirmCart.emit()" [disabled]="isEmpty()">
+    <mat-icon>point_of_sale</mat-icon>
+    Proceder al pago
+  </button>
 </div>

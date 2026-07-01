@@ -12,6 +12,7 @@ import { CartItem } from '../../../core/models/cart-item.model';
 
 @Component({
   selector: 'app-cart-panel',
+  standalone: true,
   imports: [MatIconModule, MatButtonModule, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cart-panel.html',

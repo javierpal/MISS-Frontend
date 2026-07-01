@@ -1,0 +1,25 @@
+.barcode-input {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+
+  &__field {
+    flex: 1;
+    --mdc-outlined-text-field-outlined-border-width: 1px;
+  }
+
+  &__search-btn {
+    height: 56px;
+    padding: 0 24px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__search-text {
+    margin-left: 4px;
+    font-weight: 500;
+  }
+}

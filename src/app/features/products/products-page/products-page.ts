@@ -136,10 +136,13 @@ export class ProductsPage implements OnInit{
         this.categories = categories;
         this.taxProfiles = taxProfiles;
         this.categoryNames = categories.map(c => c.name);
-        this.metadataWarning = !this.categories.length || !this.taxProfiles.length
-          ? 'No se pudieron cargar categorías y/o perfiles fiscales desde la API. El alta/edición puede quedar bloqueado hasta que esos endpoints estén disponibles.'
-          : '';
-        this.cdr.markForCheck();
+        // Defer to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.metadataWarning = !this.categories.length || !this.taxProfiles.length
+            ? 'No se pudieron cargar categorías y/o perfiles fiscales desde la API. El alta/edición puede quedar bloqueado hasta que esos endpoints estén disponibles.'
+            : '';
+          this.cdr.markForCheck();
+        });
       });
   }
 

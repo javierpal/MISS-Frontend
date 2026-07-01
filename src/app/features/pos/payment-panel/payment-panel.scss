@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   background: var(--md-sys-color-surface-container-high);
   border-radius: 8px;
   overflow: hidden;
@@ -11,23 +12,25 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    padding: 16px;
+    padding: 10px 16px;
     font-size: 18px;
     font-weight: 600;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--miss-border-light);
+    flex-shrink: 0;
   }
 
   &__total-display {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 16px;
+    padding: 10px 16px;
     background: var(--md-sys-color-primary-container);
+    flex-shrink: 0;
   }
 
   &__total-label {
     font-size: 13px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--miss-text-secondary);
   }
 
   &__total-amount {
@@ -37,20 +40,22 @@
   }
 
   &__methods {
-    padding: 12px 16px 8px;
+    padding: 8px 16px 4px;
+    flex-shrink: 0;
   }
 
   &__method-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
 
+  // ── Botones de método de pago ──
   &__method-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
     padding: 12px 8px;
     font-size: 12px;
     font-weight: 500;
@@ -58,30 +63,77 @@
     height: auto;
     min-height: 60px;
     transition: all 0.15s;
+    gap: 4px !important;
 
-    mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+    // Icono mat-icon directo — centrado sin offset
+    > mat-icon {
+      margin: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 24px !important;
+      width: 24px !important;
+      height: 24px !important;
     }
 
-    &.active {
-      background: var(--md-sys-color-primary);
-      color: white;
-      border-color: var(--md-sys-color-primary);
+    // Label MDC directo — centrado debajo del icono
+    > .mdc-button__label {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      width: 100% !important;
     }
   }
 
+  // ── Estado activo — primary bg, white text, blue glow ──
+  &__method-btn.active {
+    /* MDC outlined-button design tokens */
+    --mdc-outlined-button-container-color: var(--md-sys-color-primary) !important;
+    --mdc-outlined-button-label-text-color: var(--md-sys-color-on-primary) !important;
+    --mdc-outlined-button-outline-color: var(--md-sys-color-primary) !important;
+    --mdc-outlined-button-hover-state-layer-color: var(--md-sys-color-primary) !important;
+    --mdc-outlined-button-focus-state-layer-color: var(--md-sys-color-primary) !important;
+    --mat-stroked-button-hover-state-layer-opacity: 0.12;
+    --mat-stroked-button-focus-state-layer-opacity: 0.12;
+
+    /* Fallback direct overrides */
+    background: var(--md-sys-color-primary) !important;
+    border-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary) !important;
+
+    /* Blue glow on active border */
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.45),
+                0 2px 8px rgba(25, 118, 210, 0.35);
+
+    .mdc-button__label {
+      color: var(--md-sys-color-on-primary) !important;
+
+      mat-icon {
+        color: var(--md-sys-color-on-primary) !important;
+      }
+    }
+
+    .mat-mdc-button-persistent-ripple span,
+    .mdc-button__ripple {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+  }
+
+  // ── Secciones internas (cash, card, etc) — scrollable ──
   &__cash-section,
   &__card-section,
   &__mp-section,
   &__transfer-section,
   &__other-section {
-    padding: 12px 16px;
+    padding: 10px 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
+    min-height: 0;
   }
 
   &__amount-field,
@@ -94,7 +146,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--miss-surface-alt);
     border-radius: 4px;
     font-size: 14px;
   }
@@ -128,5 +180,27 @@
     height: 48px;
     font-size: 15px;
     font-weight: 600;
+    flex-shrink: 0;
+  }
+}
+
+
+/* ── Mobile: payment panel libre, sin cajas que oculten contenido ── */
+@media (max-width: 1024px) {
+  .payment-panel {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    overflow: visible !important;
+
+    &__cash-section,
+    &__card-section,
+    &__mp-section,
+    &__transfer-section,
+    &__other-section {
+      overflow: visible !important;
+      min-height: auto !important;
+      flex: none !important;
+    }
   }
 }

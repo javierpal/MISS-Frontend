@@ -1,0 +1,183 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.pos-page {
+  display: block;
+  height: 100%;
+  overflow: auto;
+
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--miss-overlay);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 1000;
+  }
+
+  &__overlay-text {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  &__barcode-section {
+    padding: 8px 16px;
+    background: var(--md-sys-color-surface);
+    border-top: 1px solid var(--miss-border-light);
+    flex-shrink: 0;
+  }
+
+  &__barcode-error {
+    color: var(--miss-error);
+    font-size: 13px;
+    margin-top: 4px;
+    padding: 6px 12px;
+    background: rgba(198, 40, 40, 0.08);
+    border-radius: 4px;
+  }
+
+  &__content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: visible;
+    gap: 0;
+  }
+
+  &__cart-section {
+    flex: 1;
+    min-width: 388px;
+    min-height: 0;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    > app-cart-panel {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: none;
+      align-self: stretch;
+      display: flex;
+    }
+  }
+
+  &__payment-section {
+    width: 420px;
+    flex-shrink: 0;
+    min-height: 0;
+    padding: 0 0 12px 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    > app-payment-panel,
+    > .pos-page__payment-placeholder {
+      flex: 1;
+      min-height: 0;
+      width: 420px;
+      max-width: none;
+      align-self: stretch;
+      display: flex;
+    }
+  }
+
+  &__payment-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+    color: var(--miss-text-muted);
+    text-align: center;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--miss-text-muted);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+    }
+  }
+}
+
+/* ── Mobile / small screens: scroll de página ── */
+@media (max-width: 1024px) {
+  :host {
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  .pos-page {
+    overflow: auto;
+    height: auto;
+    min-height: 100%;
+
+    &__main {
+      overflow: visible;
+    }
+
+    &__content {
+      flex-direction: column;
+      overflow: visible;
+    }
+
+  &__cart-section {
+      width: 100% !important;
+      flex: none;
+      overflow: visible;
+      min-height: auto;
+
+      > app-cart-panel {
+        width: 100% !important;
+        max-width: none !important;
+        flex: none;
+        min-height: auto;
+      }
+    }
+
+    &__payment-section {
+      width: 100% !important;
+      flex: none;
+      overflow: visible;
+      min-height: auto;
+
+      > app-payment-panel {
+        width: 100% !important;
+        max-width: none !important;
+        flex: none;
+        min-height: auto;
+      }
+
+      > .pos-page__payment-placeholder {
+        flex: none;
+        min-height: auto;
+      }
+    }
+
+    /* ── Barcode bar arriba en mobile ── */
+    &__barcode-section {
+      order: -1;
+    }
+  }
+}

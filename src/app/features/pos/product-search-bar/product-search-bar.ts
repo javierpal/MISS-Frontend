@@ -1,34 +1,32 @@
 import {
   Component,
-  OnInit,
-  OnDestroy,
+  Input,
   ChangeDetectionStrategy,
   signal,
-  computed,
   effect,
   inject,
+  output,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { ProductsApiService } from '../../../core/services/products.api.service';
 import { Product } from '../../../core/models/product.model';
-import { CartItem } from '../../../core/models/cart-item.model';
 
 @Component({
   selector: 'app-product-search-bar',
+  standalone: true,
   imports: [
-    FormsModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     DecimalPipe,
   ],
@@ -36,30 +34,35 @@ import { CartItem } from '../../../core/models/cart-item.model';
   templateUrl: './product-search-bar.html',
   styleUrl: './product-search-bar.scss',
 })
-export class ProductSearchBar implements OnInit, OnDestroy {
+export class ProductSearchBar implements OnChanges, OnDestroy {
   private productsApi = inject(ProductsApiService);
-  private destroy$ = new Subject<void>();
 
-  searchControl = signal('');
-  searching = signal(false);
+  @Input() searchQuery = '';
+
   searchResults = signal<Product[]>([]);
+  searching = signal(false);
   searchError = signal<string | null>(null);
 
-  readonly onProductSelected = new Subject<Product>();
+  productSelected = output<Product>();
 
-  constructor() {
-    effect(() => {
-      const query = this.searchControl();
+  private searchTimeout: any = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['searchQuery']) {
+      const query = this.searchQuery;
+      // Clear previous timeout to debounce
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
       if (!query || query.length < 2) {
         this.searchResults.set([]);
         this.searchError.set(null);
+        this.searching.set(false);
         return;
       }
       this.searching.set(true);
-      this.productsApi
-        .search({ search: query, limit: 20 })
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
+      this.searchTimeout = setTimeout(() => {
+        this.productsApi.search({ search: query, limit: 20 }).subscribe({
           next: (res) => {
             this.searchResults.set(res.items);
             this.searching.set(false);
@@ -69,22 +72,17 @@ export class ProductSearchBar implements OnInit, OnDestroy {
             this.searching.set(false);
           },
         });
-    });
-  }
-
-  ngOnInit(): void {
-    // No extra init needed; signals drive the search
+      }, 300);
+    }
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
   }
 
   selectProduct(product: Product): void {
-    this.onProductSelected.next(product);
-    this.searchControl.set('');
-    this.searchResults.set([]);
-    this.searchError.set(null);
+    this.productSelected.emit(product);
   }
 }

@@ -1,23 +1,30 @@
 .product-search-bar {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 
-  &__input {
-    position: relative;
-    z-index: 10;
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--miss-text-secondary);
   }
 
-  &__field {
-    width: 100%;
-    --mdc-outlined-text-field-outlined-border-width: 1px;
+  &__error {
+    color: var(--miss-error);
+    font-size: 13px;
+    padding: 8px 12px;
+    background: rgba(198, 40, 40, 0.08);
+    border-radius: 4px;
   }
 
   &__results {
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--miss-border);
     border-radius: 4px;
   }
 
@@ -35,7 +42,7 @@
     }
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.04);
+      background-color: var(--miss-surface-alt);
     }
   }
 
@@ -65,7 +72,7 @@
   &__result-sku,
   &__result-barcode {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    color: var(--miss-text-secondary);
   }
 
   &__result-actions {
@@ -83,25 +90,12 @@
 
   &__result-stock {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
-  }
-
-  &__add-btn {
-    width: 36px;
-    height: 36px;
-  }
-
-  &__error {
-    color: #d32f2f;
-    font-size: 13px;
-    padding: 8px 12px;
-    background: rgba(211, 47, 47, 0.08);
-    border-radius: 4px;
+    color: var(--miss-text-secondary);
   }
 
   &__empty {
     text-align: center;
-    color: rgba(0, 0, 0, 0.38);
+    color: var(--miss-text-muted);
     font-size: 13px;
     padding: 24px 0;
   }

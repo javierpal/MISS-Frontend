@@ -1,1 +1,42 @@
-<app-placeholder-page title="POS" description="Espacio inicial para caja rápida, búsqueda de productos y flujo de venta." />
+<div class="pos-page">
+  @if (processingPayment()) {
+    <div class="pos-page__overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <span class="pos-page__overlay-text">Procesando pago...</span>
+    </div>
+  }
+
+  <div class="pos-page__main">
+    <div class="pos-page__content">
+      <div class="pos-page__cart-section">
+        <app-cart-panel
+          [items]="cartItems()"
+          (removeItem)="onRemoveItem($event)"
+          (updateQuantity)="onCartUpdateQuantity($event.productId, $event.quantity)"
+          (clearCart)="onClearCart()"
+          (confirmCart)="onConfirmCart()"
+        />
+      </div>
+
+      <div class="pos-page__payment-section">
+        <app-payment-panel
+          [data]="paymentData()"
+          (confirmPayment)="onConfirmPayment($event)"
+        />
+      </div>
+    </div>
+
+    <!-- Barcode input at the bottom -->
+    <div class="pos-page__barcode-section">
+      <app-barcode-input
+        label="Escanee o escriba el código de barras"
+        placeholder="Escanee código de barras..."
+        (barcodeSubmitted)="onBarcodeSubmitted($event)"
+        (openSearch)="openSearchPopup($event)"
+      />
+      @if (barcodeError()) {
+        <div class="pos-page__barcode-error">{{ barcodeError() }}</div>
+      }
+    </div>
+  </div>
+</div>

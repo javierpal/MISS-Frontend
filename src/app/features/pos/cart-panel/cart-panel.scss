@@ -1,17 +1,27 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+}
+
 .cart-panel {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 300px;
+  width: 100%;
   background: var(--md-sys-color-surface-container-high);
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid var(--miss-border-light);
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--miss-border-light);
+    flex-shrink: 0;
   }
 
   &__title {
@@ -29,8 +39,9 @@
     align-items: center;
     justify-content: center;
     flex: 1;
+    min-height: 150px;
     gap: 8px;
-    color: rgba(0, 0, 0, 0.38);
+    color: var(--miss-text-muted);
     padding: 48px 16px;
 
     mat-icon {
@@ -46,7 +57,7 @@
 
     &-hint {
       font-size: 12px;
-      color: rgba(0, 0, 0, 0.24);
+      color: var(--miss-text-disabled);
     }
   }
 
@@ -61,7 +72,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--miss-border-light);
     gap: 8px;
   }
 
@@ -83,12 +94,12 @@
 
   &__item-sku {
     font-size: 11px;
-    color: rgba(0, 0, 0, 0.45);
+    color: var(--miss-text-secondary);
   }
 
   &__item-unit-price {
     font-size: 11px;
-    color: rgba(0, 0, 0, 0.45);
+    color: var(--miss-text-secondary);
   }
 
   &__item-controls {
@@ -115,7 +126,7 @@
 
   &__totals {
     padding: 16px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid var(--miss-border-light);
     background: var(--md-sys-color-surface-container);
   }
 
@@ -130,7 +141,7 @@
       font-weight: 700;
       padding-top: 8px;
       margin-top: 4px;
-      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      border-top: 1px solid var(--miss-border);
       color: var(--md-sys-color-primary);
     }
   }
@@ -141,5 +152,25 @@
     height: 48px;
     font-size: 15px;
     font-weight: 600;
+  }
+}
+
+/* ── Mobile: carrito a full width ── */
+@media (max-width: 1024px) {
+  :host {
+    min-height: auto;
+  }
+
+  .cart-panel {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+
+    &__list {
+      overflow-y: auto !important;
+      min-height: auto !important;
+    }
   }
 }
