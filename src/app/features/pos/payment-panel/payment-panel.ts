@@ -39,7 +39,7 @@ export class PaymentPanel {
   readonly selectedMethod = signal<PaymentMethod>('CASH');
 
   /** Amount received (for cash payments) */
-  readonly amountReceived = signal(0);
+  readonly amountReceived = signal<number | null>(null);
 
   /** Payment reference (for card/transfer) */
   readonly reference = signal('');
@@ -59,7 +59,7 @@ export class PaymentPanel {
   /** Calculated change (only for CASH) */
   readonly change = computed(() => {
     if (this.selectedMethod() !== 'CASH') return 0;
-    const received = this.amountReceived();
+    const received = this.amountReceived() ?? 0;
     if (received < this.data().total) return 0;
     return +(received - this.data().total).toFixed(2);
   });
@@ -67,7 +67,7 @@ export class PaymentPanel {
   /** Whether the received amount is sufficient (for cash) */
   readonly isSufficient = computed(() => {
     if (this.selectedMethod() !== 'CASH') return true;
-    return this.amountReceived() >= this.data().total;
+    return (this.amountReceived() ?? 0) >= this.data().total;
   });
 
   /** Whether the form is ready to submit */
@@ -96,11 +96,22 @@ export class PaymentPanel {
     this.providerReference.set('');
   }
 
+  onAmountInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (value === "" || value === null) {
+      this.amountReceived.set(null);
+    } else {
+      this.amountReceived.set(parseFloat(value));
+    }
+  }
+
+
   onConfirm(): void {
     const entry: PaymentEntry = {
       method: this.selectedMethod(),
       amount: this.data().total,
-      amountReceived: this.selectedMethod() === 'CASH' ? this.amountReceived() : undefined,
+      amountReceived: this.selectedMethod() === 'CASH' ? this.amountReceived() ?? 0 : undefined,
       changeAmount: this.change(),
       reference: this.reference() || undefined,
       providerReference: this.providerReference() || undefined,

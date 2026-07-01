@@ -24,6 +24,9 @@
         <div class="cart-panel__item">
           <div class="cart-panel__item-info">
             <span class="cart-panel__item-name">{{ item.product.name }}</span>
+            @if (item.product.barcode) {
+              <span class="cart-panel__item-barcode"><strong>{{ item.product.barcode }}</strong></span>
+            }
             <span class="cart-panel__item-sku">SKU: {{ item.product.sku }}</span>
             <span class="cart-panel__item-unit-price">${{ item.product.salePrice | number:'1.2-2' }} c/u</span>
           </div>
