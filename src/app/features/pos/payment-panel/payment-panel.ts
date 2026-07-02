@@ -56,6 +56,9 @@ export class PaymentPanel {
     { value: 'OTHER', label: 'Otro', icon: 'more_horiz' },
   ];
 
+  /** Mexican common denominations */
+  readonly denominations: number[] = [20, 50, 100, 200, 500, 1000];
+
   /** Calculated change (only for CASH) */
   readonly change = computed(() => {
     if (this.selectedMethod() !== 'CASH') return 0;
@@ -94,6 +97,10 @@ export class PaymentPanel {
     this.amountReceived.set(0);
     this.reference.set('');
     this.providerReference.set('');
+  }
+
+  onDenominationClick(amount: number): void {
+    this.amountReceived.set(amount);
   }
 
   onAmountInput(event: Event): void {

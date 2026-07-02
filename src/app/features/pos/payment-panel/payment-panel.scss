@@ -121,6 +121,36 @@
     }
   }
 
+  // ── Denominaciones mexicanas ──
+  &__denominations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 0 4px;
+  }
+
+  &__denom-btn {
+    flex: 1 1 auto;
+    min-width: 48px;
+    padding: 4px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    height: 32px;
+    transition: all 0.12s;
+    line-height: 1;
+
+    &:hover {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
   // ── Secciones internas (cash, card, etc) — scrollable ──
   &__cash-section,
   &__card-section,

@@ -28,6 +28,19 @@
   @switch (selectedMethod()) {
     @case ('CASH') {
       <div class="payment-panel__cash-section">
+        <!-- Denominaciones mexicanas -->
+        <div class="payment-panel__denominations">
+          @for (denom of denominations; track denom) {
+            <button
+              mat-stroked-button
+              class="payment-panel__denom-btn"
+              (click)="onDenominationClick(denom)"
+            >
+              ${{ denom }}
+            </button>
+          }
+        </div>
+
         <mat-form-field appearance="outline" class="payment-panel__amount-field">
           <mat-label>Efectivo recibido</mat-label>
           <mat-icon matPrefix>attach_money</mat-icon>
