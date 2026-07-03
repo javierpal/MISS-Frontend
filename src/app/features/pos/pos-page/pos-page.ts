@@ -5,7 +5,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 
 import { SearchPopup } from '../search-popup/search-popup';
 import { BarcodeInput } from '../barcode-input/barcode-input';
@@ -16,7 +16,8 @@ import { Product } from '../../../core/models/product.model';
 import { CartItem } from '../../../core/models/cart-item.model';
 import { PaymentEntry } from '../../../core/models/payment.model';
 import { SalesApiService } from '../../../core/services/sales.api.service';
-import { CreateSaleDto } from '../../../core/models/sale.model';
+import { ApiClientService } from '../../../core/services/api-client.service';
+import { CreateSaleDto, RegisterPaymentDto, BackendPaymentMethod, MercadoPagoOrderRequest, MercadoPagoConfirmDto, MixedPaymentEntry } from '../../../core/models/sale.model';
 import { Sale } from '../../../core/models/sale.model';
 
 @Component({
@@ -38,6 +39,7 @@ import { Sale } from '../../../core/models/sale.model';
   styleUrl: './pos-page.scss',
 })
 export class PosPage implements OnDestroy {
+  private api = inject(ApiClientService);
   private salesApi = inject(SalesApiService);
   private productsApi = inject(ProductsApiService);
   private snackBar = inject(MatSnackBar);
@@ -55,16 +57,18 @@ export class PosPage implements OnDestroy {
   // Barcode error state
   barcodeError = signal<string | null>(null);
 
-  // Computed totals
+  // Computed totals — per-line aggregation
   subtotal = computed(() =>
-    this.cartItems().reduce((sum, item) => sum + item.lineTotal, 0)
+    +(this.cartItems().reduce((sum, item) => sum + item.lineBase, 0)).toFixed(2)
   );
 
-  taxRate = 0.16;
+  tax = computed(() =>
+    +(this.cartItems().reduce((sum, item) => sum + item.lineTax, 0)).toFixed(2)
+  );
 
-  tax = computed(() => +(this.subtotal() * this.taxRate).toFixed(2));
-
-  total = computed(() => +(this.subtotal() + this.tax()).toFixed(2));
+  total = computed(() =>
+    +(this.cartItems().reduce((sum, item) => sum + item.lineTotal, 0)).toFixed(2)
+  );
 
   // Payment panel data
   paymentData = computed(() => ({
@@ -144,25 +148,63 @@ export class PosPage implements OnDestroy {
         return;
       }
 
+      const unitPrice = product.salePrice;
+      const isTaxIncluded = product.pricesIncludeTax ?? false;
+      const rate = product.taxRate ?? 0;
+      let lineTotal: number, lineBase: number, lineTax: number;
+      if (isTaxIncluded) {
+        lineTotal = +(unitPrice * newQty).toFixed(2);
+        lineBase = +(lineTotal / (1 + rate)).toFixed(2);
+        lineTax = +(lineTotal - lineBase).toFixed(2);
+      } else {
+        lineBase = +(unitPrice * newQty).toFixed(2);
+        lineTax = +(lineBase * rate).toFixed(2);
+        lineTotal = +(lineBase + lineTax).toFixed(2);
+      }
       items[existingIndex] = {
         ...existing,
         quantity: newQty,
-        lineTotal: +(newQty * product.salePrice).toFixed(2),
+        lineTotal,
+        lineBase,
+        lineTax,
+        product: {
+          ...existing.product,
+          pricesIncludeTax: isTaxIncluded,
+          taxRate: rate,
+        },
       };
       this.cartItems.set(items);
     } else {
       // Add new item
+      const unitPrice = product.salePrice;
+      const qty = 1;
+      const isTaxIncluded = product.pricesIncludeTax ?? false;
+      const rate = product.taxRate ?? 0;
+      let lineTotal: number, lineBase: number, lineTax: number;
+      if (isTaxIncluded) {
+        lineTotal = +(unitPrice * qty).toFixed(2);
+        lineBase = +(lineTotal / (1 + rate)).toFixed(2);
+        lineTax = +(lineTotal - lineBase).toFixed(2);
+      } else {
+        lineBase = +(unitPrice * qty).toFixed(2);
+        lineTax = +(lineBase * rate).toFixed(2);
+        lineTotal = +(lineBase + lineTax).toFixed(2);
+      }
       const newItem: CartItem = {
         product: {
           id: product.id,
           sku: product.sku,
           barcode: product.barcode,
           name: product.name,
-          salePrice: product.salePrice,
+          salePrice: unitPrice,
+          pricesIncludeTax: isTaxIncluded,
+          taxRate: rate,
           currentStock: product.currentStock,
         },
-        quantity: 1,
-        lineTotal: product.salePrice,
+        quantity: qty,
+        lineTotal,
+        lineBase,
+        lineTax,
       };
       this.cartItems.set([...this.cartItems(), newItem]);
     }
@@ -194,10 +236,25 @@ export class PosPage implements OnDestroy {
           );
           return item;
         }
+        const unitPrice = item.product.salePrice;
+        const isTaxIncluded = item.product.pricesIncludeTax ?? false;
+        const rate = item.product.taxRate ?? 0;
+        let lineTotal: number, lineBase: number, lineTax: number;
+        if (isTaxIncluded) {
+          lineTotal = +(unitPrice * quantity).toFixed(2);
+          lineBase = +(lineTotal / (1 + rate)).toFixed(2);
+          lineTax = +(lineTotal - lineBase).toFixed(2);
+        } else {
+          lineBase = +(unitPrice * quantity).toFixed(2);
+          lineTax = +(lineBase * rate).toFixed(2);
+          lineTotal = +(lineBase + lineTax).toFixed(2);
+        }
         return {
           ...item,
           quantity,
-          lineTotal: +(quantity * item.product.salePrice).toFixed(2),
+          lineTotal,
+          lineBase,
+          lineTax,
         };
       }
       return item;
@@ -216,44 +273,166 @@ export class PosPage implements OnDestroy {
     // no-op — payment panel is always rendered
   }
 
-  onConfirmPayment(payments: PaymentEntry[]): void {
+    async onConfirmPayment(payments: PaymentEntry[] | MixedPaymentEntry): Promise<void> {
     this.processingPayment.set(true);
 
     const saleDto: CreateSaleDto = {
       items: this.cartItems().map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
-        unitPrice: item.product.salePrice,
-      })),
-      payments: payments.map((p) => ({
-        method: p.method,
-        amount: p.amount,
-        amountReceived: p.amountReceived,
-        changeAmount: p.changeAmount,
+        unitPrice: item.product.salePrice.toFixed(2),
       })),
     };
 
-    const sub = this.salesApi.create(saleDto).subscribe({
-      next: (response: any) => {
-        this.snackBar.open(
-          `Venta registrada: ${response?.data?.folio ?? 'OK'}`,
-          'Cerrar',
-          { duration: 5000, horizontalPosition: 'center', verticalPosition: 'top' }
-        );
-        // Reset everything
-        this.cartItems.set([]);
-        this.processingPayment.set(false);
-      },
-      error: (error: any) => {
-        this.snackBar.open(
-          `Error al registrar venta: ${error?.error?.message ?? error.message}`,
-          'Cerrar',
-          { duration: 5000, horizontalPosition: 'center', verticalPosition: 'top' }
-        );
-        this.processingPayment.set(false);
-      },
-    });
+    let createdSaleId: string | null = null;
+    let createdFolio: string = '';
+    let createdSaleTotal: number = 0;
 
-    this.subscriptions.add(sub);
+    try {
+      const response = await firstValueFrom(this.salesApi.create(saleDto));
+      createdSaleId = response?.id ?? null;
+      createdFolio = response?.folio ?? '';
+      createdSaleTotal = +(response?.total ?? 0);
+      if (!createdSaleId) {
+        this.snackBar.open('Venta creada pero no se pudo registrar pago', 'Cerrar', { duration: 5000 });
+        this.processingPayment.set(false);
+        return;
+      }
+    } catch (err: any) {
+      this.snackBar.open('Error al crear venta: ' + (err?.error?.message ?? err.message), 'Cerrar', { duration: 5000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.processingPayment.set(false);
+      return;
+    }
+
+    const paymentArray = Array.isArray(payments) ? payments : [];
+
+    // Check if payment is mixed
+    if ((payments as any).kind === 'mixed') {
+      await this.handleMixedPayment(createdSaleId, createdFolio, payments as MixedPaymentEntry, createdSaleTotal);
+      return;
+    }
+
+    // Check if payment is Mercado Pago terminal
+    const mpPayment = (Array.isArray(payments) ? payments : []).find(p => p.method === "MERCPAGO");
+
+    if (mpPayment) {
+      await this.handleMercadoPagoPayment(createdSaleId, createdFolio, mpPayment, paymentArray);
+      return;
+    }
+
+    // Regular payment flow (CASH, CARD, TRANSFER)
+    const methodMap: Record<string, BackendPaymentMethod | null> = {
+      'CASH': 'CASH',
+      'CARD': 'CARD',
+      'TRANSFER': 'TRANSFER',
+    };
+
+    const paymentItems: RegisterPaymentDto["payments"] = [];
+    for (const p of paymentArray) {
+      const backendMethod = methodMap[p.method];
+      if (!backendMethod) {
+        this.snackBar.open('Método no soportado: ' + p.method, 'Cerrar', { duration: 5000 });
+        this.processingPayment.set(false);
+        return;
+      }
+      paymentItems.push({
+        method: backendMethod,
+        amount: p.amount,
+        amountReceived: p.amountReceived,
+        changeAmount: p.changeAmount,
+        status: 'COMPLETED',
+      });
+    }
+
+    if (paymentItems.length === 0) {
+      this.processingPayment.set(false);
+      return;
+    }
+
+    const registerPayload: RegisterPaymentDto = {
+      saleId: String(createdSaleId),
+      payments: paymentItems,
+    };
+
+    try {
+      await firstValueFrom(this.api.post('sales/payments', registerPayload));
+      this.snackBar.open('Venta ' + createdFolio + ' pagada correctamente', 'Cerrar', { duration: 5000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.cartItems.set([]);
+      this.processingPayment.set(false);
+    } catch (err: any) {
+      this.snackBar.open('Venta creada (' + createdFolio + ') pero pago falló: ' + (err?.error?.message ?? err.message), 'Cerrar', { duration: 8000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.processingPayment.set(false);
+    }
   }
+
+  private async handleMixedPayment(
+    saleId: string | null,
+    folio: string,
+    mixed: MixedPaymentEntry,
+    saleTotal: number,
+  ): Promise<void> {
+    // Derive amounts in integer cents to guarantee exact sum
+    const cashCents = Math.round(mixed.cashAmount * 100);
+    const mpCents = Math.round(saleTotal * 100) - cashCents;
+    const cashAmount = cashCents / 100;
+    const mpAmount = mpCents / 100;
+
+    const mixedPayload = {
+      saleId: String(saleId),
+      payments: [
+        { type: 'CASH' as const, amount: cashAmount },
+        { type: 'CARD_TERMINAL_MP' as const, amount: mpAmount, terminalId: mixed.terminalId?.trim() },
+      ],
+    };
+
+    try {
+      await firstValueFrom(this.api.post('payments/mixed', mixedPayload));
+      this.snackBar.open('Venta ' + folio + ' pagada correctamente (mixto)', 'Cerrar', { duration: 5000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.cartItems.set([]);
+      this.processingPayment.set(false);
+    } catch (err: any) {
+      this.snackBar.open('Venta ' + folio + ' creada pero pago mixto falló o quedó pendiente: ' + (err?.error?.message ?? err.message), 'Cerrar', { duration: 8000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.processingPayment.set(false);
+    }
+  }
+
+  private async handleMercadoPagoPayment(
+    saleId: string | null,
+    folio: string,
+    mpPayment: PaymentEntry,
+    allPayments: PaymentEntry[],
+  ): Promise<void> {
+    const terminalId = mpPayment.terminalId?.trim();
+    if (!terminalId) {
+      this.snackBar.open('Se requiere ID de terminal para Mercado Pago', 'Cerrar', { duration: 5000 });
+      this.processingPayment.set(false);
+      return;
+    }
+
+    // Step 1: Create Mercado Pago order
+    const orderPayload: MercadoPagoOrderRequest = {
+      saleId: String(saleId),
+      terminalId,
+      externalReference: mpPayment.providerReference || undefined,
+      amount: mpPayment.amount,
+    };
+
+    try {
+      const orderResp = await firstValueFrom(this.api.post('payments/mercado-pago/point/order', orderPayload));
+      const providerReference = (orderResp as any)?.data?.providerReference;
+      if (!providerReference) {
+        this.snackBar.open('No se obtuvo referencia de orden MP', 'Cerrar', { duration: 5000 });
+        this.processingPayment.set(false);
+        return;
+      }
+
+      // No auto-confirm: payment stays PENDING until real terminal event
+      this.snackBar.open('Venta ' + folio + ' pendiente — espera confirmación del terminal MP', 'Cerrar', { duration: 8000, horizontalPosition: 'center', verticalPosition: 'top' });
+      this.processingPayment.set(false);
+    } catch (err: any) {
+      this.snackBar.open('Error orden MP: ' + (err?.error?.message ?? err.message), 'Cerrar', { duration: 5000 });
+      this.processingPayment.set(false);
+    }
+  }
+
 }

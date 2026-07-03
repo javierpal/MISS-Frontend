@@ -179,7 +179,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
+    padding: 3px 12px;
     background: var(--miss-surface-alt);
     border-radius: 4px;
     font-size: 14px;
@@ -209,7 +209,7 @@
   }
 
   &__sufficient {
-    padding: 3px 12px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -233,6 +233,67 @@
     font-size: 15px;
     font-weight: 600;
     flex-shrink: 0;
+  }
+
+  // ── Mixed payment ──
+  &__mixed-toggle {
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__mixed-btn {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  &__mixed-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px 16px;
+  }
+
+  &__mixed-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+  }
+
+  &__mixed-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  &__mixed-field {
+    margin: 0;
+  }
+
+  &__mixed-change {
+    font-size: 13px;
+    color: #4caf50;
+    font-weight: 500;
+  }
+
+  &__mixed-total {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 0;
+    text-align: center;
+    color: #333;
+  }
+
+  &__mixed-error {
+    font-size: 12px;
+    color: #f44336;
+    font-weight: 500;
+    padding: 4px 0;
   }
 }
 

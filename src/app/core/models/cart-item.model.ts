@@ -6,8 +6,12 @@ export interface CartItem {
     barcode?: string;
     name: string;
     salePrice: number;
+    pricesIncludeTax?: boolean;
+    taxRate?: number;
     currentStock?: number;
   };
   quantity: number;
   lineTotal: number;
+  lineBase: number;
+  lineTax: number;
 }

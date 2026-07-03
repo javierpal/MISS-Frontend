@@ -1,3 +1,13 @@
+/** Map tax profile name to tax rate percentage */
+function mapTaxProfileRate(taxProfileName?: string): number {
+  if (!taxProfileName) return 0.16; // default fallback
+  const name = taxProfileName.toUpperCase();
+  if (name.includes('0') && name.includes('GENERAL')) return 0;
+  if (name.includes('8')) return 0.08;
+  if (name.includes('16')) return 0.16;
+  return 0.16; // default fallback
+}
+
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
@@ -26,6 +36,7 @@ function mapProduct(raw: any): Product {
     taxProfileId: raw.taxProfileId,
     taxProfileName: raw.taxProfileName,
     pricesIncludeTax: raw.pricesIncludeTax ?? false,
+    taxRate: mapTaxProfileRate(raw.taxProfileName),
     minStock: Number(raw.minStock),
     maxStock: raw.maxStock !== null && raw.maxStock !== undefined ? Number(raw.maxStock) : undefined,
     requiresPrescription: raw.requiresPrescription ?? false,

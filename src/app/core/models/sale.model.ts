@@ -45,7 +45,7 @@ export interface CreateSaleDto {
   items: {
     productId: string | number;
     quantity: number;
-    unitPrice: number;
+    unitPrice: string;
   }[];
   payments?: {
     method: SalePaymentMethod;
@@ -53,4 +53,54 @@ export interface CreateSaleDto {
     amountReceived?: number;
     changeAmount?: number;
   }[];
+}
+
+/** Backend payment method enum-like type */
+export type BackendPaymentMethod = 'CASH' | 'CARD' | 'TRANSFER' | 'MIXED' | 'CARD_TERMINAL_MP';
+
+/** DTO for POST /sales/payments */
+export interface RegisterPaymentDto {
+  saleId: string;
+  payments: {
+    method: BackendPaymentMethod;
+    amount: number;
+    amountReceived?: number;
+    changeAmount?: number;
+    status: 'COMPLETED';
+    reference?: string;
+    provider?: 'MERCADO_PAGO';
+    providerReference?: string;
+    terminalId?: string;
+    paymentGroupKey?: string;
+    requestPayloadHash?: string;
+  }[];
+}
+
+/** Mercado Pago order request */
+export interface MercadoPagoOrderRequest {
+  saleId: string;
+  terminalId: string;
+  externalReference?: string;
+  amount?: number;
+}
+
+/** Mercado Pago confirmation request */
+export enum MercadoPagoConfirmationStatus {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export interface MercadoPagoConfirmDto {
+  providerReference: string;
+  status: MercadoPagoConfirmationStatus;
+  amount?: number;
+}
+
+/** Emitted by payment-panel when user activates mixed payment mode */
+export interface MixedPaymentEntry {
+  kind: 'mixed';
+  cashAmount: number;
+  cashReceived: number;
+  mpAmount: number;
+  terminalId: string;
 }

@@ -22,7 +22,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     background: var(--miss-bg);
-    padding: 1.5rem;
+    padding: 8px;
 }
 
 .shell-content__inner {
@@ -36,7 +36,7 @@
 
 @media (max-width: 1023px) {
     .shell-content {
-        padding: 1rem;
+        padding: 8px;
     }
 
     .shell-layout--mobile-overlay::after {

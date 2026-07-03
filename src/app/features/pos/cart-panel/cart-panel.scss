@@ -40,6 +40,7 @@
     justify-content: center;
     flex: 1;
     min-height: 150px;
+    height: 100%;
     gap: 8px;
     color: var(--miss-text-muted);
     padding: 48px 16px;
@@ -74,6 +75,8 @@
     padding: 8px 16px;
     border-bottom: 1px solid var(--miss-border-light);
     gap: 8px;
+    max-width: 100%;
+    width: 100%;
   }
 
   &__item-info {

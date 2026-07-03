@@ -35,19 +35,15 @@ export class CartPanel {
   readonly confirmCart = output<void>();
 
   subtotal(): number {
-    return this.items().reduce((sum, item) => sum + item.lineTotal, 0);
-  }
-
-  taxRate(): number {
-    return 0.16;
+    return +(this.items().reduce((sum, item) => sum + item.lineBase, 0)).toFixed(2);
   }
 
   tax(): number {
-    return +(this.subtotal() * this.taxRate()).toFixed(2);
+    return +(this.items().reduce((sum, item) => sum + item.lineTax, 0)).toFixed(2);
   }
 
   total(): number {
-    return +(this.subtotal() + this.tax()).toFixed(2);
+    return +(this.items().reduce((sum, item) => sum + item.lineTotal, 0)).toFixed(2);
   }
 
   itemCount(): number {

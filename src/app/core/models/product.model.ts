@@ -18,6 +18,7 @@ export interface Product {
   taxProfileId: string;
   taxProfileName?: string;
   pricesIncludeTax?: boolean;
+  taxRate?: number;
   minStock: number;
   maxStock?: number | null;
   requiresPrescription?: boolean;
@@ -46,6 +47,7 @@ export interface CreateProductDto {
   unitOfMeasure?: string;
   purchasePrice?: number;
   pricesIncludeTax?: boolean;
+  taxRate?: number;
   maxStock?: number;
   requiresPrescription?: boolean;
   isControlled?: boolean;
@@ -69,6 +71,7 @@ export interface UpdateProductDto {
   unitOfMeasure?: string;
   purchasePrice?: number;
   pricesIncludeTax?: boolean;
+  taxRate?: number;
   maxStock?: number;
   requiresPrescription?: boolean;
   isControlled?: boolean;

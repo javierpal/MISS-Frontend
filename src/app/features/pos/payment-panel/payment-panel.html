@@ -106,6 +106,56 @@
     }
   }
 
+  <!-- Mixed payment section -->
+  <div class="payment-panel__mixed-toggle">
+    <button
+      mat-raised-button
+      color="accent"
+      class="payment-panel__mixed-btn"
+      (click)="toggleMixed()"
+      [disabled]="selectedMethod() === null"
+    >
+      {{ enableMixed() ? 'Desactivar pago mixto' : 'Activar pago mixto' }}
+    </button>
+  </div>
+
+  @if (enableMixed()) {
+    <div class="payment-panel__mixed-section">
+      <div class="payment-panel__mixed-block">
+        <h4 class="payment-panel__mixed-title">Efectivo</h4>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>Monto efectivo</mat-label>
+          <input matInput type="number" [(ngModel)]="mixedCashAmount" min="0" step="0.01" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>Recibido</mat-label>
+          <input matInput type="number" [(ngModel)]="mixedCashReceived" min="0" step="0.01" />
+        </mat-form-field>
+        <div class="payment-panel__mixed-change">
+          Vuelto: ${{ mixedChange() | number:'1.2-2' }}
+        </div>
+      </div>
+      <div class="payment-panel__mixed-block">
+        <h4 class="payment-panel__mixed-title">Mercado Pago terminal</h4>
+        <div class="payment-panel__mixed-mp-amount">
+          Monto MP: ${{ mixedMpAmount() | number:'1.2-2' }}
+        </div>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>ID de Terminal</mat-label>
+          <input matInput [(ngModel)]="terminalId" placeholder="Ej: TERMINAL_001" />
+        </mat-form-field>
+      </div>
+      <div class="payment-panel__mixed-total">
+        Total: ${{ mixedTotal() | number:'1.2-2' }} / ${{ data().total | number:'1.2-2' }}
+      </div>
+
+      <!-- Error messages -->
+      @for (err of getMixedErrors(); track err) {
+        <div class="payment-panel__mixed-error">{{ err }}</div>
+      }
+    </div>
+  }
+
   <button
     mat-raised-button
     color="primary"
