@@ -1,0 +1,27 @@
+<div class="search-popup">
+  <div class="search-popup__header">
+    <h2 class="search-popup__title">Buscar producto</h2>
+    <button mat-icon-button (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="search-popup__input-section">
+    <mat-form-field appearance="outline" class="search-popup__search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Escribe para buscar...</mat-label>
+      <input
+        #searchInput
+        matInput
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Escribe nombre, SKU o código de barras..."
+      />
+    </mat-form-field>
+  </div>
+
+  <app-product-search-bar
+    [searchQuery]="searchQuery"
+    (productSelected)="selectProduct($event)"
+  />
+</div>

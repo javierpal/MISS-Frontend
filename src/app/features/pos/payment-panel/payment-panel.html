@@ -1,0 +1,187 @@
+<div class="payment-panel">
+  <h3 class="payment-panel__title">
+    <mat-icon>payments</mat-icon>
+    Pago
+  </h3>
+
+  <div class="payment-panel__total-display">
+    <span class="payment-panel__total-label">Total a pagar</span>
+    <span class="payment-panel__total-amount">${{ data().total | number:'1.2-2' }}</span>
+  </div>
+
+  <div class="payment-panel__content">
+    <div class="payment-panel__methods" [style.display]="enableMixed() ? 'none' : ''">
+    <div class="payment-panel__method-grid">
+      @for (method of methods; track method.value) {
+        <button
+          mat-stroked-button
+          class="payment-panel__method-btn"
+          [class.active]="selectedMethod() === method.value"
+          (click)="onMethodChange(method.value)"
+        >
+          <mat-icon>{{ method.icon }}</mat-icon>
+          {{ method.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @switch (selectedMethod()) {
+    @case ('CASH') {
+      <div class="payment-panel__cash-section" [style.display]="enableMixed() ? 'none' : ''">
+        <!-- Denominaciones mexicanas -->
+        <div class="payment-panel__denominations">
+          @for (denom of denominations; track denom) {
+            <button
+              mat-stroked-button
+              class="payment-panel__denom-btn"
+              (click)="onDenominationClick(denom)"
+            >
+              ${{ denom }}
+            </button>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="payment-panel__amount-field">
+          <mat-label>Efectivo recibido</mat-label>
+          <mat-icon matPrefix>attach_money</mat-icon>
+          <input matInput type="number" step="0.01" [value]="amountReceived() ?? ''" (input)="onAmountInput($event)" min="0" />
+        </mat-form-field>
+
+        <div class="payment-panel__change-display">
+          <span>Vuelto:</span>
+          <span class="payment-panel__change-amount">${{ change() | number:'1.2-2' }}</span>
+        </div>
+
+
+        @if (selectedMethod() === 'CASH') {
+          @if (isSufficient()) {
+            <div class="payment-panel__sufficient">
+              <mat-icon>check_circle</mat-icon>
+              Pago Completo
+            </div>
+          } @else {
+            <div class="payment-panel__insufficient">
+              <mat-icon>error</mat-icon>
+              Faltan ${{ (data().total - (amountReceived() ?? 0) | number:'1.2-2') }}
+            </div>
+          }
+        }
+      </div>
+    }
+
+    @case ('CARD') {
+      <div class="payment-panel__card-section" [style.display]="enableMixed() ? 'none' : ''">
+        <mat-form-field appearance="outline" class="payment-panel__ref-field">
+          <mat-label>Referencia de transacción</mat-label>
+          <input matInput [(ngModel)]="reference" placeholder="Últimos 4 dígitos o referencia" />
+        </mat-form-field>
+      </div>
+    }
+
+    @case ('MERCPAGO') {
+      <div class="payment-panel__mp-section" [style.display]="enableMixed() ? 'none' : ''">
+        <mat-form-field appearance="outline" class="payment-panel__ref-field">
+          <mat-label>ID de Terminal</mat-label>
+          <input matInput [(ngModel)]="terminalId" placeholder="Ej: TERMINAL_001" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="payment-panel__ref-field">
+          <mat-label>Referencia de Mercado Pago</mat-label>
+          <input matInput [(ngModel)]="providerReference" placeholder="ID de preferencia o pago" />
+        </mat-form-field>
+      </div>
+    }
+
+    @case ('TRANSFER') {
+      <div class="payment-panel__transfer-section" [style.display]="enableMixed() ? 'none' : ''">
+        <mat-form-field appearance="outline" class="payment-panel__ref-field">
+          <mat-label>Referencia de transferencia</mat-label>
+          <input matInput [(ngModel)]="reference" placeholder="No. transferencia / comprobante" />
+        </mat-form-field>
+      </div>
+    }
+
+    @case ('OTHER') {
+      <div class="payment-panel__other-section" [style.display]="enableMixed() ? 'none' : ''">
+        <mat-form-field appearance="outline" class="payment-panel__ref-field">
+          <mat-label>Descripción / referencia</mat-label>
+          <input matInput [(ngModel)]="reference" placeholder="Describe el método de pago" />
+        </mat-form-field>
+      </div>
+    }
+  }
+
+  <!-- Mixed payment toggle / close -->
+  <div class="payment-panel__mixed-toggle">
+    @if (enableMixed()) {
+      <button
+        mat-raised-button
+        color="warn"
+        class="payment-panel__mixed-close-btn"
+        (click)="toggleMixed()"
+      >
+        <mat-icon>close</mat-icon> Desactivar pago mixto
+      </button>
+    } @else {
+      <button
+        mat-raised-button
+        color="accent"
+        class="payment-panel__mixed-btn"
+        (click)="toggleMixed()"
+        [disabled]="selectedMethod() === null"
+      >
+        Activar pago mixto
+      </button>
+    }
+  </div>
+
+  @if (enableMixed()) {
+    <div class="payment-panel__mixed-section">
+      <div class="payment-panel__mixed-block">
+        <h4 class="payment-panel__mixed-title">Efectivo</h4>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>Monto efectivo</mat-label>
+          <input matInput type="number" [(ngModel)]="mixedCashAmount" min="0" step="0.01" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>Recibido</mat-label>
+          <input matInput type="number" [(ngModel)]="mixedCashReceived" min="0" step="0.01" />
+        </mat-form-field>
+        <div class="payment-panel__mixed-change">
+          Vuelto: ${{ mixedChange() | number:'1.2-2' }}
+        </div>
+      </div>
+      <div class="payment-panel__mixed-block">
+        <h4 class="payment-panel__mixed-title">Mercado Pago terminal</h4>
+        <div class="payment-panel__mixed-mp-amount">
+          Monto MP: ${{ mixedMpAmount() | number:'1.2-2' }}
+        </div>
+        <mat-form-field appearance="outline" class="payment-panel__mixed-field">
+          <mat-label>ID de Terminal</mat-label>
+          <input matInput [(ngModel)]="terminalId" placeholder="Ej: TERMINAL_001" />
+        </mat-form-field>
+      </div>
+      <div class="payment-panel__mixed-total">
+        Total: ${{ mixedTotal() | number:'1.2-2' }} / ${{ data().total | number:'1.2-2' }}
+      </div>
+
+      <!-- Error messages -->
+      @for (err of getMixedErrors(); track err) {
+        <div class="payment-panel__mixed-error">{{ err }}</div>
+      }
+    </div>
+  }
+
+  </div>
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="payment-panel__confirm-btn"
+    [disabled]="!canSubmit()"
+    (click)="onConfirm()"
+  >
+    <mat-icon>check_circle</mat-icon>
+    Confirmar Pago
+  </button>
+</div>
