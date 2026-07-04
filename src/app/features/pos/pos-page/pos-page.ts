@@ -335,13 +335,17 @@ export class PosPage implements OnDestroy {
         this.processingPayment.set(false);
         return;
       }
-      paymentItems.push({
+      const item: any = {
         method: backendMethod,
         amount: p.amount,
         amountReceived: p.amountReceived,
         changeAmount: p.changeAmount,
         status: 'COMPLETED',
-      });
+      };
+      if (p.terminalId) {
+        item.terminalId = p.terminalId;
+      }
+      paymentItems.push(item);
     }
 
     if (paymentItems.length === 0) {
@@ -419,7 +423,7 @@ export class PosPage implements OnDestroy {
 
     try {
       const orderResp = await firstValueFrom(this.api.post('payments/mercado-pago/point/order', orderPayload));
-      const providerReference = (orderResp as any)?.data?.providerReference;
+      const providerReference = (orderResp as any)?.providerReference ?? (orderResp as any)?.data?.providerReference;
       if (!providerReference) {
         this.snackBar.open('No se obtuvo referencia de orden MP', 'Cerrar', { duration: 5000 });
         this.processingPayment.set(false);

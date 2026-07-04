@@ -152,6 +152,19 @@
   }
 
   // ── Secciones internas (cash, card, etc) — scrollable ──
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+
+    & > *:not(.payment-panel__mixed-toggle) {
+      overflow-y: auto;
+      min-height: 0;
+    }
+  }
+
   &__cash-section,
   &__card-section,
   &__mp-section,
@@ -306,7 +319,20 @@
     height: auto !important;
     overflow: visible !important;
 
-    &__cash-section,
+    &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+
+    & > *:not(.payment-panel__mixed-toggle) {
+      overflow-y: auto;
+      min-height: 0;
+    }
+  }
+
+  &__cash-section,
     &__card-section,
     &__mp-section,
     &__transfer-section,

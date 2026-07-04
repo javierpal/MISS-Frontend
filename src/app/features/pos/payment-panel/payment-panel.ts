@@ -80,10 +80,11 @@ export class PaymentPanel {
   /** Available payment methods */
   readonly methods: { value: PaymentMethod; label: string; icon: string }[] = [
     { value: 'CASH', label: 'Efectivo', icon: 'payments' },
-    { value: 'CARD', label: 'Tarjeta', icon: 'credit_card' },
-    { value: 'TRANSFER', label: 'Transferencia', icon: 'account_balance' },
+    // TODO: re-enable when backend integration is ready
+    // { value: 'CARD', label: 'Tarjeta', icon: 'credit_card' },
+    // { value: 'TRANSFER', label: 'Transferencia', icon: 'account_balance' },
     { value: 'MERCPAGO', label: 'Mercado Pago', icon: 'account_balance_wallet' },
-    { value: 'OTHER', label: 'Otro', icon: 'more_horiz' },
+    // { value: 'OTHER', label: 'Otro', icon: 'more_horiz' },
   ];
 
   /** Mexican common denominations */

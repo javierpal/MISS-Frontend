@@ -1,0 +1,36 @@
+services:
+  postgres-front:
+    image: postgres:16-alpine
+    container_name: miss-postgres-front
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_front_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend-front:
+    image: miss-backend
+    container_name: miss-backend-front
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-front:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      postgres-front:
+        condition: service_healthy
+    ports:
+      - '4000:3000'
+    restart: unless-stopped
+
+volumes:
+  postgres_front_data:
