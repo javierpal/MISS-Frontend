@@ -3,34 +3,74 @@ services:
     image: postgres:16-alpine
     container_name: miss-postgres-front
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${FRONT_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${FRONT_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${FRONT_POSTGRES_DB}
     ports:
-      - '5433:5432'
+      - '${FRONT_DB_PORT:-5433}:5432'
     volumes:
       - postgres_front_data:/var/lib/postgresql/data
+    networks:
+      - miss_front_network
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${FRONT_POSTGRES_USER} -d ${FRONT_POSTGRES_DB}',
+        ]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
+
+  # One-shot container. It applies pending migrations, runs the seed only when
+  # needed, validates the seed, and writes its status inside PostgreSQL.
+  backend-front-init:
+    image: miss-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miss-backend-front-init
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${FRONT_DATABASE_URL}
+      FRONT_SEED_VERSION: ${FRONT_SEED_VERSION:-1}
+      FRONT_FORCE_RESEED: ${FRONT_FORCE_RESEED:-false}
+    command: ['node', 'scripts/bootstrap-front-db.js']
+    depends_on:
+      postgres-front:
+        condition: service_healthy
+    networks:
+      - miss_front_network
+    restart: 'no'
 
   backend-front:
     image: miss-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: miss-backend-front
     env_file:
       - .env
     environment:
       PORT: 3000
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-front:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: ${FRONT_DATABASE_URL}
     depends_on:
       postgres-front:
         condition: service_healthy
+      backend-front-init:
+        condition: service_completed_successfully
     ports:
-      - '4000:3000'
+      - '${FRONT_BACKEND_PORT:-4000}:3000'
+    networks:
+      - miss_front_network
     restart: unless-stopped
 
 volumes:
   postgres_front_data:
+    name: miss_postgres_front_data
+
+networks:
+  miss_front_network:
+    name: miss_front_network
