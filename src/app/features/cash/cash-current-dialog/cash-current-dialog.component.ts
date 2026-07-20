@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CashApiService } from '../../../core/services/cash.api.service';
 import { CashCurrentResponse, CashMovement } from '../../../core/models/cash.model';
 import { CashOpenDialog } from '../cash-open-dialog/cash-open-dialog.component';
+import { CashCloseDialog } from '../cash-close-dialog/cash-close-dialog.component';
 
 interface SummaryCard {
   label: string;
@@ -189,11 +190,20 @@ export class CashCurrentDialog implements OnInit {
     this.snackBar.open('Registrar movimiento - Próximamente', 'Cerrar', { duration: 3000 });
   }
 
-  onGoToClose(): void {
-    // Cerrar current dialog y abrir open dialog
+  onOpenCashFromEmpty(): void {
+    // Empty state: cerrar current y abrir open dialog
     this.dialogRef.close();
     this.dialog.open(CashOpenDialog, {
       width: '400px',
+      maxHeight: '90vh',
+    });
+  }
+
+  onGoToClose(): void {
+    // Footer: cerrar current y abrir close dialog
+    this.dialogRef.close();
+    this.dialog.open(CashCloseDialog, {
+      width: '500px',
       maxHeight: '90vh',
     });
   }
