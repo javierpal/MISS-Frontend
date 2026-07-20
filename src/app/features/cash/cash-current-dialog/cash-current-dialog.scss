@@ -168,6 +168,37 @@
     width: 20px;
     height: 20px;
   }
+
+  // Colores específicos por tipo de card
+  &--expected {
+    background: var(--miss-info-container);
+    color: var(--miss-on-info);
+  }
+
+  &--in {
+    background: var(--miss-success-container);
+    color: var(--miss-on-success);
+  }
+
+  &--out {
+    background: var(--miss-error-container);
+    color: var(--miss-on-error);
+  }
+
+  &--movements {
+    background: var(--miss-warning-container);
+    color: var(--miss-on-warning);
+  }
+
+  &--cash {
+    background: var(--miss-primary-container);
+    color: var(--miss-primary);
+  }
+
+  &--automatic {
+    background: var(--miss-tertiary-container);
+    color: var(--miss-on-tertiary);
+  }
 }
 
 .cash-current-dialog__summary-info {

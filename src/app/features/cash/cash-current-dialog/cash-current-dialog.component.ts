@@ -214,6 +214,18 @@ export class CashCurrentDialog implements OnInit {
     return `cash-current-dialog__type-badge--${type.toLowerCase()}`;
   }
 
+  getIconClass(index: number): string {
+    const classes = [
+      'cash-current-dialog__summary-icon--expected',  // 0: Monto esperado
+      'cash-current-dialog__summary-icon--in',        // 1: Entradas manuales
+      'cash-current-dialog__summary-icon--out',       // 2: Salidas manuales
+      'cash-current-dialog__summary-icon--movements', // 3: Movimientos manuales
+      'cash-current-dialog__summary-icon--cash',      // 4: Ventas en efectivo
+      'cash-current-dialog__summary-icon--automatic', // 5: Mov. automáticos ventas
+    ];
+    return classes[index] || '';
+  }
+
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
   }

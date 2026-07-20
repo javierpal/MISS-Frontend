@@ -64,10 +64,10 @@
 
   <!-- Summary cards -->
   <div class="cash-current-dialog__summary-grid">
-    @for (card of summaryCards; track card.label) {
+    @for (card of summaryCards; track card.label; let i = $index) {
       <mat-card class="cash-current-dialog__summary-card">
         <mat-card-content>
-          <div class="cash-current-dialog__summary-icon">
+          <div [class]="'cash-current-dialog__summary-icon ' + getIconClass(i)">
             <mat-icon>{{ card.icon }}</mat-icon>
           </div>
           <div class="cash-current-dialog__summary-info">
