@@ -47,7 +47,10 @@
       </div>
       <div class="cash-current-dialog__session-item">
         <span class="cash-current-dialog__session-label">Estado</span>
-        <span class="cash-current-dialog__session-value">{{ getStatusLabel(current?.session?.status || '') }}</span>
+        <span class="cash-current-dialog__session-value cash-current-dialog__session-status">
+          <span class="cash-current-dialog__session-status-dot"></span>
+          {{ getStatusLabel(current?.session?.status || '') }}
+        </span>
       </div>
       <div class="cash-current-dialog__session-item">
         <span class="cash-current-dialog__session-label">Fondo inicial</span>

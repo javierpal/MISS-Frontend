@@ -107,6 +107,19 @@
   overflow-wrap: anywhere;
 }
 
+.cash-current-dialog__session-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cash-current-dialog__session-status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--miss-success);
+}
+
 .cash-current-dialog__icon {
   font-size: 32px;
   width: 32px;
