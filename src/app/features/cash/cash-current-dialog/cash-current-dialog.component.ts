@@ -168,16 +168,14 @@ export class CashCurrentDialog implements OnInit {
     const session = this.current.session;
     const summary = this.current.summary as any || {};
 
-    // Usar manualMovementsCount del backend (no hay lista real de movimientos)
-    const movementsCount = summary.manualMovementsCount || 0;
-
+    // Cards alineadas con referencia visual
     this.summaryCards = [
-      { label: 'Fondo inicial', value: session.openingAmount, icon: 'account_balance_wallet' },
-      { label: 'Ventas', value: summary.totalSales || 0, icon: 'trending_up' },
-      { label: 'Total esperado', value: summary.expectedAmount || 0, icon: 'show_chart' },
-      { label: 'Efectivo', value: 0, icon: 'payments' },
-      { label: 'Tarjeta', value: 0, icon: 'credit_card' },
-      { label: 'Movimientos', value: movementsCount, icon: 'swap_horiz' },
+      { label: 'Monto esperado', value: summary.expectedAmount || 0, icon: 'show_chart' },
+      { label: 'Entradas manuales', value: summary.manualInTotal || 0, icon: 'download' },
+      { label: 'Salidas manuales', value: summary.manualOutTotal || 0, icon: 'upload' },
+      { label: 'Movimientos manuales', value: summary.manualMovementsCount || 0, icon: 'swap_horiz' },
+      { label: 'Ventas en efectivo', value: summary.cashSalesTotal || 0, icon: 'payments' },
+      { label: 'Mov. automáticos ventas', value: summary.automaticSalesMovementTotal || 0, icon: 'autorenew' },
     ];
   }
 
@@ -228,6 +226,11 @@ export class CashCurrentDialog implements OnInit {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  // Action handlers
+  onRegisterMovement(): void {
+    this.snackBar.open('Registrar movimiento - Próximamente', 'Cerrar', { duration: 3000 });
   }
 
   private finishLoading(): void {

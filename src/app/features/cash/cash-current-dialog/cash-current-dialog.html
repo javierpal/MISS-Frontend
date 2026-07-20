@@ -20,22 +20,35 @@
   <div class="cash-current-dialog__header">
     <div class="cash-current-dialog__header-left">
       <mat-icon class="cash-current-dialog__icon">account_balance</mat-icon>
-      <div>
-        <h2 class="cash-current-dialog__title">Caja actual</h2>
-        <p class="cash-current-dialog__subtitle">
-          Sesión: {{ current?.session?.id }} ·
+      <div class="cash-current-dialog__header-info">
+        <div class="cash-current-dialog__header-title-row">
+          <h2 class="cash-current-dialog__title">Caja actual</h2>
           <span [class]="'cash-current-dialog__status ' + getStatusClass(current?.session?.status || '')">
             {{ getStatusLabel(current?.session?.status || '') }}
           </span>
-        </p>
-        <p class="cash-current-dialog__user-info">
-          <mat-icon>person</mat-icon>
-          <span>{{ current?.session?.userName || 'Sin usuario' }}</span>
-        </p>
-        <p class="cash-current-dialog__open-time">
-          <mat-icon>schedule</mat-icon>
-          <span>Abierta: {{ formatDate(current?.session?.openedAt || '') }}</span>
-        </p>
+        </div>
+        <div class="cash-current-dialog__session-grid">
+          <div class="cash-current-dialog__session-item">
+            <span class="cash-current-dialog__session-label">Sesión</span>
+            <span class="cash-current-dialog__session-value">{{ current?.session?.id }}</span>
+          </div>
+          <div class="cash-current-dialog__session-item">
+            <span class="cash-current-dialog__session-label">Estado</span>
+            <span class="cash-current-dialog__session-value">{{ getStatusLabel(current?.session?.status || '') }}</span>
+          </div>
+          <div class="cash-current-dialog__session-item">
+            <span class="cash-current-dialog__session-label">Fondo inicial</span>
+            <span class="cash-current-dialog__session-value">{{ formatCurrency(current?.session?.openingAmount || 0) }}</span>
+          </div>
+          <div class="cash-current-dialog__session-item">
+            <span class="cash-current-dialog__session-label">Usuario</span>
+            <span class="cash-current-dialog__session-value">{{ current?.session?.userName || 'Sin usuario' }}</span>
+          </div>
+          <div class="cash-current-dialog__session-item">
+            <span class="cash-current-dialog__session-label">Fecha de apertura</span>
+            <span class="cash-current-dialog__session-value">{{ formatDate(current?.session?.openedAt || '') }}</span>
+          </div>
+        </div>
       </div>
     </div>
     <button mat-icon-button type="button" (click)="onCloseDialog()" aria-label="Cerrar">
@@ -111,6 +124,10 @@
     <button mat-stroked-button type="button" (click)="onCloseDialog()">
       <mat-icon>close</mat-icon>
       Cerrar
+    </button>
+    <button mat-flat-button color="primary" type="button" (click)="onRegisterMovement()">
+      <mat-icon>add</mat-icon>
+      Registrar movimiento
     </button>
     <button mat-flat-button color="accent" type="button" (click)="onGoToClose()">
       <mat-icon>point_of_sale</mat-icon>
