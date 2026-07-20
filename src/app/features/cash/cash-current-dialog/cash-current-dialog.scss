@@ -170,35 +170,35 @@
   }
 
   // Colores específicos por tipo de card
-  // Icono: color sólido | Fondo: mismo color desvanecido (rgba)
+  // Icono: color más brillante | Fondo: mismo color con rgba(…, 0.25)
   &--expected {
-    background: rgba(30, 64, 175, 0.15);
-    color: #1e40af;
+    background: rgba(37, 99, 235, 0.25);
+    color: #3b82f6;
   }
 
   &--in {
-    background: rgba(30, 64, 175, 0.15);
-    color: #1e40af;
+    background: rgba(37, 99, 235, 0.25);
+    color: #3b82f6;
   }
 
   &--out {
-    background: rgba(153, 27, 27, 0.15);
-    color: #991b1b;
+    background: rgba(220, 38, 38, 0.25);
+    color: #ef4444;
   }
 
   &--movements {
-    background: rgba(91, 33, 182, 0.15);
-    color: #5b21b6;
+    background: rgba(124, 58, 237, 0.25);
+    color: #8b5cf6;
   }
 
   &--cash {
-    background: rgba(6, 95, 70, 0.15);
-    color: #065f46;
+    background: rgba(16, 185, 129, 0.25);
+    color: #10b981;
   }
 
   &--automatic {
-    background: rgba(30, 64, 175, 0.15);
-    color: #1e40af;
+    background: rgba(37, 99, 235, 0.25);
+    color: #3b82f6;
   }
 }
 
