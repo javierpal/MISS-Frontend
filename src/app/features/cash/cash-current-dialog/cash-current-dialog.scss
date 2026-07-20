@@ -169,35 +169,35 @@
     height: 20px;
   }
 
-  // Colores específicos por tipo de card
+  // Colores específicos por tipo de card (tonos oscuros como referencia)
   &--expected {
-    background: rgba(237, 244, 255, 0.9);
-    color: var(--miss-info);
+    background: #1e40af;
+    color: #ffffff;
   }
 
   &--in {
-    background: rgba(59, 130, 246, 0.15);
-    color: var(--miss-primary);
+    background: #1e40af;
+    color: #ffffff;
   }
 
   &--out {
-    background: rgba(253, 236, 239, 0.9);
-    color: var(--miss-error);
+    background: #991b1b;
+    color: #ffffff;
   }
 
   &--movements {
-    background: rgba(255, 246, 231, 0.9);
-    color: var(--miss-warning);
+    background: #5b21b6;
+    color: #ffffff;
   }
 
   &--cash {
-    background: rgba(234, 248, 240, 0.9);
-    color: var(--miss-success);
+    background: #065f46;
+    color: #ffffff;
   }
 
   &--automatic {
-    background: rgba(237, 244, 255, 0.9);
-    color: var(--miss-primary);
+    background: #1e40af;
+    color: #ffffff;
   }
 }
 
