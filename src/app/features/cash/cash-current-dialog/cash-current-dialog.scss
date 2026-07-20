@@ -169,35 +169,36 @@
     height: 20px;
   }
 
-  // Colores específicos por tipo de card (tonos oscuros como referencia)
+  // Colores específicos por tipo de card
+  // Icono: color sólido | Fondo: mismo color desvanecido (rgba)
   &--expected {
-    background: #1e40af;
-    color: #ffffff;
+    background: rgba(30, 64, 175, 0.15);
+    color: #1e40af;
   }
 
   &--in {
-    background: #1e40af;
-    color: #ffffff;
+    background: rgba(30, 64, 175, 0.15);
+    color: #1e40af;
   }
 
   &--out {
-    background: #991b1b;
-    color: #ffffff;
+    background: rgba(153, 27, 27, 0.15);
+    color: #991b1b;
   }
 
   &--movements {
-    background: #5b21b6;
-    color: #ffffff;
+    background: rgba(91, 33, 182, 0.15);
+    color: #5b21b6;
   }
 
   &--cash {
-    background: #065f46;
-    color: #ffffff;
+    background: rgba(6, 95, 70, 0.15);
+    color: #065f46;
   }
 
   &--automatic {
-    background: #1e40af;
-    color: #ffffff;
+    background: rgba(30, 64, 175, 0.15);
+    color: #1e40af;
   }
 }
 
