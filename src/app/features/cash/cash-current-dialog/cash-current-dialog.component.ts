@@ -2,13 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { CashApiService } from '../../../core/services/cash.api.service';
 import { CashCurrentResponse, CashMovement } from '../../../core/models/cash.model';
+import { CashOpenDialog } from '../cash-open-dialog/cash-open-dialog.component';
 
 interface SummaryCard {
   label: string;
@@ -40,6 +41,7 @@ export class CashCurrentDialog implements OnInit {
   private cashApi = inject(CashApiService);
   private snackBar = inject(MatSnackBar);
   private dialogRef = inject(MatDialogRef<CashCurrentDialog>);
+  private dialog = inject(MatDialog);
 
   current: CashCurrentResponse | null = null;
   recentMovements: CashMovement[] = [];
@@ -188,7 +190,12 @@ export class CashCurrentDialog implements OnInit {
   }
 
   onGoToClose(): void {
-    this.snackBar.open('Ir a cierre - Próximamente', 'Cerrar', { duration: 3000 });
+    // Cerrar current dialog y abrir open dialog
+    this.dialogRef.close();
+    this.dialog.open(CashOpenDialog, {
+      width: '400px',
+      maxHeight: '90vh',
+    });
   }
 
   onCloseDialog(): void {
