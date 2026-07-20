@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -44,6 +44,7 @@ export class CashCurrentDialog implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialogRef = inject(MatDialogRef<CashCurrentDialog>);
   private dialog = inject(MatDialog);
+  private cdr = inject(ChangeDetectorRef);
 
   current: CashCurrentResponse | null = null;
   recentMovements: CashMovement[] = [];
@@ -98,7 +99,7 @@ export class CashCurrentDialog implements OnInit {
     // Try API first, fallback to mock
     this.cashApi.getCurrent().pipe(
       finalize(() => {
-        this.loading = false;
+        this.finishLoading();
       })
     ).subscribe({
       next: (data) => {
@@ -232,6 +233,14 @@ export class CashCurrentDialog implements OnInit {
   // Action handlers (stubs for dialogs)
   onRegisterMovement(): void {
     this.snackBar.open('Registrar movimiento - Próximamente', 'Cerrar', { duration: 3000 });
+  }
+
+  private finishLoading(): void {
+    // Diferir cambio de estado al siguiente ciclo para evitar ExpressionChangedAfterItHasBeenCheckedError
+    queueMicrotask(() => {
+      this.loading = false;
+      this.cdr.markForCheck();
+    });
   }
 
   onOpenCashFromEmpty(): void {
