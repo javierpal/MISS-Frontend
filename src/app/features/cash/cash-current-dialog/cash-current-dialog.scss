@@ -44,20 +44,18 @@
   line-height: 1.4;
 }
 
-.cash-current-dialog__session-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem 1rem;
-  margin-top: 0.25rem;
-
-  @media (max-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.cash-current-dialog__session-section {
+  padding: 0.75rem 0 1rem;
+  border-bottom: 1px solid var(--miss-border);
 }
 
-.cash-current-dialog__session-section {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--miss-border);
+.cash-current-dialog__session-section .cash-current-dialog__section-title {
+  margin: 0 0 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--miss-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .cash-current-dialog__summary-section {
@@ -72,6 +70,41 @@
   color: var(--miss-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.cash-current-dialog__session-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cash-current-dialog__session-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--miss-border);
+  min-width: 0;
+}
+
+.cash-current-dialog__session-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--miss-text-muted);
+  line-height: 1.2;
+}
+
+.cash-current-dialog__session-value {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--miss-text);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .cash-current-dialog__icon {

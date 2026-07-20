@@ -189,9 +189,9 @@ export class CashCurrentDialog implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'OPEN': return 'Abierta';
-      case 'CLOSED': return 'Cerrada';
-      case 'LOCKED': return 'Bloqueada';
+      case 'OPEN': return 'OPEN';
+      case 'CLOSED': return 'CLOSED';
+      case 'LOCKED': return 'LOCKED';
       default: return status;
     }
   }
