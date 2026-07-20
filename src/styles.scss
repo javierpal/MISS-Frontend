@@ -32,25 +32,55 @@ $dark-theme: mat.define-theme((
   --miss-bg: #{tokens.$miss-bg};
   --miss-surface: #{tokens.$miss-surface};
   --miss-surface-alt: #{tokens.$miss-surface-alt};
+  --miss-surface-raised: #{tokens.$miss-surface-raised};
+
   --miss-border: #{tokens.$miss-border};
+  --miss-border-subtle: #{tokens.$miss-border-subtle};
+  --miss-divider: #{tokens.$miss-divider};
+
   --miss-text: #{tokens.$miss-text};
   --miss-text-secondary: #{tokens.$miss-text-secondary};
   --miss-text-muted: #{tokens.$miss-text-muted};
+
   --miss-primary: #{tokens.$miss-primary};
   --miss-primary-light: #{tokens.$miss-primary-light};
+  --miss-primary-hover: #{tokens.$miss-primary-light};
   --miss-accent: #{tokens.$miss-accent};
+
   --miss-success: #{tokens.$miss-success};
+  --miss-success-container: #{tokens.$miss-success-container};
+  --miss-success-border: #{tokens.$miss-success-border};
+  --miss-on-success: #{tokens.$miss-on-success};
+
   --miss-warning: #{tokens.$miss-warning};
+  --miss-warning-container: #{tokens.$miss-warning-container};
+  --miss-warning-border: #{tokens.$miss-warning-border};
+  --miss-on-warning: #{tokens.$miss-on-warning};
+
   --miss-error: #{tokens.$miss-error};
+  --miss-error-container: #{tokens.$miss-error-container};
+  --miss-error-border: #{tokens.$miss-error-border};
+  --miss-on-error: #{tokens.$miss-on-error};
+  --miss-danger: var(--miss-error);
+
   --miss-info: #{tokens.$miss-info};
+  --miss-info-container: #{tokens.$miss-info-container};
+  --miss-info-border: #{tokens.$miss-info-border};
+  --miss-on-info: #{tokens.$miss-on-info};
+
+  // Shape
   --miss-radius-sm: #{tokens.$miss-radius-sm};
   --miss-radius-md: #{tokens.$miss-radius-md};
   --miss-radius-lg: #{tokens.$miss-radius-lg};
   --miss-radius-pill: #{tokens.$miss-radius-pill};
+
+  // Shadows and overlay
   --miss-shadow-sm: #{tokens.$miss-shadow-sm};
   --miss-shadow-md: #{tokens.$miss-shadow-md};
   --miss-shadow-lg: #{tokens.$miss-shadow-lg};
   --miss-shadow-xl: #{tokens.$miss-shadow-xl};
+  --miss-dialog-shadow: #{tokens.$miss-shadow-xl};
+  --miss-overlay: #{tokens.$miss-overlay};
 }
 
 body.theme-dark {
@@ -58,17 +88,91 @@ body.theme-dark {
   color-scheme: dark;
 
   // CSS custom properties (dark)
+
+  // Base
   --miss-bg: #{tokens.$miss-bg-dark};
   --miss-surface: #{tokens.$miss-surface-dark};
   --miss-surface-alt: #{tokens.$miss-surface-alt-dark};
+  --miss-surface-raised: #{tokens.$miss-surface-raised-dark};
+
+  // Borders
   --miss-border: #{tokens.$miss-border-dark};
+  --miss-border-subtle: #{tokens.$miss-border-subtle-dark};
+  --miss-divider: #{tokens.$miss-divider-dark};
+
+  // Text
   --miss-text: #{tokens.$miss-text-dark};
   --miss-text-secondary: #{tokens.$miss-text-secondary-dark};
   --miss-text-muted: #{tokens.$miss-text-muted-dark};
+
+  // Brand
   --miss-primary: #{tokens.$miss-primary-dark-theme};
+  --miss-primary-hover: #{tokens.$miss-primary-hover-dark-theme};
   --miss-primary-light: #{tokens.$miss-accent-dark-theme};
+  --miss-primary-container: #{tokens.$miss-primary-container-dark};
   --miss-accent: #{tokens.$miss-accent-dark-theme};
-  --miss-shadow-xl: #{tokens.$miss-shadow-xl};
+
+  // Success
+  --miss-success: #{tokens.$miss-success-dark};
+  --miss-success-container: #{tokens.$miss-success-container-dark};
+  --miss-success-border: #{tokens.$miss-success-border-dark};
+  --miss-on-success: #{tokens.$miss-on-success-dark};
+
+  // Warning
+  --miss-warning: #{tokens.$miss-warning-dark};
+  --miss-warning-container: #{tokens.$miss-warning-container-dark};
+  --miss-warning-border: #{tokens.$miss-warning-border-dark};
+  --miss-on-warning: #{tokens.$miss-on-warning-dark};
+
+  // Error / danger
+  --miss-error: #{tokens.$miss-error-dark};
+  --miss-error-container: #{tokens.$miss-error-container-dark};
+  --miss-error-border: #{tokens.$miss-error-border-dark};
+  --miss-on-error: #{tokens.$miss-on-error-dark};
+  --miss-danger: var(--miss-error);
+
+  // Info
+  --miss-info: #{tokens.$miss-info-dark};
+  --miss-info-container: #{tokens.$miss-info-container-dark};
+  --miss-info-border: #{tokens.$miss-info-border-dark};
+  --miss-on-info: #{tokens.$miss-on-info-dark};
+
+  // Dialog
+  --miss-dialog-shadow: #{tokens.$miss-dialog-shadow-dark};
+  --miss-overlay: #{tokens.$miss-overlay-dark};
+
+  // Material Design Components (MDC) theme overrides
+  --mdc-theme-primary: #{tokens.$miss-primary-dark-theme};
+  --mdc-theme-on-primary: #ffffff;
+  --mdc-theme-primary-container: #{tokens.$miss-primary-container-dark};
+  --mdc-theme-on-primary-container: #{tokens.$miss-text-dark};
+  --mdc-theme-secondary: #{tokens.$miss-accent-dark-theme};
+  --mdc-theme-on-secondary: #ffffff;
+  --mdc-theme-surface: #{tokens.$miss-surface-dark};
+  --mdc-theme-on-surface: #{tokens.$miss-text-dark};
+  --mdc-theme-surface-variant: #{tokens.$miss-surface-alt-dark};
+  --mdc-theme-on-surface-variant: #{tokens.$miss-text-secondary-dark};
+  --mdc-theme-background: #{tokens.$miss-bg-dark};
+  --mdc-theme-on-background: #{tokens.$miss-text-dark};
+  --mdc-theme-surface-tint: #{tokens.$miss-primary-dark-theme};
+  --mdc-theme-error: #{tokens.$miss-error-dark};
+  --mdc-theme-on-error: #ffffff;
+  --mdc-theme-outline: #{tokens.$miss-border-dark};
+  --mdc-theme-outline-variant: #{tokens.$miss-border-subtle-dark};
+
+  // Variables Material globales (dark theme) — al final para sobreescribir las generadas por @include mat.all-component-colors
+  --mat-app-background-color: var(--miss-bg);
+  --mat-app-text-color: var(--miss-text);
+  --mat-form-field-filled-caret-color: var(--miss-primary);
+  --mat-form-field-error-text-color: var(--miss-error);
+  --mat-form-field-filled-container-color: var(--miss-surface-alt);
+  --mat-table-background-color: var(--miss-bg);
+  --mat-progress-spinner-active-indicator-color: var(--miss-primary);
+  --mat-badge-background-color: var(--miss-primary-container);
+  --mat-badge-text-color: var(--miss-text);
+  --mat-dialog-container-color: var(--miss-surface);
+  --mat-select-panel-background-color: var(--miss-surface);
+  --mat-option-selected-state-text-color: var(--miss-primary);
 }
 
 // ── Base ────────────────────────────────────────────────────────────────────
@@ -377,4 +481,15 @@ body {
   .shell-content {
     padding: 1rem;
   }
+}
+
+// ── Dialogs globales ────────────────────────────────────────────────────────
+.miss-dialog-backdrop {
+  background: var(--miss-overlay);
+  backdrop-filter: blur(2px);
+}
+
+.miss-dialog-panel {
+  --mdc-dialog-container-color: var(--miss-surface);
+  --mdc-dialog-container-elevation-shadow: var(--miss-dialog-shadow);
 }

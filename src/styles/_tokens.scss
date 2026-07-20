@@ -12,21 +12,39 @@ $miss-accent-dark: #00695c;
 // ── Status ──────────────────────────────────────────────────────────────────
 $miss-success: #2e7d32;
 $miss-success-light: #66bb6a;
+$miss-success-container: #e9f8ee;
+$miss-success-border: #86d7a1;
+$miss-on-success: #0c5c2b;
+
 $miss-warning: #f57f17;
 $miss-warning-light: #fdd835;
+$miss-warning-container: #fff4de;
+$miss-warning-border: #f1b95b;
+$miss-on-warning: #754300;
+
 $miss-error: #c62828;
 $miss-error-light: #ef5350;
+$miss-error-container: #fdebed;
+$miss-error-border: #f2a0aa;
+$miss-on-error: #8b1e2d;
+
 $miss-info: #0277bd;
 $miss-info-light: #4fc3f7;
+$miss-info-container: #eaf3ff;
+$miss-info-border: #91bfff;
+$miss-on-info: #0c4f9e;
 
 // ── Surfaces ────────────────────────────────────────────────────────────────
 $miss-bg: #f4f7fb;
 $miss-surface: #ffffff;
 $miss-surface-alt: #eef3f9;
-$miss-overlay: rgba(15, 23, 34, 0.4);
+$miss-surface-raised: #ffffff;
+$miss-overlay: rgba(15, 23, 42, 0.45);
 
 // ── Borders ─────────────────────────────────────────────────────────────────
 $miss-border: #d7dfeb;
+$miss-border-subtle: #e3e8ef;
+$miss-divider: #e8edf3;
 $miss-border-light: #e8edf4;
 
 // ── Text ────────────────────────────────────────────────────────────────────
@@ -49,12 +67,56 @@ $miss-shadow-lg: 0 12px 36px rgba(15, 23, 34, 0.10);
 $miss-shadow-xl: 0 20px 60px rgba(15, 23, 34, 0.12);
 
 // ── Dark overrides ──────────────────────────────────────────────────────────
-$miss-bg-dark: #0f1722;
-$miss-surface-dark: #172233;
-$miss-surface-alt-dark: #1f2c40;
-$miss-border-dark: #2b3a51;
-$miss-text-dark: #ebf2ff;
-$miss-text-secondary-dark: #c5d0de;
-$miss-text-muted-dark: #a8b3c4;
-$miss-primary-dark-theme: #6cb6ff;
-$miss-accent-dark-theme: #4db6ac;
+
+// Base y superficies
+$miss-bg-dark: #070e18;
+$miss-surface-dark: #0b131e;
+$miss-surface-alt-dark: #0b141f;
+$miss-surface-raised-dark: #0d1825;
+
+// Bordes y divisores
+$miss-border-dark: #243548;
+$miss-border-subtle-dark: #161f2b;
+$miss-divider-dark: #111b26;
+
+// Texto
+$miss-text-dark: #f6f8fc;
+$miss-text-secondary-dark: #b8c2cf;
+$miss-text-muted-dark: #7c8796;
+
+// Primario y acento
+$miss-primary-dark-theme: #1264ec;
+$miss-primary-hover-dark-theme: #176cf5;
+$miss-accent-dark-theme: #2f8bff;
+$miss-primary-container-dark: #0d1e35;
+
+// Success
+$miss-success-dark: #20e36a;
+$miss-success-container-dark: #0c2924;
+$miss-success-border-dark: #1a6a43;
+$miss-on-success-dark: #dffbea;
+
+// Warning
+$miss-warning-dark: #ff9f0a;
+$miss-warning-container-dark: #19191b;
+$miss-warning-border-dark: #9a5b08;
+$miss-on-warning-dark: #ffe0a8;
+
+// Error / Danger
+$miss-error-dark: #ff4d5e;
+$miss-error-container-dark: #231822;
+$miss-error-border-dark: #6b2a35;
+$miss-on-error-dark: #ffd9de;
+
+// Info
+$miss-info-dark: #2f8bff;
+$miss-info-container-dark: #0d1e35;
+$miss-info-border-dark: #1c4b88;
+$miss-on-info-dark: #d8eaff;
+
+// Overlay y sombras
+$miss-overlay-dark: rgba(2, 7, 14, 0.78);
+
+$miss-dialog-shadow-dark:
+  0 24px 70px rgba(0, 0, 0, 0.55),
+  0 0 0 1px rgba(47, 85, 126, 0.16);
