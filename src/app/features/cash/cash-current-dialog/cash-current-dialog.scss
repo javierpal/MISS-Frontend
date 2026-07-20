@@ -171,33 +171,33 @@
 
   // Colores específicos por tipo de card
   &--expected {
-    background: var(--miss-info-container);
-    color: var(--miss-on-info);
+    background: rgba(237, 244, 255, 0.9);
+    color: var(--miss-info);
   }
 
   &--in {
-    background: var(--miss-success-container);
-    color: var(--miss-on-success);
-  }
-
-  &--out {
-    background: var(--miss-error-container);
-    color: var(--miss-on-error);
-  }
-
-  &--movements {
-    background: var(--miss-warning-container);
-    color: var(--miss-on-warning);
-  }
-
-  &--cash {
-    background: var(--miss-primary-container);
+    background: rgba(59, 130, 246, 0.15);
     color: var(--miss-primary);
   }
 
+  &--out {
+    background: rgba(253, 236, 239, 0.9);
+    color: var(--miss-error);
+  }
+
+  &--movements {
+    background: rgba(255, 246, 231, 0.9);
+    color: var(--miss-warning);
+  }
+
+  &--cash {
+    background: rgba(234, 248, 240, 0.9);
+    color: var(--miss-success);
+  }
+
   &--automatic {
-    background: var(--miss-tertiary-container);
-    color: var(--miss-on-tertiary);
+    background: rgba(237, 244, 255, 0.9);
+    color: var(--miss-primary);
   }
 }
 

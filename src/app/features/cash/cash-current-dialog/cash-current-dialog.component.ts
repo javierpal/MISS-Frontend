@@ -216,12 +216,12 @@ export class CashCurrentDialog implements OnInit {
 
   getIconClass(index: number): string {
     const classes = [
-      'cash-current-dialog__summary-icon--expected',  // 0: Monto esperado
-      'cash-current-dialog__summary-icon--in',        // 1: Entradas manuales
-      'cash-current-dialog__summary-icon--out',       // 2: Salidas manuales
-      'cash-current-dialog__summary-icon--movements', // 3: Movimientos manuales
-      'cash-current-dialog__summary-icon--cash',      // 4: Ventas en efectivo
-      'cash-current-dialog__summary-icon--automatic', // 5: Mov. automáticos ventas
+      'cash-current-dialog__summary-icon--expected',  // 0: Monto esperado (azul claro)
+      'cash-current-dialog__summary-icon--in',        // 1: Entradas manuales (azul)
+      'cash-current-dialog__summary-icon--out',       // 2: Salidas manuales (rojo claro)
+      'cash-current-dialog__summary-icon--movements', // 3: Movimientos manuales (amarillo claro)
+      'cash-current-dialog__summary-icon--cash',      // 4: Ventas en efectivo (verde)
+      'cash-current-dialog__summary-icon--automatic', // 5: Mov. automáticos ventas (azul claro)
     ];
     return classes[index] || '';
   }
