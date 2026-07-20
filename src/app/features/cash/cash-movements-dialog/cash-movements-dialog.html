@@ -1,0 +1,138 @@
+<div class="cash-movements-dialog" *ngIf="!submitting">
+  <!-- Header -->
+  <div class="cash-movements-dialog__header">
+    <div class="cash-movements-dialog__header-left">
+      <mat-icon class="cash-movements-dialog__icon">swap_horiz</mat-icon>
+      <div>
+        <h2 class="cash-movements-dialog__title">Registrar movimiento</h2>
+        <p class="cash-movements-dialog__subtitle">
+          Sesión: {{ currentSession?.session?.id || 'N/A' }}
+        </p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="onCancel()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Session info -->
+  <mat-card class="cash-movements-dialog__session-card" appearance="outlined">
+    <mat-card-content>
+      <div class="cash-movements-dialog__session-info">
+        <mat-icon>account_balance</mat-icon>
+        <div>
+          <span class="cash-movements-dialog__session-label">Usuario:</span>
+          <span class="cash-movements-dialog__session-value">{{ currentSession?.session?.userName || 'N/A' }}</span>
+        </div>
+      </div>
+      <div class="cash-movements-dialog__session-info">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <span class="cash-movements-dialog__session-label">Apertura:</span>
+          <span class="cash-movements-dialog__session-value">
+            {{ sessionOpenedAt ? formatDate(sessionOpenedAt) : 'N/A' }}
+          </span>
+        </div>
+      </div>
+      <div class="cash-movements-dialog__session-info">
+        <mat-icon>show_chart</mat-icon>
+        <div>
+          <span class="cash-movements-dialog__session-label">Fondo esperado:</span>
+          <span class="cash-movements-dialog__session-value">
+            {{ formatCurrency(currentSession?.summary?.expectedFunds || 0) }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Form -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Type selector -->
+    <mat-form-field appearance="outline" class="cash-movements-dialog__field">
+      <mat-label>Tipo de movimiento *</mat-label>
+      <mat-select formControlName="type">
+        @for (option of movementTypes; track option.value) {
+          <mat-option [value]="option.value">
+            <mat-icon class="cash-movements-dialog__type-option-icon">{{ option.icon }}</mat-icon>
+            {{ option.label }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (typeControl?.hasError('required')) {
+        <mat-error>El tipo es obligatorio</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Amount -->
+    <mat-form-field appearance="outline" class="cash-movements-dialog__field">
+      <mat-label>Monto *</mat-label>
+      <input matInput formControlName="amount" type="number" step="0.01" min="0.01" placeholder="$0.00" />
+      @if (amountControl?.hasError('required')) {
+        <mat-error>El monto es obligatorio</mat-error>
+      }
+      @if (amountControl?.hasError('min')) {
+        <mat-error>El monto debe ser mayor a $0.00</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Reason -->
+    <mat-form-field appearance="outline" class="cash-movements-dialog__field">
+      <mat-label>Motivo *</mat-label>
+      <input matInput formControlName="reason" placeholder="Describe el movimiento" />
+      @if (form.get('reason')?.hasError('required')) {
+        <mat-error>El motivo es obligatorio</mat-error>
+      }
+      @if (form.get('reason')?.hasError('minlength')) {
+        <mat-error>Mínimo 3 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Reference (optional) -->
+    <mat-form-field appearance="outline" class="cash-movements-dialog__field">
+      <mat-label>Referencia (opcional)</mat-label>
+      <input matInput formControlName="reference" placeholder="Comprobante, orden, etc." />
+    </mat-form-field>
+
+    <!-- Impact preview -->
+    <div class="cash-movements-dialog__impact-calc">
+      <div class="cash-movements-dialog__calc-row">
+        <span class="cash-movements-dialog__calc-label">Fondo esperado actual:</span>
+        <span class="cash-movements-dialog__calc-value">
+          {{ formatCurrency(currentSession?.summary?.expectedFunds || 0) }}
+        </span>
+      </div>
+      <div class="cash-movements-dialog__calc-row cash-movements-dialog__calc-row--impact">
+        <mat-icon>{{ getMovementIcon(typeControl?.value) }}</mat-icon>
+        <span class="cash-movements-dialog__calc-label">Movimiento:</span>
+        <span class="cash-movements-dialog__calc-value cash-movements-dialog__calc-value--signed">
+          {{ getSignedAmount() >= 0 ? '+' : '' }}{{ formatCurrency(getSignedAmount()) }}
+        </span>
+      </div>
+      <div class="cash-movements-dialog__calc-row cash-movements-dialog__calc-row--total">
+        <mat-icon>show_chart</mat-icon>
+        <span class="cash-movements-dialog__calc-label">Nuevo esperado:</span>
+        <span class="cash-movements-dialog__calc-value cash-movements-dialog__calc-value--total">
+          {{ formatCurrency(getProjectedExpectedFunds()) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="cash-movements-dialog__actions">
+      <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="submitting">
+        Cancelar
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="submitting || form.invalid">
+        <mat-icon>check</mat-icon>
+        Registrar movimiento
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading state -->
+<div class="cash-movements-dialog__loading" *ngIf="submitting">
+  <mat-spinner diameter="48"></mat-spinner>
+  <span class="cash-movements-dialog__loading-text">Registrando movimiento...</span>
+</div>

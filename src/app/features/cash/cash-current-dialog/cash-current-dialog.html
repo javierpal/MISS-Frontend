@@ -1,0 +1,112 @@
+<div class="cash-current-dialog" *ngIf="!loading">
+  <!-- Header -->
+  <div class="cash-current-dialog__header">
+    <div class="cash-current-dialog__header-left">
+      <mat-icon class="cash-current-dialog__icon">account_balance</mat-icon>
+      <div>
+        <h2 class="cash-current-dialog__title">Caja actual</h2>
+        <p class="cash-current-dialog__subtitle">
+          Sesión: {{ current?.session?.id }} ·
+          <span [class]="'cash-current-dialog__status ' + getStatusClass(current?.session?.status || '')">
+            {{ getStatusLabel(current?.session?.status || '') }}
+          </span>
+        </p>
+        <p class="cash-current-dialog__user-info">
+          <mat-icon>person</mat-icon>
+          <span>{{ current?.session?.userName || 'Sin usuario' }}</span>
+        </p>
+        <p class="cash-current-dialog__open-time">
+          <mat-icon>schedule</mat-icon>
+          <span>Abierta: {{ formatDate(current?.session?.openedAt || '') }}</span>
+        </p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="onCloseDialog()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Info banner -->
+  <div class="cash-current-dialog__info-banner">
+    <mat-icon>info</mat-icon>
+    <span>Monitoreo en tiempo real de la caja abierta</span>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cash-current-dialog__summary-grid">
+    @for (card of summaryCards; track card.label) {
+      <mat-card class="cash-current-dialog__summary-card">
+        <mat-card-content>
+          <div class="cash-current-dialog__summary-icon">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </div>
+          <div class="cash-current-dialog__summary-info">
+            <span class="cash-current-dialog__summary-label">{{ card.label }}</span>
+            <span class="cash-current-dialog__summary-value">{{ formatCurrency(card.value) }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Difference banner -->
+  @if (current?.summary && difference !== undefined && difference !== 0) {
+    <div class="cash-current-dialog__difference-banner"
+         [class]="'cash-current-dialog__difference-banner--' + (difference >= 0 ? 'positive' : 'negative')">
+      <mat-icon>{{ difference >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+      <span>Diferencia: {{ formatCurrency(difference) }}</span>
+    </div>
+  }
+
+  <!-- Recent movements -->
+  <mat-card class="cash-current-dialog__movements-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Movimientos recientes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="cash-current-dialog__movements-list">
+        @for (movement of recentMovements; track movement.id) {
+          <div class="cash-current-dialog__movement-item">
+            <div class="cash-current-dialog__movement-type">
+              <mat-icon>{{ getTypeIcon(movement.type) }}</mat-icon>
+              <span [class]="'cash-current-dialog__type-badge ' + getTypeClass(movement.type)">
+                {{ movement.type }}
+              </span>
+            </div>
+            <div class="cash-current-dialog__movement-amount">
+              {{ formatCurrency(movement.amount) }}
+            </div>
+            <div class="cash-current-dialog__movement-details">
+              <span class="cash-current-dialog__movement-reason">{{ movement.reason }}</span>
+              @if (movement.reference) {
+                <span class="cash-current-dialog__movement-reference">{{ movement.reference }}</span>
+              }
+              <span class="cash-current-dialog__movement-date">{{ formatDate(movement.createdAt) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Footer actions -->
+  <div class="cash-current-dialog__footer">
+    <button mat-stroked-button (click)="onCloseDialog()">
+      <mat-icon>close</mat-icon>
+      Cerrar
+    </button>
+    <button mat-flat-button color="primary" (click)="onRegisterMovement()">
+      <mat-icon>add</mat-icon>
+      Registrar movimiento
+    </button>
+    <button mat-flat-button color="accent" (click)="onGoToClose()">
+      <mat-icon>close</mat-icon>
+      Ir a cierre
+    </button>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div class="cash-current-dialog__loading" *ngIf="loading">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>

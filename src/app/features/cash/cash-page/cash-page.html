@@ -1,1 +1,54 @@
-<app-placeholder-page title="Cash" description="Placeholder para cortes, movimientos de caja y conciliación diaria." />
+<div class="cash-page">
+  <!-- Header -->
+  <app-page-header title="Caja" subtitle="Gestión de caja y arqueos" icon="account_balance">
+    <button mat-stroked-button (click)="onOpenCashCurrent()" class="page-header__action">
+      <mat-icon>open_in_new</mat-icon>
+      Ver caja actual
+    </button>
+  </app-page-header>
+
+  <!-- Main content -->
+  <div class="cash-page__content">
+    <mat-card class="cash-page__info-card" appearance="outlined">
+      <mat-card-content>
+        <div class="cash-page__info-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div class="cash-page__info-text">
+          <h2 class="cash-page__info-title">Gestión de Caja</h2>
+          <p class="cash-page__info-description">
+            Visualiza el estado actual de la caja, registra movimientos y realiza arqueos.
+          </p>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary" (click)="onOpenCash()">
+          <mat-icon>lock_open</mat-icon>
+          Abrir caja
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Action buttons -->
+    <div class="cash-page__actions">
+      <button mat-stroked-button (click)="onRegisterMovement()">
+        <mat-icon>add</mat-icon>
+        Registrar movimiento
+      </button>
+      <button mat-stroked-button color="accent" (click)="onGoToClose()">
+        <mat-icon>close</mat-icon>
+        Ir a cierre
+      </button>
+      <button mat-outline-button (click)="onViewReport()">
+        <mat-icon>assessment</mat-icon>
+        Ver reporte
+      </button>
+    </div>
+
+    <!-- Info banner -->
+    <div class="cash-page__info-banner">
+      <mat-icon>info</mat-icon>
+      <span>Ver el estado actual de la caja, movimientos y resumen operativo.</span>
+    </div>
+  </div>
+</div>
