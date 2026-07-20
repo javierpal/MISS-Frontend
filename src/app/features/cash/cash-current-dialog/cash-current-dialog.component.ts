@@ -6,6 +6,7 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs/operators';
 
 import { CashApiService } from '../../../core/services/cash.api.service';
 import { CashCurrentResponse, CashMovement } from '../../../core/models/cash.model';
@@ -95,26 +96,69 @@ export class CashCurrentDialog implements OnInit {
     this.loading = true;
 
     // Try API first, fallback to mock
-    this.cashApi.getCurrent().subscribe({
+    this.cashApi.getCurrent().pipe(
+      finalize(() => {
+        this.loading = false;
+      })
+    ).subscribe({
       next: (data) => {
-        this.current = data;
+        // Normalizar respuesta: aceptar campos null/ausentes
+        this.current = this.normalizeCurrentResponse(data);
+
         // Si no hay sesión abierta, mostrar estado vacío
-        if (!data.session) {
-          this.loading = false;
+        if (!this.current?.session) {
           return;
         }
-        // Si hay sesión, construir cards
-        this.buildSummaryCards();
-        this.loading = false;
+
+        // Si hay sesión, construir cards (nunca debe lanzar excepción)
+        try {
+          this.buildSummaryCards();
+        } catch (err) {
+          console.error('Error building summary cards:', err);
+          this.summaryCards = [];
+        }
       },
       error: (err) => {
         console.warn('API current cash failed, using mock:', err);
-        // Mock data tiene sesión, usarlo
-        this.current = this.mockData.current;
-        this.buildSummaryCards();
-        this.loading = false;
+        // Mock data tiene sesión válida, usarlo como fallback
+        this.current = this.normalizeCurrentResponse(this.mockData.current);
+        try {
+          this.buildSummaryCards();
+        } catch (err) {
+          console.error('Error building summary cards from mock:', err);
+          this.summaryCards = [];
+        }
       },
     });
+  }
+
+  private normalizeCurrentResponse(data: any): CashCurrentResponse | null {
+    // Normalizar respuesta: aceptar campos null/ausentes
+    if (!data) return null;
+
+    // Si hay session pero no summary, crear summary vacío con campos requeridos
+    if (data.session && !data.summary) {
+      return {
+        session: data.session,
+        summary: {
+          sessionId: data.session.id || '',
+          status: data.session.status || 'OPEN',
+          openedAt: data.session.openedAt || new Date().toISOString(),
+          openingAmount: data.session.openingAmount || 0,
+          cashSalesTotal: 0,
+          totalSales: 0,
+          manualInTotal: 0,
+          manualOutTotal: 0,
+          automaticSalesMovementTotal: 0,
+          expectedAmount: data.session.expectedAmount || 0,
+          salesCount: 0,
+          cashPaymentsCount: 0,
+          manualMovementsCount: 0,
+        },
+      } as CashCurrentResponse;
+    }
+
+    return data as CashCurrentResponse;
   }
 
   private buildSummaryCards(): void {
