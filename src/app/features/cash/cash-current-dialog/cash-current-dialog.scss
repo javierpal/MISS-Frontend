@@ -345,3 +345,39 @@
     align-items: flex-start;
   }
 }
+
+// Empty state
+.cash-current-dialog__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.cash-current-dialog__empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: var(--miss-text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.cash-current-dialog__empty-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--miss-text);
+}
+
+.cash-current-dialog__empty-text {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--miss-text-secondary);
+  max-width: 300px;
+}
+
+.cash-current-dialog__empty button {
+  min-width: 180px;
+}
