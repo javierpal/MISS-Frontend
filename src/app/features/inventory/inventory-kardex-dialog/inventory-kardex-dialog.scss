@@ -55,12 +55,12 @@
 }
 
 .positive-change {
-  color: #4caf50;
+  color: var(--miss-success);
   font-weight: 500;
 }
 
 .negative-change {
-  color: #f44336;
+  color: var(--miss-error);
   font-weight: 500;
 }
 

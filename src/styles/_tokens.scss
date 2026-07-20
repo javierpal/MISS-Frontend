@@ -2,56 +2,54 @@
 // These sit alongside Angular Material themes and CSS custom properties.
 
 // ── Colors ──────────────────────────────────────────────────────────────────
-$miss-primary: #1e88e5;
-$miss-primary-light: #64b5f6;
-$miss-primary-dark: #1565c0;
-$miss-accent: #00897b;
+$miss-primary: #1565d8;
+$miss-primary-light: #3b82f6;
+$miss-primary-dark: #0f5acc;
+$miss-primary-hover: #0f5acc;
+$miss-primary-container: #eaf2ff;
+$miss-accent: #3b82f6;
 $miss-accent-light: #4db6ac;
 $miss-accent-dark: #00695c;
 
 // ── Status ──────────────────────────────────────────────────────────────────
-$miss-success: #2e7d32;
-$miss-success-light: #66bb6a;
-$miss-success-container: #e9f8ee;
-$miss-success-border: #86d7a1;
-$miss-on-success: #0c5c2b;
+$miss-success: #22a55a;
+$miss-success-container: #eaf8f0;
+$miss-success-border: #9ad9b5;
+$miss-on-success: #145d35;
 
-$miss-warning: #f57f17;
-$miss-warning-light: #fdd835;
-$miss-warning-container: #fff4de;
-$miss-warning-border: #f1b95b;
-$miss-on-warning: #754300;
+$miss-warning: #d88910;
+$miss-warning-container: #fff6e7;
+$miss-warning-border: #efc77f;
+$miss-on-warning: #704600;
 
-$miss-error: #c62828;
-$miss-error-light: #ef5350;
-$miss-error-container: #fdebed;
-$miss-error-border: #f2a0aa;
-$miss-on-error: #8b1e2d;
+$miss-error: #e14a5a;
+$miss-error-container: #fdecef;
+$miss-error-border: #f0a6af;
+$miss-on-error: #842431;
 
-$miss-info: #0277bd;
-$miss-info-light: #4fc3f7;
-$miss-info-container: #eaf3ff;
-$miss-info-border: #91bfff;
-$miss-on-info: #0c4f9e;
+$miss-info: #2f7ef7;
+$miss-info-container: #edf4ff;
+$miss-info-border: #9fc3fb;
+$miss-on-info: #174c9d;
 
 // ── Surfaces ────────────────────────────────────────────────────────────────
 $miss-bg: #f4f7fb;
 $miss-surface: #ffffff;
-$miss-surface-alt: #eef3f9;
+$miss-surface-alt: #f8fafd;
 $miss-surface-raised: #ffffff;
 $miss-overlay: rgba(15, 23, 42, 0.45);
 
 // ── Borders ─────────────────────────────────────────────────────────────────
-$miss-border: #d7dfeb;
-$miss-border-subtle: #e3e8ef;
-$miss-divider: #e8edf3;
-$miss-border-light: #e8edf4;
+$miss-border: #d7e0ea;
+$miss-border-subtle: #e6edf5;
+$miss-divider: #e9eff6;
+$miss-border-light: #e6edf5;
 
 // ── Text ────────────────────────────────────────────────────────────────────
-$miss-text: #17202d;
-$miss-text-secondary: #3d4f63;
-$miss-text-muted: #5f6b7a;
-$miss-text-disabled: #9aa5b4;
+$miss-text: #172536;
+$miss-text-secondary: #516274;
+$miss-text-muted: #7e8b99;
+$miss-text-disabled: #7e8b99;
 
 // ── Radii ───────────────────────────────────────────────────────────────────
 $miss-radius-sm: 8px;
@@ -78,11 +76,13 @@ $miss-surface-raised-dark: #0d1825;
 $miss-border-dark: #243548;
 $miss-border-subtle-dark: #161f2b;
 $miss-divider-dark: #111b26;
+$miss-border-light-dark: #161f2b;
 
 // Texto
 $miss-text-dark: #f6f8fc;
 $miss-text-secondary-dark: #b8c2cf;
 $miss-text-muted-dark: #7c8796;
+$miss-text-disabled-dark: #7c8796;
 
 // Primario y acento
 $miss-primary-dark-theme: #1264ec;

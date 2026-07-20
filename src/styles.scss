@@ -37,14 +37,17 @@ $dark-theme: mat.define-theme((
   --miss-border: #{tokens.$miss-border};
   --miss-border-subtle: #{tokens.$miss-border-subtle};
   --miss-divider: #{tokens.$miss-divider};
+  --miss-border-light: #{tokens.$miss-border-light};
 
   --miss-text: #{tokens.$miss-text};
   --miss-text-secondary: #{tokens.$miss-text-secondary};
   --miss-text-muted: #{tokens.$miss-text-muted};
+  --miss-text-disabled: #{tokens.$miss-text-disabled};
 
   --miss-primary: #{tokens.$miss-primary};
   --miss-primary-light: #{tokens.$miss-primary-light};
-  --miss-primary-hover: #{tokens.$miss-primary-light};
+  --miss-primary-hover: #{tokens.$miss-primary-hover};
+  --miss-primary-container: #{tokens.$miss-primary-container};
   --miss-accent: #{tokens.$miss-accent};
 
   --miss-success: #{tokens.$miss-success};
@@ -72,6 +75,7 @@ $dark-theme: mat.define-theme((
   --miss-radius-sm: #{tokens.$miss-radius-sm};
   --miss-radius-md: #{tokens.$miss-radius-md};
   --miss-radius-lg: #{tokens.$miss-radius-lg};
+  --miss-radius-xl: #{tokens.$miss-radius-xl};
   --miss-radius-pill: #{tokens.$miss-radius-pill};
 
   // Shadows and overlay
@@ -81,6 +85,57 @@ $dark-theme: mat.define-theme((
   --miss-shadow-xl: #{tokens.$miss-shadow-xl};
   --miss-dialog-shadow: #{tokens.$miss-shadow-xl};
   --miss-overlay: #{tokens.$miss-overlay};
+
+  // Material Design Components (MDC) theme overrides
+  --mdc-theme-primary: var(--miss-primary);
+  --mdc-theme-on-primary: #ffffff;
+  --mdc-theme-primary-container: var(--miss-primary-container);
+  --mdc-theme-on-primary-container: var(--miss-text);
+
+  --mdc-theme-secondary: var(--miss-accent);
+  --mdc-theme-on-secondary: #ffffff;
+
+  --mdc-theme-surface: var(--miss-surface);
+  --mdc-theme-on-surface: var(--miss-text);
+  --mdc-theme-surface-variant: var(--miss-surface-alt);
+  --mdc-theme-on-surface-variant: var(--miss-text-secondary);
+
+  --mdc-theme-background: var(--miss-bg);
+  --mdc-theme-on-background: var(--miss-text);
+
+  --mdc-theme-surface-tint: var(--miss-primary);
+
+  --mdc-theme-error: var(--miss-error);
+  --mdc-theme-on-error: #ffffff;
+
+  --mdc-theme-outline: var(--miss-border);
+  --mdc-theme-outline-variant: var(--miss-border-subtle);
+
+  // Aplicación
+  --mat-app-background-color: var(--miss-bg);
+  --mat-app-text-color: var(--miss-text);
+
+  // Formularios
+  --mat-form-field-filled-caret-color: var(--miss-primary);
+  --mat-form-field-error-text-color: var(--miss-error);
+  --mat-form-field-filled-container-color: var(--miss-surface-alt);
+
+  // Tablas
+  --mat-table-background-color: var(--miss-surface);
+
+  // Spinner y progreso
+  --mat-progress-spinner-active-indicator-color: var(--miss-primary);
+
+  // Badges
+  --mat-badge-background-color: var(--miss-primary-container);
+  --mat-badge-text-color: var(--miss-text);
+
+  // Dialogs
+  --mat-dialog-container-color: var(--miss-surface);
+
+  // Selects y options
+  --mat-select-panel-background-color: var(--miss-surface);
+  --mat-option-selected-state-text-color: var(--miss-primary);
 }
 
 body.theme-dark {
@@ -99,11 +154,13 @@ body.theme-dark {
   --miss-border: #{tokens.$miss-border-dark};
   --miss-border-subtle: #{tokens.$miss-border-subtle-dark};
   --miss-divider: #{tokens.$miss-divider-dark};
+  --miss-border-light: #{tokens.$miss-border-light-dark};
 
   // Text
   --miss-text: #{tokens.$miss-text-dark};
   --miss-text-secondary: #{tokens.$miss-text-secondary-dark};
   --miss-text-muted: #{tokens.$miss-text-muted-dark};
+  --miss-text-disabled: #{tokens.$miss-text-disabled-dark};
 
   // Brand
   --miss-primary: #{tokens.$miss-primary-dark-theme};
@@ -225,7 +282,7 @@ body {
     color: #fff;
 
     &:hover {
-      background: #{tokens.$miss-primary-dark};
+      background: var(--miss-primary-hover);
       box-shadow: var(--miss-shadow-md);
     }
   }
@@ -238,7 +295,7 @@ body {
     &:hover {
       border-color: var(--miss-primary);
       color: var(--miss-primary);
-      background: rgba(30, 136, 229, 0.06);
+      background: color-mix(in srgb, var(--miss-primary) 6%, transparent);
     }
   }
 
@@ -276,7 +333,7 @@ body {
   &:focus {
     outline: none;
     border-color: var(--miss-primary);
-    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--miss-primary) 15%, transparent);
   }
 
   &::placeholder {
@@ -344,27 +401,27 @@ body {
   letter-spacing: 0.02em;
 
   &.miss-chip-success {
-    background: rgba(46, 125, 50, 0.12);
-    color: var(--miss-success);
+    background: var(--miss-success-container);
+    color: var(--miss-on-success);
   }
 
   &.miss-chip-warning {
-    background: rgba(245, 127, 23, 0.12);
-    color: var(--miss-warning);
+    background: var(--miss-warning-container);
+    color: var(--miss-on-warning);
   }
 
   &.miss-chip-error {
-    background: rgba(198, 40, 40, 0.12);
-    color: var(--miss-error);
+    background: var(--miss-error-container);
+    color: var(--miss-on-error);
   }
 
   &.miss-chip-info {
-    background: rgba(2, 119, 189, 0.12);
-    color: var(--miss-info);
+    background: var(--miss-info-container);
+    color: var(--miss-on-info);
   }
 
   &.miss-chip-primary {
-    background: rgba(30, 136, 229, 0.12);
+    background: var(--miss-primary-container);
     color: var(--miss-primary);
   }
 }
@@ -398,7 +455,7 @@ body {
   &.active-link {
     border-color: var(--miss-primary) !important;
     color: var(--miss-primary) !important;
-    background: rgba(30, 136, 229, 0.08) !important;
+    background: color-mix(in srgb, var(--miss-primary) 8%, transparent) !important;
   }
 }
 

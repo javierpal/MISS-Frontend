@@ -77,7 +77,7 @@
 }
 
 .sidebar__link--active {
-    background: rgba(30, 136, 229, 0.1) !important;
+    background: var(--miss-primary-container) !important;
     color: var(--miss-primary) !important;
     font-weight: 600;
 }

@@ -1,16 +1,16 @@
 .required-note {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--miss-text-secondary);
     margin: 0 0 1rem 0;
 }
 
 .section-title {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #0d47a1;
+    color: var(--miss-primary);
     margin: 1.5rem 0 0.8rem 0;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #1976d2;
+    border-bottom: 2px solid var(--miss-primary);
     letter-spacing: 0.02em;
 }
 

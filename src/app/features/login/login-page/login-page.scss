@@ -1,9 +1,9 @@
 .login-page {
-    background: linear-gradient(180deg, rgba(30, 136, 229, 0.08), transparent 30%), var(--miss-bg);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--miss-primary) 8%, transparent), transparent 30%), var(--miss-bg);
 }
 
 .hero-panel {
-    background: linear-gradient(135deg, rgba(30, 136, 229, 0.18), rgba(108, 182, 255, 0.08));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--miss-primary) 18%, transparent), color-mix(in srgb, var(--miss-primary-light) 8%, transparent));
 }
 
 .eyebrow {
@@ -37,14 +37,14 @@ span {
     padding: 1rem 1.25rem;
     border: 1px solid var(--miss-border);
     border-radius: 16px;
-    background: rgba(255, 255, 255, .5);
+    background: color-mix(in srgb, var(--miss-surface) 50%, transparent);
 }
 
 .alert {
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    background: #fdecea;
-    color: #c62828;
+    background: var(--miss-error-container);
+    color: var(--miss-on-error);
     font-size: 0.875rem;
 }
 
