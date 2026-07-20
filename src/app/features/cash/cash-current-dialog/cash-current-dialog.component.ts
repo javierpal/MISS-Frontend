@@ -230,11 +230,6 @@ export class CashCurrentDialog implements OnInit {
     });
   }
 
-  // Action handlers (stubs for dialogs)
-  onRegisterMovement(): void {
-    this.snackBar.open('Registrar movimiento - Próximamente', 'Cerrar', { duration: 3000 });
-  }
-
   private finishLoading(): void {
     // Diferir cambio de estado al siguiente ciclo para evitar ExpressionChangedAfterItHasBeenCheckedError
     queueMicrotask(() => {
