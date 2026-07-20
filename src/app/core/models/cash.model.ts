@@ -71,13 +71,18 @@ export interface CashSessionSummary {
   status: CashStatus;
   openedAt: string;
   closedAt?: string;
-  initialFunds: number;
-  expectedFunds: number;
-  actualFunds?: number;
-  difference?: number;
+  openingAmount: number;
+  cashSalesTotal: number;
   totalSales: number;
-  totalMovements: number;
-  movementsCount: number;
+  manualInTotal: number;
+  manualOutTotal: number;
+  automaticSalesMovementTotal: number;
+  expectedAmount: number;
+  closingAmount?: number;
+  difference?: number;
+  salesCount: number;
+  cashPaymentsCount: number;
+  manualMovementsCount: number;
 }
 
 /** Internal session model from GET /cash/current */

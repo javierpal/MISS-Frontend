@@ -62,13 +62,17 @@ export class CashCurrentDialog implements OnInit {
         sessionId: 'mock-session-001',
         status: 'OPEN',
         openedAt: new Date().toISOString(),
-        initialFunds: 1500,
-        expectedFunds: 2750.50,
-        actualFunds: 2740,
-        difference: -10.50,
+        openingAmount: 1500,
+        cashSalesTotal: 800,
         totalSales: 1250.50,
-        totalMovements: 5,
-        movementsCount: 5,
+        manualInTotal: 500,
+        manualOutTotal: 100,
+        automaticSalesMovementTotal: 450.50,
+        expectedAmount: 2750.50,
+        difference: -10.50,
+        salesCount: 3,
+        cashPaymentsCount: 2,
+        manualMovementsCount: 2,
       },
     },
     movements: [
@@ -97,30 +101,10 @@ export class CashCurrentDialog implements OnInit {
       error: (err) => {
         console.warn('API current cash failed, using mock:', err);
         this.current = this.mockData.current;
-        this.recentMovements = this.mockData.movements;
+        // No se llama a listMovements() - endpoint no existe en backend
+        // Se usa summary.manualMovementsCount para conteo
         this.buildSummaryCards();
         this.loading = false;
-      },
-    });
-
-    // Load movements in parallel
-    this.cashApi.listMovements({ limit: 5 }).subscribe({
-      next: (data) => {
-        this.recentMovements = data.items || [];
-        // Recalculate summary if current is already loaded
-        if (this.current) {
-          this.buildSummaryCards();
-        }
-      },
-      error: (err) => {
-        console.warn('API movements failed, using mock:', err);
-        if (!this.recentMovements.length) {
-          this.recentMovements = this.mockData.movements;
-          // Recalculate summary with mock movements
-          if (this.current) {
-            this.buildSummaryCards();
-          }
-        }
       },
     });
   }
@@ -131,13 +115,16 @@ export class CashCurrentDialog implements OnInit {
     const session = this.current.session;
     const summary = this.current.summary as any || {};
 
+    // Usar manualMovementsCount del backend (no hay lista real de movimientos)
+    const movementsCount = summary.manualMovementsCount || 0;
+
     this.summaryCards = [
       { label: 'Fondo inicial', value: session.openingAmount, icon: 'account_balance_wallet' },
       { label: 'Ventas', value: summary.totalSales || 0, icon: 'trending_up' },
-      { label: 'Total esperado', value: summary.expectedFunds || 0, icon: 'show_chart' },
+      { label: 'Total esperado', value: summary.expectedAmount || 0, icon: 'show_chart' },
       { label: 'Efectivo', value: 0, icon: 'payments' },
       { label: 'Tarjeta', value: 0, icon: 'credit_card' },
-      { label: 'Movimientos', value: this.recentMovements.length, icon: 'swap_horiz' },
+      { label: 'Movimientos', value: movementsCount, icon: 'swap_horiz' },
     ];
   }
 

@@ -110,7 +110,7 @@ export class CashMovementsDialog {
   }
 
   getProjectedExpectedFunds(): number {
-    const current = this.currentSession?.summary?.expectedFunds || 0;
+    const current = this.currentSession?.summary?.expectedAmount || 0;
     return current + this.getSignedAmount();
   }
 
@@ -149,11 +149,16 @@ export class CashMovementsDialog {
             sessionId: 'session-mock-001',
             status: 'OPEN',
             openedAt: new Date().toISOString(),
-            initialFunds: 1000,
-            expectedFunds: 5000,
+            openingAmount: 1000,
+            cashSalesTotal: 2000,
             totalSales: 4000,
-            totalMovements: 0,
-            movementsCount: 0,
+            manualInTotal: 500,
+            manualOutTotal: 200,
+            automaticSalesMovementTotal: 1500,
+            expectedAmount: 5000,
+            salesCount: 10,
+            cashPaymentsCount: 7,
+            manualMovementsCount: 3,
           },
         };
       },

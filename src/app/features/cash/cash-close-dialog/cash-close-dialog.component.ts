@@ -75,7 +75,7 @@ export class CashCloseDialog {
 
   getDifference(): number {
     const actual = this.actualFundsControl?.value || 0;
-    const expected = this.currentSession?.summary?.expectedFunds || 0;
+    const expected = this.currentSession?.summary?.expectedAmount || 0;
     return actual - expected;
   }
 
@@ -120,11 +120,16 @@ export class CashCloseDialog {
             sessionId: 'session-mock-001',
             status: 'OPEN',
             openedAt: new Date().toISOString(),
-            initialFunds: 1000,
-            expectedFunds: 5000,
+            openingAmount: 1000,
+            cashSalesTotal: 2000,
             totalSales: 4000,
-            totalMovements: 0,
-            movementsCount: 0,
+            manualInTotal: 500,
+            manualOutTotal: 200,
+            automaticSalesMovementTotal: 1500,
+            expectedAmount: 5000,
+            salesCount: 10,
+            cashPaymentsCount: 7,
+            manualMovementsCount: 3,
           },
         };
       },
@@ -154,7 +159,7 @@ export class CashCloseDialog {
       title: 'Confirmar cierre de caja',
       message: `${warningMessage}¿Confirmar cierre de caja?
 
-Fondo esperado: ${this.formatCurrency(this.currentSession?.summary?.expectedFunds || 0)}
+Fondo esperado: ${this.formatCurrency(this.currentSession?.summary?.expectedAmount || 0)}
 Fondo real contado: ${this.formatCurrency(value.actualFunds)}
 Diferencia: ${this.formatCurrency(diff)}
 

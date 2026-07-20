@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog';
 
 @Injectable({
@@ -8,7 +9,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog';
 export class ConfirmDialogService {
   constructor(private dialog: MatDialog) {}
 
-  open(config: ConfirmDialogData): Promise<boolean> {
+  async open(config: ConfirmDialogData): Promise<boolean> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: config,
       width: '400px',
@@ -16,6 +17,6 @@ export class ConfirmDialogService {
       disableClose: false,
     });
 
-    return dialogRef.afterClosed().toPromise();
+    return firstValueFrom(dialogRef.afterClosed()).then(Boolean);
   }
 }

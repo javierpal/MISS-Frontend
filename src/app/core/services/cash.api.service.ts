@@ -45,21 +45,21 @@ export class CashApiService {
     return this.api.post<CashMovement>('cash/movements', body);
   }
 
-  /** List movements (paginated) */
+  // === Reports (PENDIENTE: endpoints no existentes en backend) ===
+
+  /** List movements (PENDIENTE backend) */
   listMovements(params?: PageParams): Observable<PaginatedResponse<CashMovement>> {
-    return this.api.getPaginated<PaginatedResponse<CashMovement>>('cash/movements', params);
+    throw new Error('GET /cash/movements no existe en backend');
   }
 
-  // === Reports ===
-
-  /** Get cash report */
+  /** Get cash report (PENDIENTE backend) */
   getReport(params?: { sessionId?: string; date?: string }): Observable<CashReport> {
-    return this.api.get<CashReport>('cash/report', params);
+    throw new Error('GET /cash/report no existe en backend');
   }
 
-  /** Get session summary */
+  /** Get session summary (PENDIENTE backend) */
   getSessionSummary(sessionId: string): Observable<CashSessionSummary> {
-    return this.api.get<CashSessionSummary>(`cash/sessions/${sessionId}/summary`);
+    throw new Error('GET /cash/sessions/:id/summary no existe en backend');
   }
 
   // === Legacy generic operations (keep for compatibility) ===

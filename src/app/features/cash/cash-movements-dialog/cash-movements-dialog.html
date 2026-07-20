@@ -39,7 +39,7 @@
         <div>
           <span class="cash-movements-dialog__session-label">Fondo esperado:</span>
           <span class="cash-movements-dialog__session-value">
-            {{ formatCurrency(currentSession?.summary?.expectedFunds || 0) }}
+            {{ formatCurrency(currentSession?.summary?.expectedAmount || 0) }}
           </span>
         </div>
       </div>
@@ -99,7 +99,7 @@
       <div class="cash-movements-dialog__calc-row">
         <span class="cash-movements-dialog__calc-label">Fondo esperado actual:</span>
         <span class="cash-movements-dialog__calc-value">
-          {{ formatCurrency(currentSession?.summary?.expectedFunds || 0) }}
+          {{ formatCurrency(currentSession?.summary?.expectedAmount || 0) }}
         </span>
       </div>
       <div class="cash-movements-dialog__calc-row cash-movements-dialog__calc-row--impact">
