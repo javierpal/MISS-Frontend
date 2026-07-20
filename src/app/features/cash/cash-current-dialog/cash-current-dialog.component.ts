@@ -95,14 +95,19 @@ export class CashCurrentDialog implements OnInit {
     this.cashApi.getCurrent().subscribe({
       next: (data) => {
         this.current = data;
+        // Si no hay sesión abierta, mostrar estado vacío
+        if (!data.session) {
+          this.loading = false;
+          return;
+        }
+        // Si hay sesión, construir cards
         this.buildSummaryCards();
         this.loading = false;
       },
       error: (err) => {
         console.warn('API current cash failed, using mock:', err);
+        // Mock data tiene sesión, usarlo
         this.current = this.mockData.current;
-        // No se llama a listMovements() - endpoint no existe en backend
-        // Se usa summary.manualMovementsCount para conteo
         this.buildSummaryCards();
         this.loading = false;
       },
@@ -130,6 +135,10 @@ export class CashCurrentDialog implements OnInit {
 
   get difference(): number | undefined {
     return this.current?.summary?.difference;
+  }
+
+  get hasSession(): boolean {
+    return this.current?.session !== null && this.current?.session !== undefined;
   }
 
   getStatusLabel(status: string): string {

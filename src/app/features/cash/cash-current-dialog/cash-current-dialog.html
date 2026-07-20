@@ -1,4 +1,21 @@
 <div class="cash-current-dialog" *ngIf="!loading">
+  <!-- Empty state: no session -->
+  @if (!hasSession) {
+    <div class="cash-current-dialog__empty">
+      <mat-icon class="cash-current-dialog__empty-icon">account_balance</mat-icon>
+      <h2 class="cash-current-dialog__empty-title">No hay caja abierta</h2>
+      <p class="cash-current-dialog__empty-text">
+        No existe una sesión de caja activa en este momento.
+      </p>
+      <button mat-flat-button color="primary" (click)="onGoToClose()">
+        <mat-icon>lock_open</mat-icon>
+        Ir a abrir caja
+      </button>
+    </div>
+  }
+
+  <!-- Content: has session -->
+  @if (hasSession) {
   <!-- Header -->
   <div class="cash-current-dialog__header">
     <div class="cash-current-dialog__header-left">
@@ -21,7 +38,7 @@
         </p>
       </div>
     </div>
-    <button mat-icon-button (click)="onCloseDialog()" aria-label="Cerrar">
+    <button mat-icon-button type="button" (click)="onCloseDialog()" aria-label="Cerrar">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -91,7 +108,7 @@
 
   <!-- Footer actions -->
   <div class="cash-current-dialog__footer">
-    <button mat-stroked-button (click)="onCloseDialog()">
+    <button mat-stroked-button type="button" (click)="onCloseDialog()">
       <mat-icon>close</mat-icon>
       Cerrar
     </button>
@@ -104,6 +121,7 @@
       Ir a cierre
     </button>
   </div>
+  }
 </div>
 
 <!-- Loading state -->

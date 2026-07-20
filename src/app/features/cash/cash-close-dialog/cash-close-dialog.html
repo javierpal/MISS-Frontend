@@ -10,7 +10,7 @@
         </p>
       </div>
     </div>
-    <button mat-icon-button (click)="onCancel()" aria-label="Cerrar">
+    <button mat-icon-button type="button" (click)="onCancel()" aria-label="Cerrar">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -78,12 +78,6 @@
       @if (actualFundsControl?.hasError('min')) {
         <mat-error>El monto debe ser mayor o igual a 0</mat-error>
       }
-    </mat-form-field>
-
-    <!-- Note (optional) -->
-    <mat-form-field appearance="outline" class="cash-close-dialog__field">
-      <mat-label>Nota (opcional)</mat-label>
-      <input matInput formControlName="note" placeholder="Observaciones del cierre" />
     </mat-form-field>
 
     <!-- Difference preview -->
