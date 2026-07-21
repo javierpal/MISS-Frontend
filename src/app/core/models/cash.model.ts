@@ -85,12 +85,20 @@ export interface CashSessionSummary {
   manualMovementsCount: number;
 }
 
+/** User info embedded in cash session */
+export interface CashSessionUser {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+}
+
 /** Internal session model from GET /cash/current */
 export interface CashSession {
   id: string;
   status: CashStatus;
   userId: string;
-  userName?: string;
+  user?: CashSessionUser;
   openedAt: string;
   closedAt?: string;
   openingAmount: number;

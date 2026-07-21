@@ -141,7 +141,12 @@ export class CashMovementsDialog {
             id: 'session-mock-001',
             status: 'OPEN',
             userId: 'user-123',
-            userName: 'Usuario Actual',
+            user: {
+              id: 'user-123',
+              fullName: 'Usuario Actual',
+              email: 'usuario@miss.com',
+              role: 'ADMIN',
+            },
             openedAt: new Date().toISOString(),
             openingAmount: 1000,
           },

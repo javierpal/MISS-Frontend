@@ -59,7 +59,12 @@ export class CashCurrentDialog implements OnInit {
         id: 'mock-session-001',
         status: 'OPEN',
         userId: 'user-current',
-        userName: 'Usuario Actual',
+        user: {
+          id: 'user-current',
+          fullName: 'Usuario Actual',
+          email: 'usuario@miss.com',
+          role: 'ADMIN',
+        },
         openedAt: new Date().toISOString(),
         openingAmount: 1500,
       },

@@ -22,7 +22,7 @@
         <mat-icon>person</mat-icon>
         <div>
           <span class="cash-close-dialog__summary-label">Usuario:</span>
-          <span class="cash-close-dialog__summary-value">{{ currentSession?.session?.userName || 'N/A' }}</span>
+          <span class="cash-close-dialog__summary-value">{{ currentSession?.session?.user?.fullName || currentSession?.session?.user?.email || currentSession?.session?.userId || 'N/A' }}</span>
         </div>
       </div>
       <div class="cash-close-dialog__summary-row">

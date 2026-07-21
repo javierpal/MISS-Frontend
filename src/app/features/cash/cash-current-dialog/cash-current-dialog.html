@@ -58,7 +58,7 @@
       </div>
       <div class="cash-current-dialog__session-item">
         <span class="cash-current-dialog__session-label">Usuario</span>
-        <span class="cash-current-dialog__session-value">{{ current?.session?.userName || 'Sin usuario' }}</span>
+        <span class="cash-current-dialog__session-value">{{ current?.session?.user?.fullName || current?.session?.user?.email || current?.session?.userId || 'Sin usuario' }}</span>
       </div>
       <div class="cash-current-dialog__session-item">
         <span class="cash-current-dialog__session-label">Fecha de apertura</span>

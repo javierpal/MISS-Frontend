@@ -22,7 +22,7 @@
         <mat-icon>account_balance</mat-icon>
         <div>
           <span class="cash-movements-dialog__session-label">Usuario:</span>
-          <span class="cash-movements-dialog__session-value">{{ currentSession?.session?.userName || 'N/A' }}</span>
+          <span class="cash-movements-dialog__session-value">{{ currentSession?.session?.user?.fullName || currentSession?.session?.user?.email || currentSession?.session?.userId || 'N/A' }}</span>
         </div>
       </div>
       <div class="cash-movements-dialog__session-info">
