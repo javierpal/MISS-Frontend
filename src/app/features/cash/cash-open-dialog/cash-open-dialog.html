@@ -1,0 +1,99 @@
+<div class="cash-open-dialog" *ngIf="!submitting">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="cash-open-dialog__form">
+    <!-- Header -->
+    <div class="cash-open-dialog__header">
+      <div class="cash-open-dialog__header-left">
+        <mat-icon class="cash-open-dialog__icon">account_balance</mat-icon>
+        <div class="cash-open-dialog__header-text">
+          <h2 class="cash-open-dialog__title">Abrir Caja</h2>
+          <span class="cash-open-dialog__status cash-open-dialog__status--closed">Caja cerrada</span>
+        </div>
+      </div>
+      <button mat-icon-button type="button" (click)="onCancel()" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+  <!-- Descriptive text -->
+  <p class="cash-open-dialog__description">
+    Al abrir la caja se creará una sesión para el usuario actual. Solo puede existir una caja abierta por vez.
+  </p>
+
+  <!-- Turn info section -->
+  <h3 class="cash-open-dialog__section-title">Información del turno</h3>
+  <div class="cash-open-dialog__turn-info">
+    <mat-card class="cash-open-dialog__turn-card">
+      <mat-card-content>
+        <div class="cash-open-dialog__turn-label">
+          <mat-icon>person</mat-icon>
+          Usuario
+        </div>
+        <div class="cash-open-dialog__turn-value">
+          <mat-icon>person</mat-icon>
+          Admin User
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="cash-open-dialog__turn-card">
+      <mat-card-content>
+        <div class="cash-open-dialog__turn-label">
+          <mat-icon>calendar_today</mat-icon>
+          Fecha y hora
+        </div>
+        <div class="cash-open-dialog__turn-value">
+          <mat-icon>schedule</mat-icon>
+          {{ formatDate(openedAt) }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Initial amount section -->
+  <h3 class="cash-open-dialog__section-title">Monto inicial</h3>
+  <div class="cash-open-dialog__amount-section">
+    <mat-form-field appearance="outline" class="cash-open-dialog__field">
+      <mat-label>Monto de apertura</mat-label>
+      <mat-icon matPrefix>attach_money</mat-icon>
+      <input matInput formControlName="initialFunds" type="number" step="0.01" min="0" placeholder="0.00" />
+      @if (initialFundsControl?.hasError('required')) {
+        <mat-error>El monto de apertura es obligatorio</mat-error>
+      }
+      @if (initialFundsControl?.hasError('min')) {
+        <mat-error>El monto debe ser mayor o igual a 0</mat-error>
+      }
+    </mat-form-field>
+    <p class="cash-open-dialog__amount-helper">Ingrese el monto inicial con el que abrirá la caja.</p>
+  </div>
+
+  <!-- Important info -->
+  <mat-card class="cash-open-dialog__info-card" appearance="outlined">
+    <mat-card-content>
+      <div class="cash-open-dialog__info-header">
+        <mat-icon>info</mat-icon>
+        <span class="cash-open-dialog__info-title">Importante</span>
+      </div>
+      <p class="cash-open-dialog__info-text">
+        Verifique que el monto ingresado sea correcto antes de confirmar. Este será el fondo inicial de la caja.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+    <!-- Actions -->
+    <div class="cash-open-dialog__actions">
+      <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="submitting">
+        Cancelar
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="submitting || form.invalid">
+        Abrir Caja
+        <mat-icon>lock_open</mat-icon>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading state -->
+<div class="cash-open-dialog__loading" *ngIf="submitting">
+  <mat-spinner diameter="48"></mat-spinner>
+  <span class="cash-open-dialog__loading-text">Abriendo caja...</span>
+</div>

@@ -20,6 +20,7 @@ import { ProductFormDialog } from '../product-form-dialog/product-form-dialog';
 import { ProductsApiService } from '../../../core/services/products.api.service';
 import { ApiClientService } from '../../../core/services/api-client.service';
 import { Product, CreateProductDto, UpdateProductDto } from '../../../core/models/product.model';
+import { ConfirmDialogService } from '../../../shared/components/confirm-dialog/confirm-dialog.service';
 
 interface CategoryOption {
   id: number;
@@ -49,6 +50,7 @@ export class ProductsPage implements OnInit{
   private destroyRef = inject(DestroyRef);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private confirmDialog = inject(ConfirmDialogService);
   private productsApi = inject(ProductsApiService);
   private apiClient = inject(ApiClientService);
   private cdr = inject(ChangeDetectorRef);
@@ -260,9 +262,15 @@ export class ProductsPage implements OnInit{
     }
   }
 
-  confirmToggleActive(product: Product): void {
+  async confirmToggleActive(product: Product): Promise<void> {
     const action = product.isActive ? 'desactivar' : 'reactivar';
-    const confirmed = window.confirm('¿Estás seguro de que deseas ' + action + ' "' + product.name + '"?');
+    const confirmed = await this.confirmDialog.open({
+      title: 'Confirmar acción',
+      message: `¿Estás seguro de que deseas ${action} "${product.name}"?`,
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      type: 'warning',
+    });
     if (!confirmed) return;
 
     this.productsApi.patch(product.id, { isActive: !product.isActive })

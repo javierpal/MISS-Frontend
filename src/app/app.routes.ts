@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -32,6 +33,11 @@ export const routes: Routes = [
       {
         path: 'cash',
         loadComponent: () => import('./features/cash/cash-page/cash-page').then((m) => m.CashPage),
+      },
+      {
+        path: 'cash-admin',
+        loadComponent: () => import('./features/cash-admin/cash-admin-page/cash-admin-page.component').then((m) => m.CashAdminPage),
+        canActivate: [adminGuard],
       },
       {
         path: 'prescriptions',

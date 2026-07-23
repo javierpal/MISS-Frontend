@@ -1,0 +1,117 @@
+<div class="cash-close-dialog" *ngIf="!submitting">
+  <!-- Header -->
+  <div class="cash-close-dialog__header">
+    <div class="cash-close-dialog__header-left">
+      <mat-icon class="cash-close-dialog__icon">lock</mat-icon>
+      <div>
+        <h2 class="cash-close-dialog__title">Cerrar caja</h2>
+        <p class="cash-close-dialog__subtitle">
+          Sesión: {{ currentSession?.session?.id || 'N/A' }}
+        </p>
+      </div>
+    </div>
+    <button mat-icon-button type="button" (click)="onCancel()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Session summary -->
+  <mat-card class="cash-close-dialog__summary-card" appearance="outlined">
+    <mat-card-content>
+      <div class="cash-close-dialog__summary-row">
+        <mat-icon>person</mat-icon>
+        <div>
+          <span class="cash-close-dialog__summary-label">Usuario:</span>
+          <span class="cash-close-dialog__summary-value">{{ currentSession?.session?.user?.fullName || currentSession?.session?.user?.email || currentSession?.session?.userId || 'N/A' }}</span>
+        </div>
+      </div>
+      <div class="cash-close-dialog__summary-row">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <span class="cash-close-dialog__summary-label">Apertura:</span>
+          <span class="cash-close-dialog__summary-value">
+            {{ openedAt ? formatDate(openedAt) : 'N/A' }}
+          </span>
+        </div>
+      </div>
+      <div class="cash-close-dialog__summary-row">
+        <mat-icon>account_balance</mat-icon>
+        <div>
+          <span class="cash-close-dialog__summary-label">Fondo inicial:</span>
+          <span class="cash-close-dialog__summary-value">
+            {{ formatCurrency(currentSession?.session?.openingAmount || 0) }}
+          </span>
+        </div>
+      </div>
+      <div class="cash-close-dialog__summary-row">
+        <mat-icon>show_chart</mat-icon>
+        <div>
+          <span class="cash-close-dialog__summary-label">Fondo esperado:</span>
+          <span class="cash-close-dialog__summary-value">
+            {{ formatCurrency(currentSession?.summary?.expectedAmount || 0) }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Critical warning -->
+  <div class="cash-close-dialog__warning">
+    <mat-icon>warning</mat-icon>
+    <div>
+      <span class="cash-close-dialog__warning-label">Advertencia crítica</span>
+      <span class="cash-close-dialog__warning-text">
+        El cierre de caja no puede deshacerse. Verifica el conteo real antes de confirmar.
+      </span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Actual funds -->
+    <mat-form-field appearance="outline" class="cash-close-dialog__field">
+      <mat-label>Conteo real de efectivo *</mat-label>
+      <input matInput formControlName="actualFunds" type="number" step="0.01" min="0" placeholder="$0.00" />
+      @if (actualFundsControl?.hasError('required')) {
+        <mat-error>El conteo real es obligatorio</mat-error>
+      }
+      @if (actualFundsControl?.hasError('min')) {
+        <mat-error>El monto debe ser mayor o igual a 0</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Difference preview -->
+    <div class="cash-close-dialog__difference" [class]="'cash-close-dialog__difference ' + getDifferenceClass()">
+      <mat-icon>
+        @if (getDifference() > 0) {
+          arrow_upward
+        } @else if (getDifference() < 0) {
+          arrow_downward
+        } @else {
+          check_circle
+        }
+      </mat-icon>
+      <div>
+        <span class="cash-close-dialog__difference-label">Diferencia:</span>
+        <span class="cash-close-dialog__difference-text">{{ getDifferenceLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="cash-close-dialog__actions">
+      <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="submitting">
+        Cancelar
+      </button>
+      <button mat-flat-button color="warn" type="submit" [disabled]="submitting || form.invalid">
+        <mat-icon>lock</mat-icon>
+        Cerrar caja
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading state -->
+<div class="cash-close-dialog__loading" *ngIf="submitting">
+  <mat-spinner diameter="48"></mat-spinner>
+  <span class="cash-close-dialog__loading-text">Cerrando caja...</span>
+</div>
