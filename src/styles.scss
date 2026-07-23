@@ -71,6 +71,11 @@ $dark-theme: mat.define-theme((
   --miss-info-border: #{tokens.$miss-info-border};
   --miss-on-info: #{tokens.$miss-on-info};
 
+  --miss-purple: #{tokens.$miss-purple};
+  --miss-purple-container: #{tokens.$miss-purple-container};
+  --miss-purple-border: #{tokens.$miss-purple-border};
+  --miss-on-purple: #{tokens.$miss-on-purple};
+
   // Shape
   --miss-radius-sm: #{tokens.$miss-radius-sm};
   --miss-radius-md: #{tokens.$miss-radius-md};
@@ -193,6 +198,12 @@ body.theme-dark {
   --miss-info-container: #{tokens.$miss-info-container-dark};
   --miss-info-border: #{tokens.$miss-info-border-dark};
   --miss-on-info: #{tokens.$miss-on-info-dark};
+
+  // Purple
+  --miss-purple: #{tokens.$miss-purple-dark};
+  --miss-purple-container: #{tokens.$miss-purple-container-dark};
+  --miss-purple-border: #{tokens.$miss-purple-border-dark};
+  --miss-on-purple: #{tokens.$miss-on-purple-dark};
 
   // Dialog
   --miss-dialog-shadow: #{tokens.$miss-dialog-shadow-dark};

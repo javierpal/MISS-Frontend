@@ -1,0 +1,282 @@
+<div class="cash-admin">
+  <!-- Header superior -->
+  <div class="cash-admin__header">
+    <div class="cash-admin__header-info">
+      <h1 class="cash-admin__title">Caja</h1>
+      <p class="cash-admin__subtitle">Gestión de sesiones de caja</p>
+    </div>
+    <div class="cash-admin__header-actions">
+      <button mat-flat-button color="primary" [disabled]="!selectedSession"
+              (click)="onRegisterMovement()">
+        <mat-icon>add</mat-icon>
+        Registrar movimiento
+      </button>
+      <button mat-stroked-button [disabled]="!selectedSession"
+              (click)="onGoToClose()">
+        <mat-icon>point_of_sale</mat-icon>
+        Ir a cierre
+      </button>
+      <button mat-stroked-button [disabled]="!selectedSession"
+              (click)="onViewReport()">
+        <mat-icon>assessment</mat-icon>
+        Ver reporte
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid principal: Sesiones (izq) + Caja actual (der) -->
+  <div class="cash-admin__main-grid">
+    <!-- Columna izquierda: Sesiones de caja -->
+    <mat-card class="cash-admin__sessions-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Sesiones de caja</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Buscador -->
+        <div class="cash-admin__search">
+          <mat-icon>search</mat-icon>
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar sesión, usuario o estado..." />
+        </div>
+
+        <!-- Loading sessions -->
+        @if (sessionsLoading) {
+          <div class="cash-admin__loading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Cargando sesiones...</p>
+          </div>
+        }
+
+        <!-- Error loading sessions -->
+        @if (sessionsError) {
+          <div class="cash-admin__error">
+            <mat-icon>error_outline</mat-icon>
+            <p>{{ sessionsError }}</p>
+            <button mat-flat-button color="primary" (click)="loadSessions()">
+              <mat-icon>refresh</mat-icon>
+              Reintentar
+            </button>
+          </div>
+        }
+
+        <!-- Empty state -->
+        @if (!sessionsLoading && !sessionsError && filteredSessions.length === 0) {
+          <div class="cash-admin__empty">
+            <mat-icon>event_available</mat-icon>
+            <p>No hay sesiones abiertas</p>
+          </div>
+        }
+
+        <!-- Sessions list/table -->
+        @if (!sessionsLoading && !sessionsError && filteredSessions.length > 0) {
+          <div class="cash-admin__sessions-table">
+            <div class="cash-admin__table-header">
+              <span class="cash-admin__table-col-session">Sesión</span>
+              <span class="cash-admin__table-col-status">Estado</span>
+              <span class="cash-admin__table-col-apertura">Apertura</span>
+              <span class="cash-admin__table-col-actions">Acciones</span>
+            </div>
+            <div class="cash-admin__table-body">
+              @for (session of filteredSessions; track session.id) {
+                <div class="cash-admin__table-row" (click)="onViewCashCurrent(session)">
+                  <span class="cash-admin__table-col-session">
+                    <small>{{ session.id | slice:0:8 }}...</small>
+                  </span>
+                  <span [class]="'cash-admin__table-col-status ' + getStatusClass(session.status)">
+                    {{ getStatusLabel(session.status) }}
+                  </span>
+                  <span class="cash-admin__table-col-apertura">
+                    {{ formatDate(session.openedAt) }}
+                  </span>
+                  <span class="cash-admin__table-col-actions">
+                    <button mat-icon-button (click)="$event.stopPropagation(); onViewCashCurrent(session)" aria-label="Ver caja actual">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Columna derecha: Caja actual -->
+    <mat-card class="cash-admin__current-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Caja actual</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedSession) {
+          <!-- Sesión activa -->
+          <section class="cash-admin__session-section">
+            <div class="cash-admin__session-grid">
+              <div class="cash-admin__session-item">
+                <span class="cash-admin__session-label">Sesión</span>
+                <span class="cash-admin__session-value">{{ selectedSession.id | slice:0:12 }}...</span>
+              </div>
+              <div class="cash-admin__session-item">
+                <span class="cash-admin__session-label">Estado</span>
+                <span [class]="'cash-admin__session-status ' + getStatusClass(selectedSession.status)">
+                  {{ getStatusLabel(selectedSession.status) }}
+                </span>
+              </div>
+              <div class="cash-admin__session-item">
+                <span class="cash-admin__session-label">Usuario</span>
+                <span class="cash-admin__session-value">{{ selectedSession.user?.fullName || 'Sin usuario' }}</span>
+              </div>
+              <div class="cash-admin__session-item">
+                <span class="cash-admin__session-label">Apertura</span>
+                <span class="cash-admin__session-value">{{ formatDate(selectedSession.openedAt) }}</span>
+              </div>
+              <div class="cash-admin__session-item">
+                <span class="cash-admin__session-label">Fondo inicial</span>
+                <span class="cash-admin__session-value">{{ formatCurrency(selectedSession.openingAmount) }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Resumen operativo 3x2 -->
+          <section class="cash-admin__summary-section">
+            <div class="cash-admin__summary-grid">
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Monto esperado</span>
+                  <span class="cash-admin__summary-value">{{ formatCurrency(selectedSession.summary.expectedAmount || 0) }}</span>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Entradas manuales</span>
+                  <span class="cash-admin__summary-value">{{ formatCurrency(selectedSession.summary.manualInTotal || 0) }}</span>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Salidas manuales</span>
+                  <span class="cash-admin__summary-value">{{ formatCurrency(selectedSession.summary.manualOutTotal || 0) }}</span>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Mov. manuales</span>
+                  <span class="cash-admin__summary-value">{{ selectedSession.summary.manualMovementsCount || 0 }}</span>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Ventas en efectivo</span>
+                  <span class="cash-admin__summary-value">{{ formatCurrency(selectedSession.summary.cashSalesTotal || 0) }}</span>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="cash-admin__summary-card">
+                <mat-card-content>
+                  <span class="cash-admin__summary-label">Mov. automáticos</span>
+                  <span class="cash-admin__summary-value">{{ formatCurrency(calculateSalesTotal()) }}</span>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </section>
+        } @else {
+          <div class="cash-admin__empty-state">
+            <mat-icon>account_balance</mat-icon>
+            <p>Selecciona una sesión para ver el detalle</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Zona inferior: 3 cards -->
+  <div class="cash-admin__bottom-grid">
+    <!-- Card izquierda: Movimientos recientes -->
+    <mat-card class="cash-admin__movements-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Movimientos recientes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedSession && recentMovements.length > 0) {
+          <div class="cash-admin__movement-list">
+            @for (mov of recentMovements | slice:0:5; track mov.id) {
+              <div class="cash-admin__movement-item">
+                <span [class]="'cash-admin__movement-type cash-admin__movement-type--' + mov.type.toLowerCase()">
+                  {{ mov.type }}
+                </span>
+                <span class="cash-admin__movement-amount">{{ formatCurrency(mov.amount) }}</span>
+                <span class="cash-admin__movement-reason">{{ mov.reason }}</span>
+                <small class="cash-admin__movement-time">{{ formatDate(mov.createdAt) }}</small>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="cash-admin__empty-text">Sin movimientos</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card central: Resumen del día -->
+    <mat-card class="cash-admin__summary-day-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Resumen del día</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedSession) {
+          <div class="cash-admin__summary-day-grid">
+            <div class="cash-admin__summary-day-item">
+              <span class="cash-admin__summary-day-label">Ventas en efectivo</span>
+              <span class="cash-admin__summary-day-value">{{ formatCurrency(selectedSession.summary.cashSalesTotal || 0) }}</span>
+            </div>
+            <div class="cash-admin__summary-day-item">
+              <span class="cash-admin__summary-day-label">Total movimientos</span>
+              <span class="cash-admin__summary-day-value">{{ totalMovements }}</span>
+            </div>
+            <div class="cash-admin__summary-day-item">
+              <span class="cash-admin__summary-day-label">Estado operativo</span>
+              <span [class]="'cash-admin__status ' + getStatusClass(selectedSession.status)">
+                {{ getStatusLabel(selectedSession.status) }}
+              </span>
+            </div>
+          </div>
+        } @else {
+          <p class="cash-admin__empty-text">Selecciona una sesión</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card derecha: Reporte de caja -->
+    <mat-card class="cash-admin__report-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Reporte de caja</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedSession) {
+          <div class="cash-admin__report-grid">
+            <div class="cash-admin__report-item">
+              <span class="cash-admin__report-label">Fecha inicio</span>
+              <span class="cash-admin__report-value">{{ formatDate(sessionStartDate) }}</span>
+            </div>
+            <div class="cash-admin__report-item">
+              <span class="cash-admin__report-label">Fecha fin</span>
+              <span class="cash-admin__report-value">{{ formatDate(sessionEndDate) }}</span>
+            </div>
+            <div class="cash-admin__report-item">
+              <span class="cash-admin__report-label">Usuario</span>
+              <span class="cash-admin__report-value">{{ sessionUser }}</span>
+            </div>
+          </div>
+          <button mat-flat-button color="primary" class="cash-admin__report-btn">
+            <mat-icon>assessment</mat-icon>
+            Consultar
+          </button>
+        } @else {
+          <p class="cash-admin__empty-text">Selecciona una sesión</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Banner informativo inferior -->
+  <div class="cash-admin__info-banner">
+    <mat-icon>info</mat-icon>
+    <span>Acciones críticas como cierre y movimientos requieren confirmación. Verifica los montos antes de registrar.</span>
+  </div>
+</div>

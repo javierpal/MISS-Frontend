@@ -110,3 +110,75 @@ export interface CashCurrentResponse {
   session: CashSession | null;
   summary?: CashSessionSummary;
 }
+
+// === Admin endpoints models ===
+
+/** Admin session list item */
+export interface AdminSessionItem {
+  id: string;
+  status: CashStatus;
+  userId: string;
+  user?: CashSessionUser;
+  openedAt: string;
+  closedAt?: string;
+  openingAmount: number;
+  closingAmount?: number;
+  summary?: AdminSessionSummary;
+}
+
+/** Admin session summary (lighter than CashSessionSummary) */
+export interface AdminSessionSummary {
+  expectedAmount: number;
+  cashSalesTotal: number;
+  manualInTotal: number;
+  manualOutTotal: number;
+  difference?: number;
+  salesCount: number;
+  manualMovementsCount: number;
+}
+
+/** Backend pagination meta */
+export interface AdminPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/** Response from GET /cash/admin/sessions/open */
+export interface AdminSessionsOpenResponse {
+  data: AdminSessionItem[];
+  meta: AdminPaginationMeta;
+}
+
+/** Response from GET /cash/admin/sessions/:sessionId */
+export interface AdminSessionDetailResponse {
+  id: string;
+  status: CashStatus;
+  userId: string;
+  user?: CashSessionUser;
+  openingAmount: number;
+  openedAt: string;
+  closedAt?: string;
+  summary: AdminSessionSummary;
+  movements?: CashMovement[];
+  sales?: Array<{
+    id: string;
+    total: number;
+    reference?: string;
+    createdAt: string;
+  }>;
+  payments?: Array<{
+    id: string;
+    amount: number;
+    method: string;
+    createdAt: string;
+  }>;
+}
+
+/** DTO for POST /cash/admin/sessions/:sessionId/movements */
+export interface AdminCreateMovementDto {
+  type: 'IN' | 'OUT';
+  amount: number;
+  reason: string;
+}

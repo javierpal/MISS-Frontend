@@ -12,6 +12,9 @@ import {
   CashReport,
   CashSessionSummary,
   CashCurrentResponse,
+  AdminSessionsOpenResponse,
+  AdminSessionDetailResponse,
+  AdminCreateMovementDto,
 } from '../models/cash.model';
 
 /**
@@ -60,6 +63,49 @@ export class CashApiService {
   /** Get session summary (PENDIENTE backend) */
   getSessionSummary(sessionId: string): Observable<CashSessionSummary> {
     throw new Error('GET /cash/sessions/:id/summary no existe en backend');
+  }
+
+  // === Admin endpoints ===
+
+  /** List open cash sessions (admin) */
+  adminListOpenSessions(params?: {
+    openedFrom?: string;
+    openedTo?: string;
+    userId?: string;
+    includeSummary?: boolean;
+    page?: number;
+    limit?: number;
+  }): Observable<AdminSessionsOpenResponse> {
+    const queryParams: Record<string, string> = {};
+    if (params) {
+      if (params.openedFrom) queryParams['openedFrom'] = params.openedFrom;
+      if (params.openedTo) queryParams['openedTo'] = params.openedTo;
+      if (params.userId) queryParams['userId'] = params.userId;
+      if (params.includeSummary !== undefined) queryParams['includeSummary'] = String(params.includeSummary);
+      if (params.page !== undefined) queryParams['page'] = String(params.page);
+      if (params.limit !== undefined) queryParams['limit'] = String(params.limit);
+    }
+    return this.api.get<AdminSessionsOpenResponse>('cash/admin/sessions/open', queryParams);
+  }
+
+  /** Get session detail (admin) */
+  adminGetSessionDetail(sessionId: string, params?: {
+    includeMovements?: boolean;
+    includeSales?: boolean;
+    includePayments?: boolean;
+  }): Observable<AdminSessionDetailResponse> {
+    const queryParams: Record<string, string> = {};
+    if (params) {
+      if (params.includeMovements !== undefined) queryParams['includeMovements'] = String(params.includeMovements);
+      if (params.includeSales !== undefined) queryParams['includeSales'] = String(params.includeSales);
+      if (params.includePayments !== undefined) queryParams['includePayments'] = String(params.includePayments);
+    }
+    return this.api.get<AdminSessionDetailResponse>(`cash/admin/sessions/${sessionId}`, queryParams);
+  }
+
+  /** Create manual movement (admin) */
+  adminCreateMovement(sessionId: string, body: AdminCreateMovementDto): Observable<CashMovement> {
+    return this.api.post<CashMovement>(`cash/admin/sessions/${sessionId}/movements`, body);
   }
 
   // === Legacy generic operations (keep for compatibility) ===

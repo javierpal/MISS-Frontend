@@ -1,14 +1,6 @@
 <div class="cash-page">
   <!-- Header -->
   <app-page-header title="Caja" subtitle="Gestión de caja y arqueos" icon="account_balance">
-    <button
-      action
-      mat-stroked-button
-      (click)="onOpenCashCurrent()"
-      class="page-header__action">
-      <mat-icon>open_in_new</mat-icon>
-      Ver caja actual
-    </button>
   </app-page-header>
 
   <!-- Main content -->
@@ -46,10 +38,6 @@
       <button mat-stroked-button color="accent" (click)="onGoToClose()">
         <mat-icon>close</mat-icon>
         Ir a cierre
-      </button>
-      <button mat-outline-button (click)="onViewReport()">
-        <mat-icon>assessment</mat-icon>
-        Ver reporte
       </button>
     </div>
 

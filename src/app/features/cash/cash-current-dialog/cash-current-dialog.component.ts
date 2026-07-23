@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -12,6 +12,12 @@ import { CashApiService } from '../../../core/services/cash.api.service';
 import { CashCurrentResponse, CashMovement } from '../../../core/models/cash.model';
 import { CashOpenDialog } from '../cash-open-dialog/cash-open-dialog.component';
 import { CashCloseDialog } from '../cash-close-dialog/cash-close-dialog.component';
+
+export interface CashCurrentDialogData {
+  session?: any;
+  summary?: any;
+  movements?: any[];
+}
 
 interface SummaryCard {
   label: string;
@@ -45,6 +51,7 @@ export class CashCurrentDialog implements OnInit {
   private dialogRef = inject(MatDialogRef<CashCurrentDialog>);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
+  private data: CashCurrentDialogData | undefined = inject(MAT_DIALOG_DATA, { optional: true });
 
   current: CashCurrentResponse | null = null;
   recentMovements: CashMovement[] = [];
@@ -95,6 +102,18 @@ export class CashCurrentDialog implements OnInit {
   };
 
   ngOnInit(): void {
+    // Si hay datos pasados por MAT_DIALOG_DATA, usarlos directamente
+    if (this.data?.session) {
+      this.current = this.normalizeCurrentResponse({
+        session: this.data.session,
+        summary: this.data.summary || {},
+      });
+      this.recentMovements = this.data.movements || [];
+      this.buildSummaryCards();
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
     this.loadCashData();
   }
 

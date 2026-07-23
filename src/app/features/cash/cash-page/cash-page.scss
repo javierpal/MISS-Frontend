@@ -14,11 +14,17 @@
 }
 
 .cash-page__info-card {
-  .mat-card-content {
+  mat-card-content {
     display: flex;
     align-items: center;
     gap: 1.5rem;
     padding: 2rem;
+  }
+
+  .mat-mdc-card-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 2rem;
   }
 }
 
@@ -87,7 +93,7 @@
     padding: 0 0.75rem 1.5rem;
   }
 
-  .cash-page__info-card .mat-card-content {
+  .cash-page__info-card mat-card-content {
     flex-direction: column;
     text-align: center;
   }

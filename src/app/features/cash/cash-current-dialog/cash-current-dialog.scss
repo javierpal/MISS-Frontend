@@ -194,17 +194,24 @@
 }
 
 .cash-current-dialog__summary-card {
-  .mat-card-content {
+  background: var(--miss-surface-raised);
+  border: 1px solid var(--miss-border-subtle);
+  border-radius: var(--miss-radius-md);
+  box-shadow: none;
+
+  .mat-mdc-card-content {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem;
+    padding: 0.625rem 0.75rem;
   }
 }
 
 .cash-current-dialog__summary-icon {
-  width: 40px;
-  height: 40px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   border-radius: var(--miss-radius-sm);
   display: flex;
   align-items: center;
@@ -213,41 +220,41 @@
   color: var(--miss-primary);
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
   }
 
   // Colores específicos por tipo de card
-  // Icono: color más brillante | Fondo: mismo color con rgba(…, 0.25)
   &--expected {
-    background: rgba(37, 99, 235, 0.25);
-    color: #3b82f6;
+    background: var(--miss-primary-container);
+    color: var(--miss-primary);
   }
 
   &--in {
-    background: rgba(37, 99, 235, 0.25);
-    color: #3b82f6;
+    background: var(--miss-primary-container);
+    color: var(--miss-primary);
   }
 
   &--out {
-    background: rgba(220, 38, 38, 0.25);
-    color: #ef4444;
+    background: var(--miss-error-container);
+    color: var(--miss-error);
   }
 
   &--movements {
-    background: rgba(124, 58, 237, 0.25);
-    color: #8b5cf6;
+    background: var(--miss-purple-container);
+    color: var(--miss-purple);
   }
 
   &--cash {
-    background: rgba(16, 185, 129, 0.25);
-    color: #10b981;
+    background: var(--miss-success-container);
+    color: var(--miss-success);
   }
 
   &--automatic {
-    background: rgba(37, 99, 235, 0.25);
-    color: #3b82f6;
+    background: var(--miss-primary-container);
+    color: var(--miss-primary);
   }
 }
 
@@ -260,12 +267,15 @@
 
 .cash-current-dialog__summary-label {
   font-size: 0.6875rem;
-  color: var(--miss-text-muted);
+  color: var(--miss-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
+  min-width: 0;
 }
 
 .cash-current-dialog__summary-value {
@@ -361,7 +371,7 @@
   font-size: 64px;
   width: 64px;
   height: 64px;
-  color: var(--miss-text-tertiary);
+  color: var(--miss-text-muted);
   margin-bottom: 1rem;
 }
 
